@@ -1,0 +1,151 @@
+User visits the app
+- Signin/Signup page (Using magic links)
+  - When user visits the app 
+    IF not signed in
+     - See a login page
+        - Enters the email
+        - magic link is sent
+        - clicks the magic link
+        - check if user is first time logging in
+           - Prompts user to enter details
+        - take him to main app page  
+
+    IF already signed in
+    - take him to main app page
+    
+
+
+POST Signin :
+Main view of app
+
+- Top
+  - Header 
+    - Option to signout
+- Left Section
+  - Option to select source and destination
+    - Enters the source
+      - Shows list of source location
+    - Enters the destination
+      - Shows list of destination location
+    
+    - Confirms route
+      - Shows list of available cab options with estimated fare
+        - Economy
+        - Comfort
+        - Premium 
+
+    - Selects cab options   
+      - option to confirm book a ride.
+      - confirms ride
+        - shows the ETA of the cab.
+
+
+- Right Section
+  - Map
+    - When user selects the source
+       - Shows the source marker on Map
+    - When user selects the destination
+       - Shows the destination marker on Map
+    - When source and destination are select then show route in Map
+
+
+
+Ride booking flow : Rider -> Driver
+
+- User's End ::
+   - 1. User enter the source and destination -> shows a route in map
+   - 2. User confirms the route -> shows cab options
+   - 3. User selects the Cab options -> Button to confirm the ride booking
+   - 4. User confirms the Ride booking 
+
+     - Driver's End :: 
+       1. All the drivers who belongs to the cab options gets the incoming request
+       2. Request shows users location pickup and drop.
+       3. If Driver accepts
+          - Request is delete to all other drivers and assigned to current Driver
+       4. If Driver rejects
+          - Do nothing.
+       5. IF Driver accepts the request confirm is sent to user about the drivers location and etp
+       6. User and driver no both sees the status of the ride.
+       7. User can only see the status but driver can change it
+       8. When driver reaches the pickup location he makes 'reached at location' -> user sees that driver has reached
+       9. When user sits in cab driver marks ride started-> user now sees the estimated time of journey
+       10. When reached the destination driver marks 'reached destination' -> users see rider completed and total time and fare
+        
+        
+
+Driver registeration ::
+Enters the details
+- Name
+- Car -> Name, Model, YOM
+- license plate
+- Phone
+
+When a driver register its details are sent to admin
+When admin verifies and accepts the request then only driver can login to portal
+If unverified driver tries to login,
+- Either is new driver
+- Or he is under verification
+
+
+
+
+
+Database ::
+
+┌──────────────────────┐
+│       users          │
+├──────────────────────┤
+│ id (PK)              │
+│ email                │
+│ role (admin/driver/rider) │
+│ status (active/pending/rejected) │
+│ created_at           │
+└──────────────────────┘
+          │
+          ├────────────────────────────────────┬───────────────────────────┐
+          │                                    │                           │
+          │                                    │                           │
+ ┌──────────────────────┐           ┌──────────────────────┐     ┌──────────────────────┐
+ │      admins          │           │      drivers         │     │      riders          │
+ ├──────────────────────┤           ├──────────────────────┤     ├──────────────────────┤
+ │ id (PK)              │           │ id (PK)              │     │ id (PK)              │
+ │ user_id (FK)         │           │ user_id (FK)         │     │ user_id (FK)         │
+ │ name                 │           │ name                 │     │ name                 │
+ │ phone                │           │ phone                │     │ phone                │
+ │ created_at           │           │ car_name             │     │ created_at           │
+ └──────────────────────┘           │ car_model            │     └──────────────────────┘
+                                    │ car_yom              │
+                                    │ license_plate        │
+                                    │ cab_type             │
+                                    │ status               │
+                                    │ created_at           │
+                                    └──────────────────────┘
+                                                 │
+                                                 │
+                                         ┌──────────────────────┐
+                                         │       rides          │
+                                         ├──────────────────────┤
+                                         │ id (PK)              │
+                                         │ user_id (FK)         │
+                                         │ driver_id (FK)       │
+                                         │ pickup (JSON)        │
+                                         │ dropoff (JSON)       │
+                                         │ status               │
+                                         │ fare                 │
+                                         │ created_at           │
+                                         └──────────────────────┘
+                                                 │
+                                                 │
+                                         ┌──────────────────────┐
+                                         │   ride_status_logs   │
+                                         ├──────────────────────┤
+                                         │ id (PK)              │
+                                         │ ride_id (FK)         │
+                                         │ status               │
+                                         │ location (JSON)      │
+                                         │ timestamp            │
+                                         └──────────────────────┘
+
+
+Lets find a ride for you
