@@ -38,17 +38,17 @@ const CabCard: React.FC<CabCardProps> = ({ cab }) => {
         gird-cols-[100%]"
       >
         <div className="w-[100%] h-[100%] flex items-center">
-          <p className="text-[0.7rem] text-[#B5E4FC] uppercase font-light">
+          <p className="text-[0.75rem] text-[#B5E4FC] uppercase font-normal">
             {cab.type}
           </p>
         </div>
         <div className="w-[100%] h-[100%] flex items-center">
-          <p className="text-[0.7rem] w-[95%] text-white font-light">
+          <p className="text-[0.9rem] w-[95%] text-white font-light">
             {cab.description}
           </p>
         </div>
         <div className="w-[100%] h-[100%] flex items-center">
-          <p className="text-[0.7rem] text-[#B5E4FC] uppercase font-light">
+          <p className="text-[0.75rem] text-[#B5E4FC] uppercase font-light">
             {Math.round(cab.fareMultiplier * fare * 100) / 100}
           </p>
         </div>

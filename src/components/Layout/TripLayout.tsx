@@ -14,7 +14,7 @@ const TripLayout = ({ children }: { children: React.ReactNode }) => {
         }}
         className="
         h-[calc(100%-160px)] 
-        w-[98%] md:w-[calc(98%)] md:pl-[60px]
+        w-[98%] md:w-[calc(98%)] md:pl-[60px] 
         md:flex-row md:flex
         overflow-y-scroll"
       >

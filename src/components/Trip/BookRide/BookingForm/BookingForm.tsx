@@ -1,21 +1,23 @@
 "use client";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 const BookingForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleSearchRide = () => {
+  const handleSearchRide = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("src", "173.25,45.78");
     params.set("dest", "7854.85,22.34");
     params.set("options", "true");
-    router.push(`?${params.toString()}`);
-  };
+    router.push(`book-ride?${params.toString()}`);
+  }, [router, searchParams]);
+
   return (
     <div
       className="
-       w-[100%] h-[95%] md:w-[95%]
+       w-[100%] h-[100%] md:w-[90%]
        flex flex-col
       border-green-400"
     >
@@ -30,7 +32,14 @@ const BookingForm = () => {
         </div>
 
         {/* Input wrapper ---------------------------------------- */}
-        <div className="w-full h-[calc(100%-80px)]  border-red-400 flex flex-col justify-evenly items-center">
+        <div
+          className="
+          w-full h-[calc(100%-130px)] 
+          md:h-[calc(80%-130px)] 
+         border-red-400 
+          flex flex-col justify-evenly items-center
+          "
+        >
           {/* Pickup point ------------ */}
           <div
             className="
@@ -85,22 +94,20 @@ const BookingForm = () => {
               </div>
             </div>
           </div>
-          <div className="w-full h-[50px] flex items-center justify-center  border-[#505354] rounded">
-            <button
-              // href={"?source=173.25,45.78&dest=7854.85,22.34&options=true"}
-              onClick={handleSearchRide}
-              type="button"
-              className="
-              w-full h-[80%] 
-              flex justify-center items-center 
-              font-normal text-[0.8rem] text-[#1F1F1F]
-              bg-[#B5E4FC] 
-              rounded
-              cursor-pointer"
-            >
-              Search Ride
-            </button>
-          </div>
+        </div>
+        <div className="w-full h-[50px] flex items-center justify-center">
+          <button
+            onClick={handleSearchRide}
+            className="
+            w-full h-[80%] 
+            bg-[#B5E4FC]
+            border border-[#3C3C3C]
+            font-normal text-[0.8rem] text-[#1F1F1F]
+            rounded
+            cursor-pointer"
+          >
+            Select ride option
+          </button>
         </div>
       </div>
     </div>
