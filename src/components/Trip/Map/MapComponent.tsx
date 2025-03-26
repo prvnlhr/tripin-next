@@ -23,7 +23,7 @@ const MapComponent = () => {
         className={`
         flex items-center justify-center
         w-[100%] h-[100%] 
-        md:w-[90%] md:h-[100%]
+        md:w-[90%] md:h-[95%]
         border border-[#3C3C3C] 
         rounded`}
       >
