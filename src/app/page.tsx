@@ -1,10 +1,6 @@
 export default function Home() {
   return (
-    <div
-      className="h-screen w-full flex justify-center items-center bg-[#0a0a0a] text-white text-[2rem]
-    font-lufga
-    "
-    >
+    <div className="font-lufga flex h-screen w-full items-center justify-center bg-[#0a0a0a] text-[2rem] text-white">
       <p>a b c d e f g h i j k l m n o p q r s t u v w x y z</p>
       <p>
         a b c d e f g h i j k l m n o p q r s t u v w x y z A B C D E F G H I J

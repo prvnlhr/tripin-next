@@ -1,3 +1,8 @@
+
+
+APP FEATURES AND BREAKDOWN -----------------------------------------------------------------------------------------------------------------
+
+
 User visits the app
 - Signin/Signup page (Using magic links)
   - When user visits the app 
@@ -147,5 +152,148 @@ Database ::
                                          │ timestamp            │
                                          └──────────────────────┘
 
+-------------------------------------------------------------------------------------------------------------------
 
-Lets find a ride for you
+FRONTEND ROUTES  -----------------------------------------------------------------------------------------------------------------
+
+
+/user/book-ride 
+  -> layout.tsx 
+      [left section] | [right section]
+        [Ride Form]  |   [Map] 
+                     | 
+                     |
+
+                     
+
+
+
+/user/book-ride
+  - BookRideLayout.tsx -> (layout)
+          
+      [left section] | [right section]
+        [Ride Form]  |   [Map] 
+                     | 
+                     |
+
+/user/book-ride/[[...location]] 
+   - BookRideLayout.tsx -> (layout)
+
+      [left section] | [right section]
+        [Ride Form]  |   [Map] 
+                     | 
+                     |
+
+
+
+
+/user/book-ride 
+/user/book-ride/options
+
+
+thats not i want . my requirement is little different and complex.
+
+So we have left section and right section
+right section will only show one component i.e Map.
+This map will behave different on the basis of selections done in left section.
+Now left section is complex.
+When the route is /book-ride, left section will show a Form component to select source and dest.
+So any changes in source and dest from Form component in left section will reflect in Map in right section.
+Now after selecting source and destination and clicking on search ride button,
+Form will remain at its place, but now the Map in right section shrinks and so right section shrinks,
+which creates a space in left section, where now it will also shows options to select different Rides.
+So in left section we are now showing form and ride options side by side. Ride options list has a back button clicking on
+which ride options are gone and Map and right section expands again.
+
+Also route -> /book-ride -> left section -> [FORM], right section -> [MAP]
+route -> book-ride/source,destination/options -> left section ->[FORM,OPTIONS], right section -> [MAP]
+
+Now the above ui can be achieved in React using states values/context etc.
+But can we make use of nextjs to achieve it 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In My NextJs Uber clone app, when the user is signed he sees
+a layout which has left and right section
+left section has a form and right section has a map
+form has source and destination selection options.
+when the user selects source map shows source marker and when user select destination, des. marker is show in map
+Now even if the user refreshes the page we still have the source and destination.
+
+Now how to set nextjs 15 routes structure.
+PS - Follow-up, after a source and des. are selected we show a button which shows search ride.
+    clicking on which we show a ride options.     
+
+
+
+
+src/appuser/book-ride
+- @left
+  - options 
+    - page.tsx
+  - default.tsx  
+- @right
+  - page.tsx 
+- layout.tsx
+- page.tsx
+
+
+
+user\trip\book-ride\page.tsx
+user\trip\book-ride\options\page.tsx
+user\trip\layout.tsx
+
+
+
+/user/trip -> layout.tsx
+ - layout.tsx
+   leftSection  RightSection
+    {children}      [Map]
+
+  - /book-ride 
+       leftSection        RightSection
+     {booking-form-page}     [Map]
+
+  - /book-ride/?source=173.25,45.78&dest=7854.85,22.34  
+       leftSection        RightSection
+     {booking-form-page}     [Map]    
+
+  - /book-ride/?source=173.25,45.78&dest=7854.85,22.34&options=true  
+        leftSection        RightSection
+     {booking-form-page}     [Map]    
+       {ride-options}  
+
+
+/user/trip/book-ride/?source=173.25,45.78&dest=7854.85,22.34
+/user/trip/book-ride/
+/user/trip/ride
+
+
+
+/Trip
+/BookRideView
+
+
+
+
+/user/trip/book-ride/?source=173.25,45.78&dest=7854.85,22.34
+/user/trip/book-ride/
+/user/trip/ride
