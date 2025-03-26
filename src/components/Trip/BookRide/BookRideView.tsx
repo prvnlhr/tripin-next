@@ -37,8 +37,8 @@ const BookRideView = () => {
       {options && (
         <section
           className="
-          flex items-center justify-center 
-          w-full h-[60vh] md:w-[50%] md:h-full md:justify-end
+          flex items-start justify-center 
+          w-full h-[60vh] md:w-[50%] md:h-full md:justify-center
           md:border-[#3C3C3C] border-l-1 border-none"
         >
           <CabList />

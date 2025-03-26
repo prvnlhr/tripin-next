@@ -43,7 +43,7 @@ const CabCard: React.FC<CabCardProps> = ({ cab }) => {
           </p>
         </div>
         <div className="w-[100%] h-[100%] flex items-center">
-          <p className="text-[0.9rem] w-[95%] text-white font-light">
+          <p className="text-[0.8rem] w-[95%] text-white font-light">
             {cab.description}
           </p>
         </div>

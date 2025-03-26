@@ -14,7 +14,7 @@ interface CabOption {
 const cabOptions: CabOption[] = [
   {
     type: "Auto",
-    description: "Fast and economical for short rides",
+    description: "Fast and cost-effective for short rides and quick commutes",
     fareMultiplier: 1,
     imgSrc: autoImg,
   },

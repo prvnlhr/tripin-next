@@ -10,7 +10,7 @@ const CabList = () => {
   return (
     <div
       className="
-      w-[100%] h-[100%] md:w-[90%]
+      w-[100%] h-[95%] md:w-[90%]
       flex flex-col"
     >
       <div className="w-full h-[80px] flex flex-col justify-center items-start  border-green-400">
