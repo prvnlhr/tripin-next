@@ -26,10 +26,3 @@ const TripLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default TripLayout;
-
-/*
-  h-[calc(100%-160px)] 
-        w-[95%] md:w-[calc(95%-120px)]
-        md:flex-row md:flex
-        overflow-y-scroll"
-*/

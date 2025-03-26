@@ -6,14 +6,28 @@ const BookingForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleSearchRide = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("src", "173.25,45.78");
-    params.set("dest", "7854.85,22.34");
-    params.set("options", "true");
-    router.push(`book-ride?${params.toString()}`);
-  }, [router, searchParams]);
+  const updateParams = useCallback(
+    (updates: Record<string, string>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(updates).forEach(([key, value]) => {
+        params.set(key, value);
+      });
+      router.push(`?${params.toString()}`);
+    },
+    [router, searchParams]
+  );
 
+  const handleSearchRide = useCallback(() => {
+    updateParams({ options: "true" });
+  }, [updateParams]);
+
+  const addSrc = useCallback(() => {
+    updateParams({ src: "7854.85,22.34" });
+  }, [updateParams]);
+
+  const addDest = useCallback(() => {
+    updateParams({ dest: "7854.85,22.34" });
+  }, [updateParams]);
   return (
     <div
       className="
@@ -58,7 +72,10 @@ const BookingForm = () => {
             <div className="w-full h-[40px] border-b-1 border-[#505354]">
               <div className="w-full h-full flex items-center justify-start border-red-400">
                 <input className="h-full flex-1 font-light" />
-                <div className="h-full aspect-square flex items-center justify-center">
+                <div
+                  className="h-full aspect-square flex items-center justify-center"
+                  onClick={addSrc}
+                >
                   <Icon
                     icon="tabler:location-filled"
                     className="text-[#B5E4FC] w-[35%] h-[35%]"
@@ -85,7 +102,10 @@ const BookingForm = () => {
             <div className="w-full h-[40px] border-b-1 border-[#505354]">
               <div className="w-full h-full flex items-center justify-start border-red-400">
                 <input className="h-full flex-1 font-light" />
-                <div className="h-full aspect-square flex items-center justify-center">
+                <div
+                  className="h-full aspect-square flex items-center justify-center"
+                  onClick={addDest}
+                >
                   <Icon
                     icon="material-symbols-light:location-on-rounded"
                     className="text-[#B5E4FC] w-[45%] h-[45%]"

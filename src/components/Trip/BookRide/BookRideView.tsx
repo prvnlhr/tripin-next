@@ -1,15 +1,14 @@
-"use client";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 import BookingForm from "./BookingForm/BookingForm";
 import CabList from "./Cab/CabList";
 
-const BookRideView = () => {
-  const searchParams = useSearchParams();
-  const options = searchParams.get("options");
-  // const queryParamsyy = await searchParams;
-  // console.log(" queryParamsyy:", queryParamsyy);
-  // let options = false;
-  // options = true;
+interface RideViewProps {
+  src: string;
+  dest: string;
+  options: boolean;
+}
+
+const BookRideView: React.FC<RideViewProps> = ({ options }) => {
   return (
     <section
       className={`

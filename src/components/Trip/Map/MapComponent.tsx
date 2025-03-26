@@ -4,9 +4,9 @@ import { useSearchParams } from "next/navigation";
 
 const MapComponent = () => {
   const searchParams = useSearchParams();
-  const src = searchParams.get("src");
-  const dest = searchParams.get("dest");
-  const options = searchParams.get("options");
+  const src = searchParams.get("src") ?? "173.25,45.78";
+  const dest = searchParams.get("dest") ?? "7854.85,22.34";
+  const options = searchParams.get("options") === "true";
   return (
     <section
       className={`border-red-400
@@ -38,5 +38,3 @@ const MapComponent = () => {
 };
 
 export default MapComponent;
-
-// className = "w-full md:w-[50%] h-[60vh] md:h-full flex items-center justify-center md:items-start md:justify-end";
