@@ -349,8 +349,8 @@ User
 
 Driver
  - Pages
-   - DashboardListPage
-     - DashboardPageList.tsx
+   - DashboardPage
+     - DashboardPage.tsx
      - IncomingRideRequest
        - IncomingRequestList.tsx
        - IncomingRequestCard.tsx

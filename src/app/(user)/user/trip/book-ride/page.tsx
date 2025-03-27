@@ -16,12 +16,6 @@ const page = async ({ searchParams }: { searchParams: SearchParams }) => {
     rideOption = "false",
   } = await searchParams;
   return (
-    // <BookRideView
-    //   src={src}
-    //   dest={dest}
-    //   rideOption={rideOption === "true"} // Converting to boolean
-    // />
-
     <BookRidePage
       src={src}
       dest={dest}

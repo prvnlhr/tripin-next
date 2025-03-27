@@ -194,7 +194,9 @@ const MapComponent = () => {
 
   return (
     <section
-      className={`w-full ${rideOption ? "md:w-[40%]" : "md:w-[70%]"} h-[60vh] md:h-[100%] flex items-center justify-center md:items-start md:justify-end`}
+      className={`border-red-500
+        
+        w-full ${rideOption ? "md:w-[40%]" : "md:w-[70%]"} h-[60vh] md:h-[100%] flex items-center justify-center md:items-start md:justify-end`}
     >
       <div
         className="

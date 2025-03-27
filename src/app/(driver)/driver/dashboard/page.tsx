@@ -1,7 +1,8 @@
+import DriverDashboardPage from "@/components/Driver/Pages/DriverDashboardPage/DriverDashboardPage";
 import React from "react";
 
 const page = () => {
-  return <div className="h-full w-full">Driver dashboard page</div>;
+  return <DriverDashboardPage />;
 };
 
 export default page;
