@@ -10,18 +10,18 @@ const CabCard: React.FC<CabCardProps> = ({ cab }) => {
   return (
     <div
       className="
-       w-[100%] h-[28%] 
-       bg-[linear-gradient(180deg,#1F2224_0%,#1F1F20_100%)]
-       border border-[#3C3C3C] rounded-[15px]
-       grid
-       grid-cols-[auto_minmax(0,1fr)]
-       grid-rows-[100%]
-       p-[5px]"
+         w-[100%] h-[28%] 
+         bg-[linear-gradient(180deg,#1F2224_0%,#1F1F20_100%)]
+         border border-[#3C3C3C] rounded-[15px]
+         grid
+         grid-cols-[auto_minmax(0,1fr)]
+         grid-rows-[100%]
+         p-[5px]"
     >
       <div
         className="
-        h-full aspect-square 
-        flex items-center justify-center"
+          h-full aspect-square 
+          flex items-center justify-center"
       >
         <Image
           src={cab.imgSrc}
@@ -32,10 +32,10 @@ const CabCard: React.FC<CabCardProps> = ({ cab }) => {
       </div>
       <div
         className="
-        h-full flex-1
-        grid
-        grid-rows-[25px_minmax(0,1fr)_25px]
-        gird-cols-[100%]"
+          h-full flex-1
+          grid
+          grid-rows-[25px_minmax(0,1fr)_25px]
+          gird-cols-[100%]"
       >
         <div className="w-[100%] h-[100%] flex items-center">
           <p className="text-[0.75rem] text-[#B5E4FC] uppercase font-normal">

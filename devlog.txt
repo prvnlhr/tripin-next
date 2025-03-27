@@ -337,14 +337,16 @@ Common
   - MapComponent.tsx
 
 User
- - Trip
+ - Pages
    - BookRide
-      - BookingForm
-        - BookingForm.tsx
-      - CabOptions
-        - CabList.tsx
-        - CabCard.tsx
+     BookRidePage.tsx
+     - BookingForm
+       - BookingForm.tsx
+     - CabOptions
+       - CabList.tsx
+       - CabCard.tsx
      
+
 Driver
  - Pages
    - DashboardListPage

@@ -107,7 +107,7 @@ const BookingForm = () => {
 
   if (!isLoaded)
     return (
-      <div className="justify-center items-center w-[100%] h-[100%] md:w-[90%] flex flex-col">
+      <div className="w-[100%] h-[100%] md:w-[90%] md:min-w-[90%] flex flex-col">
         Loading...
       </div>
     );

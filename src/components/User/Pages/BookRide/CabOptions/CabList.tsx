@@ -1,17 +1,12 @@
 import React from "react";
 import CabCard from "./CabCard";
-
 import cabOptions from "@/utils/cabUtils";
-
 const CabList = () => {
-  // const queryParamsxx = await searchParams;
-  // console.log(" queryParamsxx:", queryParamsxx);
-
   return (
     <div
       className="
-      w-[100%] h-[95%] md:w-[90%]
-      flex flex-col"
+  w-[100%] h-[95%] md:w-[90%]
+  flex flex-col"
     >
       <div className="w-full h-[80px] flex flex-col justify-center items-start  border-green-400">
         <p className="font-light text-[1.7rem] leading-tight">
@@ -29,12 +24,12 @@ const CabList = () => {
         <div className="w-full h-[50px] flex items-center justify-center">
           <button
             className="
-            w-full h-[80%] 
-            bg-[#46494a75]
-            border border-[#3C3C3C]
-            font-normal text-[0.8rem] text-[gray]
-            rounded
-            cursor-pointer"
+        w-full h-[80%] 
+        bg-[#46494a75]
+        border border-[#3C3C3C]
+        font-normal text-[0.8rem] text-[gray]
+        rounded
+        cursor-pointer"
           >
             Select ride option
           </button>

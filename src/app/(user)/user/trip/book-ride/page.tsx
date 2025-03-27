@@ -1,4 +1,4 @@
-import BookRideView from "@/components/Trip/BookRide/BookRideView";
+import BookRidePage from "@/components/User/Pages/BookRide/BookRidePage";
 import React from "react";
 
 interface RideSearchParams {
@@ -16,7 +16,13 @@ const page = async ({ searchParams }: { searchParams: SearchParams }) => {
     rideOption = "false",
   } = await searchParams;
   return (
-    <BookRideView
+    // <BookRideView
+    //   src={src}
+    //   dest={dest}
+    //   rideOption={rideOption === "true"} // Converting to boolean
+    // />
+
+    <BookRidePage
       src={src}
       dest={dest}
       rideOption={rideOption === "true"} // Converting to boolean
