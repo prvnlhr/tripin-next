@@ -112,6 +112,12 @@ const BookingForm = () => {
       </div>
     );
 
+  const handleSearchRide = () => {
+    if (sourceInput && destInput) {
+      updateURL({ rideOption: "true" });
+    }
+  };
+  const isButtonActive = sourceInput && destInput;
   return (
     <div className="w-[100%] h-[100%] md:w-[90%] flex flex-col">
       <div className="w-full h-full">
@@ -136,11 +142,11 @@ const BookingForm = () => {
                   onLoad={onSourceLoad}
                   onPlaceChanged={onSourcePlaceChanged}
                   options={autocompleteOptions}
-                  className="w-full h-full"
+                  className="flex-1 h-full"
                 >
                   <input
                     ref={sourceInputRef}
-                    className="h-full flex-1 font-light bg-transparent outline-none placeholder:text-[0.8rem]"
+                    className="h-full w-full font-light bg-transparent outline-none text-[0.8rem] placeholder:text-[0.8rem]"
                     placeholder="Enter pickup location"
                     value={sourceInput}
                     onChange={(e) => setSourceInput(e.target.value)}
@@ -149,7 +155,7 @@ const BookingForm = () => {
                 {sourceInput ? (
                   <button
                     onClick={clearSource}
-                    className="h-full aspect-square flex items-center justify-center"
+                    className="h-full aspect-square flex items-center justify-center cursor-pointer"
                   >
                     <Icon
                       icon="mdi:close"
@@ -180,11 +186,11 @@ const BookingForm = () => {
                   onLoad={onDestLoad}
                   onPlaceChanged={onDestPlaceChanged}
                   options={autocompleteOptions}
-                  className="w-full h-full"
+                  className="flex-1 h-full"
                 >
                   <input
                     ref={destInputRef}
-                    className="h-full flex-1 font-light bg-transparent outline-none placeholder:text-[0.8rem]"
+                    className="h-full w-full font-light bg-transparent outline-none text-[0.8rem] placeholder:text-[0.8rem]"
                     placeholder="Enter destination"
                     value={destInput}
                     onChange={(e) => setDestInput(e.target.value)}
@@ -193,7 +199,7 @@ const BookingForm = () => {
                 {destInput ? (
                   <button
                     onClick={clearDestination}
-                    className="h-full aspect-square flex items-center justify-center"
+                    className="h-full aspect-square flex items-center justify-center cursor-pointer"
                   >
                     <Icon
                       icon="mdi:close"
@@ -213,8 +219,16 @@ const BookingForm = () => {
           </div>
         </div>
         <div className="w-full h-[50px] flex items-center justify-center">
-          <button className="w-full h-[80%] bg-[#B5E4FC] border border-[#3C3C3C] font-normal text-[0.8rem] text-[#1F1F1F] rounded cursor-pointer">
-            Select ride option
+          <button
+            disabled={!isButtonActive}
+            onClick={handleSearchRide}
+            className={`w-full h-[80%] border border-[#3C3C3C] font-normal text-[0.8rem] rounded cursor-pointer ${
+              isButtonActive
+                ? "bg-[#B5E4FC] text-[#1F1F1F]"
+                : "bg-gray-600 text-gray-400 cursor-not-allowed"
+            }`}
+          >
+            Search ride
           </button>
         </div>
       </div>

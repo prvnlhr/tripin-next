@@ -15,7 +15,7 @@ const MapComponent = () => {
   const dest = searchParams.get("dest");
   const srcAddress = searchParams.get("srcAddress");
   const destAddress = searchParams.get("destAddress");
-  const options = searchParams.get("options") === "true";
+  const rideOption = searchParams.get("rideOption") === "true";
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [directions, setDirections] =
@@ -194,7 +194,7 @@ const MapComponent = () => {
 
   return (
     <section
-      className={`w-full ${options ? "md:w-[40%]" : "md:w-[70%]"} h-[60vh] md:h-[100%] flex items-center justify-center md:items-start md:justify-end`}
+      className={`w-full ${rideOption ? "md:w-[40%]" : "md:w-[70%]"} h-[60vh] md:h-[100%] flex items-center justify-center md:items-start md:justify-end`}
     >
       <div
         className="

@@ -5,10 +5,10 @@ import CabList from "./Cab/CabList";
 interface RideViewProps {
   src: string;
   dest: string;
-  options: boolean;
+  rideOption: boolean;
 }
 
-const BookRideView: React.FC<RideViewProps> = ({ options }) => {
+const BookRideView: React.FC<RideViewProps> = ({ rideOption }) => {
   return (
     <section
       className={`
@@ -16,16 +16,16 @@ const BookRideView: React.FC<RideViewProps> = ({ options }) => {
       transition-transform duration-[100]
       w-full
       flex flex-col 
-      ${options ? "h-auto" : "h-[60vh]"} 
-      ${options ? "md:w-[60%]" : "md:w-[30%]"} 
+      ${rideOption ? "h-auto" : "h-[60vh]"} 
+      ${rideOption ? "md:w-[60%]" : "md:w-[30%]"} 
       md:h-[100%] 
       md:flex-row`}
     >
       <section
         className={`
         flex items-center justify-center mb-[30px]
-        ${options ? "h-[60vh]" : "h-[100%]"} 
-        ${options ? "md:w-[50%]" : "md:w-[100%]"} 
+        ${rideOption ? "h-[60vh]" : "h-[100%]"} 
+        ${rideOption ? "md:w-[50%]" : "md:w-[100%]"} 
         md:h-[100%] md:justify-start md:mb-[0px]
         border-[red]`}
       >
@@ -33,7 +33,7 @@ const BookRideView: React.FC<RideViewProps> = ({ options }) => {
       </section>
 
       {/* Cab Options */}
-      {options && (
+      {rideOption && (
         <section
           className="
           flex items-start justify-center 
