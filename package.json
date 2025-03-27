@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@googlemaps/adv-markers-utils": "^1.2.4",
     "@googlemaps/extended-component-library": "^0.6.13",
     "@react-google-maps/api": "^2.20.6",
     "next": "15.2.4",

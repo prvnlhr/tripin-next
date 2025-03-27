@@ -2,7 +2,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { useJsApiLoader, Autocomplete } from "@react-google-maps/api";
+import { Autocomplete } from "@react-google-maps/api";
+import { useMap } from "@/context/MapProvider";
 
 const BookingForm = () => {
   const router = useRouter();
@@ -10,16 +11,13 @@ const BookingForm = () => {
   const [destInput, setDestInput] = useState("");
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const destInputRef = useRef<HTMLInputElement>(null);
-
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
-    libraries: ["places"],
-  });
+  const { isLoaded } = useMap();
 
   const autocompleteOptions = {
-    fields: ["address_components", "geometry", "name", "formatted_address"],
-    types: ["address"],
+    fields: ["address_components", "geometry", "formatted_address", "name"],
+    types: ["geocode", "establishment"],
     componentRestrictions: { country: "in" },
+    bounds: { east: 97.415, north: 37.084, south: 6.753, west: 68.162 },
   };
 
   const [sourceAutocomplete, setSourceAutocomplete] =
@@ -27,64 +25,79 @@ const BookingForm = () => {
   const [destAutocomplete, setDestAutocomplete] =
     useState<google.maps.places.Autocomplete | null>(null);
 
-  const onSourceLoad = (autocomplete: google.maps.places.Autocomplete) => {
+  const onSourceLoad = (autocomplete: google.maps.places.Autocomplete) =>
     setSourceAutocomplete(autocomplete);
-  };
-
-  const onDestLoad = (autocomplete: google.maps.places.Autocomplete) => {
+  const onDestLoad = (autocomplete: google.maps.places.Autocomplete) =>
     setDestAutocomplete(autocomplete);
+
+  const updateURL = (params: Record<string, string | null>) => {
+    const searchParams = new URLSearchParams(window.location.search);
+    Object.entries(params).forEach(([key, value]) => {
+      if (value === null) searchParams.delete(key);
+      else searchParams.set(key, value);
+    });
+    router.push(`?${searchParams.toString()}`);
   };
 
   const onSourcePlaceChanged = () => {
     if (sourceAutocomplete) {
       const place = sourceAutocomplete.getPlace();
-      if (place.geometry?.location) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        const address = place.formatted_address || place.name || "";
-        setSourceInput(address);
-        router.push(
-          `?src=${lat},${lng}&srcAddress=${encodeURIComponent(address)}${
-            window.location.search.includes("dest=") ? "" : "&dest="
-          }`
-        );
+      if (!place.geometry || !place.geometry.location) {
+        console.warn("No details available for input: '" + place.name + "'");
+        return;
       }
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      const address = place.formatted_address || place.name || "";
+      const pinCode =
+        place.address_components?.find((c) => c.types.includes("postal_code"))
+          ?.long_name || "";
+
+      setSourceInput(address);
+      updateURL({
+        src: `${lat},${lng}`,
+        srcAddress: encodeURIComponent(address),
+        srcPin: pinCode,
+      });
     }
   };
 
   const onDestPlaceChanged = () => {
     if (destAutocomplete) {
       const place = destAutocomplete.getPlace();
-      if (place.geometry?.location) {
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-        const address = place.formatted_address || place.name || "";
-        setDestInput(address);
-        router.push(
-          `${
-            window.location.search.includes("src=")
-              ? window.location.search
-              : "?src="
-          }&dest=${lat},${lng}&destAddress=${encodeURIComponent(address)}`
-        );
+      if (!place.geometry || !place.geometry.location) {
+        console.warn("No details available for input: '" + place.name + "'");
+        return;
       }
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      const address = place.formatted_address || place.name || "";
+      const pinCode =
+        place.address_components?.find((c) => c.types.includes("postal_code"))
+          ?.long_name || "";
+
+      setDestInput(address);
+      updateURL({
+        dest: `${lat},${lng}`,
+        destAddress: encodeURIComponent(address),
+        destPin: pinCode,
+      });
     }
   };
 
   const clearSource = () => {
     setSourceInput("");
     if (sourceInputRef.current) sourceInputRef.current.focus();
-    router.push(`?${window.location.search.replace(/src=[^&]*&?/, "")}`);
+    updateURL({ src: null, srcAddress: null, srcPin: null });
   };
 
   const clearDestination = () => {
     setDestInput("");
     if (destInputRef.current) destInputRef.current.focus();
-    router.push(`?${window.location.search.replace(/dest=[^&]*&?/, "")}`);
+    updateURL({ dest: null, destAddress: null, destPin: null });
   };
 
   useEffect(() => {
-    // Initialize input values from URL if present
     const params = new URLSearchParams(window.location.search);
     const srcAddress = params.get("srcAddress");
     const destAddress = params.get("destAddress");
@@ -102,7 +115,6 @@ const BookingForm = () => {
   return (
     <div className="w-[100%] h-[100%] md:w-[90%] flex flex-col">
       <div className="w-full h-full">
-        {/* Header */}
         <div className="w-full h-[80px] flex flex-col justify-center items-start">
           <p className="font-light text-[1.7rem] leading-tight">
             Lets book a ride
@@ -110,10 +122,7 @@ const BookingForm = () => {
             for you <span className="text-[#B5E4FC]">.</span>
           </p>
         </div>
-
-        {/* Input wrapper */}
         <div className="w-full h-[calc(100%-130px)] md:h-[calc(80%-130px)] flex flex-col justify-evenly items-center">
-          {/* Pickup point */}
           <div className="h-auto w-full grid grid-cols-[100%] grid-rows-[auto_auto_auto]">
             <div className="w-full h-auto flex items-center">
               <p className="text-[1.2rem] text-[#B5E4FC] font-normal">FROM</p>
@@ -158,8 +167,6 @@ const BookingForm = () => {
               </div>
             </div>
           </div>
-
-          {/* DropOff point */}
           <div className="h-auto w-full grid grid-cols-[100%] grid-rows-[auto_auto_auto]">
             <div className="w-full h-auto flex items-center">
               <p className="text-[1.2rem] text-[#B5E4FC] font-normal">WHERE</p>
@@ -205,7 +212,6 @@ const BookingForm = () => {
             </div>
           </div>
         </div>
-
         <div className="w-full h-[50px] flex items-center justify-center">
           <button className="w-full h-[80%] bg-[#B5E4FC] border border-[#3C3C3C] font-normal text-[0.8rem] text-[#1F1F1F] rounded cursor-pointer">
             Select ride option

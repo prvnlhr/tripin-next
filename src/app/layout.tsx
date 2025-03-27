@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { MapProvider } from "@/context/MapProvider";
 
 const satoshi = localFont({
   src: [
@@ -178,7 +179,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${satoshi.variable} ${lufga.variable} antialiased`}>
-        {children}
+        <MapProvider>{children}</MapProvider>
       </body>
     </html>
   );
