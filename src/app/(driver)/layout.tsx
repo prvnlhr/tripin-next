@@ -1,11 +1,8 @@
+import DriverDashboardLayout from "@/components/Layout/Driver/DriverDashboardLayout";
 import React from "react";
 
-const DriverLayout = () => {
-  return (
-    <div className="flex h-screen w-full items-center justify-center">
-      DriverLayout
-    </div>
-  );
+const DriverLayout = ({ children }) => {
+  return <DriverDashboardLayout>{children}</DriverDashboardLayout>;
 };
 
 export default DriverLayout;

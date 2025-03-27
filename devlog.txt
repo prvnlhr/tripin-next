@@ -297,3 +297,77 @@ user\trip\layout.tsx
 /user/trip/book-ride/?source=173.25,45.78&dest=7854.85,22.34
 /user/trip/book-ride/
 /user/trip/ride
+
+
+--------------------------------------------------------------------------------------------------------------
+Component Directory Structure
+
+
+Layout
+ - User
+   - UserTripLayout.tsx
+   - MainHeader
+     - MainHeader.tsx
+     - AppLogo.tsx
+   - SubHeader
+     - SubHeader.tsx
+     - UserGreeting.tsx
+     - BackBtn.tsx 
+ - Driver
+   - DriveDashboardLayout.tsx
+   - MainHeader
+     - MainHeader.tsx
+     - AppLogo.tsx
+   - SubHeader
+     - SubHeader.tsx
+     - UserGreeting.tsx
+     - BackBtn.tsx 
+ - Admin
+   - UserTripLayout.tsx
+   - MainHeader
+     - MainHeader.tsx
+     - AppLogo.tsx
+   - SubHeader
+     - SubHeader.tsx
+     - UserGreeting.tsx
+     - BackBtn.tsx 
+
+Common
+ - Map
+  - MapComponent.tsx
+
+User
+ - Trip
+   - BookRide
+      - BookingForm
+        - BookingForm.tsx
+      - CabOptions
+        - CabList.tsx
+        - CabCard.tsx
+     
+Driver
+ - Pages
+   - DashboardListPage
+     - DashboardPageList.tsx
+     - IncomingRideRequest
+       - IncomingRequestList.tsx
+       - IncomingRequestCard.tsx
+     - PastRides
+       - PastRideList.tsx
+       - PastRideCard.tsx   
+   - RideRequestPage
+     - RideRequestPage.tsx
+     - RideRequestCard.tsx  
+   - OnGoingRidePage
+     - OnGoingRidePage.tsx
+     - UserInfoCard.tsx
+     - RideStatus.tsx  
+     - TripDetailsCard.tsx
+
+
+--------------------------------------------------------------------------------------------------------------
+
+
+
+
+   
