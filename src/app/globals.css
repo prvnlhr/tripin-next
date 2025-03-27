@@ -73,7 +73,6 @@ body {
 * {
   user-select: none;
 }
-
 .pac-container {
   font-family: var(--font-lufga) !important;
   background-color: #1f2224;
@@ -82,18 +81,15 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   margin-top: 4px;
   z-index: 1000;
-  width: 320px !important;
-}
-.pac-container:after {
-  display: none !important;
-  background-image: none !important;
-  height: 0 !important;
+  width: 300px !important;
 }
 
 .pac-item {
   color: #ffffff;
   padding: 8px 12px;
   border-top: 1px solid #3c3c3c;
+  font-family: inherit !important;
+  font-weight: var(--font-normal) !important;
 }
 
 .pac-item:hover {
@@ -103,8 +99,19 @@ body {
 .pac-item-query {
   color: #b5e4fc;
   font-size: 14px;
+  font-weight: var(--font-medium) !important;
+}
+
+.pac-matched {
+  font-weight: var(--font-bold) !important;
 }
 
 .pac-icon {
   display: none;
+}
+
+.pac-container:after {
+  display: none !important;
+  background-image: none !important;
+  height: 0 !important;
 }
