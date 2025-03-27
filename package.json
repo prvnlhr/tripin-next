@@ -9,10 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@googlemaps/extended-component-library": "^0.6.13",
     "@react-google-maps/api": "^2.20.6",
     "next": "15.2.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-google-autocomplete": "^2.7.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
