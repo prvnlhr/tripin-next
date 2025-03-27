@@ -166,7 +166,8 @@ const MapComponent = () => {
     } else if (map && defaultCenter) {
       // Center on user's location if no markers are present
       map.setCenter(defaultCenter);
-      map.setZoom(12); // Default zoom level when centered on user location
+      map.setZoom(12);
+      // Default zoom level when centered on user location
     }
   }, [map, directions, srcCoords, destCoords, defaultCenter]);
 
