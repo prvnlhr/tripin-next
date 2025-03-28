@@ -30,12 +30,10 @@ export async function updateSession(request: NextRequest) {
 
   await supabase.auth.getUser();
 
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
-
   // Debug logging
   // console.log("Middleware session:", {
   //   user: user?.email,

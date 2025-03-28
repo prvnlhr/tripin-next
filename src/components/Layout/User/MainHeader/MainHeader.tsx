@@ -1,44 +1,43 @@
 "use client";
 import AppLogo from "@/components/Common/AppLogo";
-import React from "react";
 import { signOut } from "@/actions/auth/user/auth";
 import useUserSession from "@/hooks/useUserSession";
+import { useRouter } from "next/navigation";
+
 const MainHeader = () => {
+  const session = useUserSession();
+  const router = useRouter();
+
   const handleSignOut = async () => {
     try {
-      await signOut();
+      const { success } = await signOut();
+      if (success) {
+        router.push("/user/auth");
+        router.refresh();
+      }
     } catch (error) {
       console.error("Sign out failed:", error);
     }
   };
-  const session = useUserSession();
-  console.log(" session:", session);
-
   return (
-    <div className="flex h-[80px] w-[100%] items-center justify-start border-blue-300">
-      <div className="flex h-[60%] w-auto items-center justify-start ">
+    <div className="flex h-[80px] w-full items-center justify-between border-blue-300 px-4">
+      <div className="flex h-[60%] items-center">
         <AppLogo />
       </div>
-      <div
-        onClick={handleSignOut}
-        className="flex-1 h-full flex items-center justify-end"
-      >
-        <div
-          className="
-            h-[60%] aspect-square mr-[1%]
-            flex items-center justify-center
-            rounded-full 
-            border-[2px] border-[#B5E4FC]
-            p-[2px]"
+
+      {session && (
+        <button
+          onClick={handleSignOut}
+          className="flex items-center justify-center gap-2"
+          aria-label="Sign out"
         >
-          <div
-            className="
-              h-full w-full
-              rounded-full
-              bg-[#46494A]"
-          ></div>
-        </div>
-      </div>
+          <div className="h-10 w-10 flex items-center justify-center rounded-full border-2 border-[#B5E4FC] p-0.5">
+            <div className="flex h-full w-full items-center justify-center rounded-full bg-[#46494A] text-white font-medium">
+              {session.email.charAt(0).toUpperCase()}
+            </div>
+          </div>
+        </button>
+      )}
     </div>
   );
 };

@@ -1,3 +1,4 @@
+// hooks/useUserSession.ts
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 
@@ -9,47 +10,59 @@ type Session = {
   userId: string;
 } | null;
 
-const useUserSession = (): Session => {
+const useUserSession = () => {
   const [session, setSession] = useState<Session>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchSession = async () => {
       try {
-        const { data, error } = await supabase.auth.getUser();
-        if (error) throw error;
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
 
-        if (data.user) {
-          const { user_metadata, email, id } = data.user;
+        if (error) throw error;
+        if (!mounted) return;
+
+        if (user) {
           setSession({
-            userName: user_metadata?.display_name || "",
-            email: email || "",
-            userId: id,
+            userName: user.user_metadata?.display_name || "",
+            email: user.email || "",
+            userId: user.id,
           });
+        } else {
+          setSession(null);
         }
       } catch (error) {
-        console.error("Error fetching session:", error);
+        if (mounted) {
+          console.error("Error fetching session:", error);
+        }
       }
     };
 
     fetchSession();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (session?.user) {
-          const { user_metadata, email, id } = session.user;
-          setSession({
-            userName: user_metadata?.display_name || "",
-            email: email || "",
-            userId: id,
-          });
-        } else {
-          setSession(null);
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
+
+      if (session?.user) {
+        setSession({
+          userName: session.user.user_metadata?.display_name || "",
+          email: session.user.email || "",
+          userId: session.user.id,
+        });
+      } else {
+        setSession(null);
       }
-    );
+    });
 
     return () => {
-      authListener?.subscription.unsubscribe();
+      mounted = false;
+      subscription?.unsubscribe();
     };
   }, []);
 

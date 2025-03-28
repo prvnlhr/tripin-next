@@ -375,3 +375,39 @@ What happens if no Driver is found within 10 km? Will the Rider get a retry opti
 
 
 
+
+
+So there is a AuthForm which takes the email. When the form is submitted it send the an email to 
+the user with the magic link.
+
+Now we dont have separate forms for login, signin etc. We just have one form.
+
+Now when the user click on the magic link i am making a api call to api/callback route.
+This route basically exchanges the code in the magic link and a session is generated
+and user is redirected to the the main trip/book-ride route.
+
+
+Now lets say a user is new and he visits the app and sees AuthForm. He enters the email and magic link is sent to his email.
+He the click the email and according to logic we redirects him to the book-ride route page. As of now its working fine.
+
+When the user is authenticated using the email and magic link, supabase creates new user if not already created.
+But i have dedicate  table for the user which have users name, phone etc info which need to be taken from the user.
+
+
+Now what i want is that,
+if a user who already signed in then we have his all details, so we take him to book-ride route page.
+But if a user is new then we want him to enter his detials.
+
+So what i want is when a user enter his email, we sent him a email with magic link. This magic  link on clicking makes a api call which create a session
+for the user and redirects to book-ride.
+
+So if we can do someting in between or after a session is create we take him to the page when he can enter his name,phone etc.
+Now this is for only the new users. 
+
+
+
+
+
+
+
+/lib

@@ -1,10 +1,9 @@
-import AuthForm from "@/components/Auth/User/AuthForm";
-import React from "react";
+import OnBoardingForm from "@/components/User/Pages/OnBoarding/OnBoardingForm";
 
 const page = () => {
   return (
     <div className="flex h-screen w-full items-center justify-center">
-      <AuthForm />
+      <OnBoardingForm />
     </div>
   );
 };
