@@ -154,6 +154,16 @@ DATABASE TABLES :: -------------------------------------------------------------
 
 NEXTJS FRONTEND ROUTES  -----------------------------------------------------------------------------------------------------------------
 
+
+ADMIN :: ------------------------------------------
+
+DRIVER :: -----------------------------------------
+
+USER :: -------------------------------------------
+
+/user/auth ->> ...
+/user/trip ->> ...
+
 /user/book-ride 
   -> layout.tsx 
       [left section] | [right section]
@@ -196,6 +206,8 @@ NEXTJS FRONTEND ROUTES  --------------------------------------------------------
         leftSection        RightSection
      {booking-form-page}     [Map]    
        {ride-options}  
+
+
 
 
 
@@ -359,3 +371,7 @@ How does the Rider cancel a ride? Before or after a Driver accepts? This could a
 - If rider cancels the ride after the driver accepts the ride request then, the request is removed for everyone(all drivers, rider himself). 
 What happens if no Driver is found within 10 km? Will the Rider get a retry option or a suggestion to choose a different cab type?
 - We will tell now driver available, try again later
+
+
+
+
