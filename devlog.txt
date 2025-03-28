@@ -1,7 +1,6 @@
 
 
-APP FEATURES AND BREAKDOWN -----------------------------------------------------------------------------------------------------------------
-
+APP FEATURES/FLOW  BREAKDOWN -----------------------------------------------------------------------------------------------------------------
 
 User visits the app
 - Signin/Signup page (Using magic links)
@@ -37,7 +36,7 @@ Main view of app
       - Shows list of available cab options with estimated fare
         - Economy
         - Comfort
-        - Premium 
+        - Elite 
 
     - Selects cab options   
       - option to confirm book a ride.
@@ -96,7 +95,7 @@ If unverified driver tries to login,
 
 
 
-Database ::
+DATABASE TABLES :: --------------------------------------------------------------------------------------------------------------------------------------------------
 
 ┌──────────────────────┐
 │       users          │
@@ -152,10 +151,8 @@ Database ::
                                          │ timestamp            │
                                          └──────────────────────┘
 
--------------------------------------------------------------------------------------------------------------------
 
-FRONTEND ROUTES  -----------------------------------------------------------------------------------------------------------------
-
+NEXTJS FRONTEND ROUTES  -----------------------------------------------------------------------------------------------------------------
 
 /user/book-ride 
   -> layout.tsx 
@@ -163,9 +160,6 @@ FRONTEND ROUTES  ---------------------------------------------------------------
         [Ride Form]  |   [Map] 
                      | 
                      |
-
-                     
-
 
 
 /user/book-ride
@@ -183,84 +177,6 @@ FRONTEND ROUTES  ---------------------------------------------------------------
         [Ride Form]  |   [Map] 
                      | 
                      |
-
-
-
-
-/user/book-ride 
-/user/book-ride/options
-
-
-thats not i want . my requirement is little different and complex.
-
-So we have left section and right section
-right section will only show one component i.e Map.
-This map will behave different on the basis of selections done in left section.
-Now left section is complex.
-When the route is /book-ride, left section will show a Form component to select source and dest.
-So any changes in source and dest from Form component in left section will reflect in Map in right section.
-Now after selecting source and destination and clicking on search ride button,
-Form will remain at its place, but now the Map in right section shrinks and so right section shrinks,
-which creates a space in left section, where now it will also shows options to select different Rides.
-So in left section we are now showing form and ride options side by side. Ride options list has a back button clicking on
-which ride options are gone and Map and right section expands again.
-
-Also route -> /book-ride -> left section -> [FORM], right section -> [MAP]
-route -> book-ride/source,destination/options -> left section ->[FORM,OPTIONS], right section -> [MAP]
-
-Now the above ui can be achieved in React using states values/context etc.
-But can we make use of nextjs to achieve it 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-In My NextJs Uber clone app, when the user is signed he sees
-a layout which has left and right section
-left section has a form and right section has a map
-form has source and destination selection options.
-when the user selects source map shows source marker and when user select destination, des. marker is show in map
-Now even if the user refreshes the page we still have the source and destination.
-
-Now how to set nextjs 15 routes structure.
-PS - Follow-up, after a source and des. are selected we show a button which shows search ride.
-    clicking on which we show a ride options.     
-
-
-
-
-src/appuser/book-ride
-- @left
-  - options 
-    - page.tsx
-  - default.tsx  
-- @right
-  - page.tsx 
-- layout.tsx
-- page.tsx
-
-
-
-user\trip\book-ride\page.tsx
-user\trip\book-ride\options\page.tsx
-user\trip\layout.tsx
-
 
 
 /user/trip -> layout.tsx
@@ -282,26 +198,8 @@ user\trip\layout.tsx
        {ride-options}  
 
 
-/user/trip/book-ride/?source=173.25,45.78&dest=7854.85,22.34
-/user/trip/book-ride/
-/user/trip/ride
 
-
-
-/Trip
-/BookRideView
-
-
-
-
-/user/trip/book-ride/?source=173.25,45.78&dest=7854.85,22.34
-/user/trip/book-ride/
-/user/trip/ride
-
-
---------------------------------------------------------------------------------------------------------------
-Component Directory Structure
-
+COMPONETS DIRETORY STRUCTURE --------------------------------------------------------------------------------------------------------------
 
 Layout
  - User
@@ -367,9 +265,97 @@ Driver
      - TripDetailsCard.tsx
 
 
---------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+
+FLOW
+
+
+Admin
+Admin visits /admin route
+IF signed in the taken to AdminPanel else taken to admin/auth page
+Auth Form will have only one input which lets the admin enter the email
+When admin enters the email a magic link is sent to the email.
+Admin clicks the magic link and he is logged in to the AdminPanel.
+But after clicking on magic link if the admin is firt time sigining then he is 
+taken to a page to add details like name and phone.
+If not first time then taken to admin panel.
+
+
+
+Driver
+Driver visits /driver route
+
+If signed in taken to Drivers Dashboard page.
+If not similar to admin taken to driver/auth page
+Driver enters the email, magic link is sent, driver click the magic link
+If first time then needs to enter phone,name,car model,car name,license plate.
+If not first time taken to Dashboard page.
+
+
+User,
+Similar to admin and driver, when user visits /user route,
+flow is similar, just the user if first time then he needs to enter details like, name,phone.
+
+
+Drivers Dashboard:
+Driver see list of incoming ride request.
+Each request show from whom, source location address, destination address and total distance of journey.
+If the driver click on a request it shows two buttons to accepts or reject the request.
+If the driver accepts the request he is assigned that ride request and that request is no longer show to other drivers , if he rejects the request,
+it will still show to him and also to others.
+
+After Driver accepts the request user and driver will both see the ride status.
+User will only see ride status but the driver can change them.
+Different statuses are,
+- Request Accepted
+- Reached pickup
+- Start trip
+- End trip
+
+When can change the status by clicking on status button and it will reflect the change for both rider and driver and we will see
+live status.
+
+
+
+Rider books the cab:
+
+When the rider books the cab, he sents his locations and cab type he have opted to backend
+Backend search for the matching driver within proximity and if found, the driver is assigned to 
+user/rider.
+
+When the driver is assigned rider sees the live ride status which can be changed from Drivers dashboard by Driver only.
+
+
 
 
 
 
    
+How will Admins identify themselves initially? Is there a pre-approved list of Admin emails, or can anyone sign up as an Admin? You might need a way to restrict Admin access (e.g., an invite-only system or a super-admin to approve new Admins).
+- As of now anyone can become admin. We will work on superadmi logic later
+
+What happens if an Admin rejects a Driver’s registration? Does the Driver get notified, and can they resubmit?
+- As of now Admin wont reject any driver. Driver will just have to wait till the admin sees this deatils and assign cab type to him.
+  So when the Driver sigins in if he still awaits the verification, we will show that under verification, login in afterwards.
+AdminPanel could eventually include analytics (e.g., total rides, active Drivers) or tools to manage disputes—something to think about for scalability.
+- Admin Panel could show all the riders and whether they are online or offline as of now.
+
+
+
+How will Drivers indicate they’re “online” and ready to receive requests? Without an explicit “online/offline” toggle, you might accidentally send requests to inactive Drivers.
+- We can  let driver to toggle online and offline for driver in drivers dashboard.
+What if no Drivers accept a request? Does it timeout, or does the Rider get a “no drivers available” message?
+- We will show rider try again after sometime no driver available.
+
+The “live status” feature is great, but how will Drivers update their location in real-time? You’ll need a mechanism (e.g., periodic GPS pings) to keep the proximity search accurate.
+- When driver changes the ride status,
+  Accepts the request -> drivers location is the location he is at present.
+  Reached pickup -> drivers location is the location where the rider is standing.
+  Star trip -> drivers location is the location where the ride has started (same as riders pickup point)
+  End trip -> drivers location is the drop off point of rider. 
+
+How does the Rider cancel a ride? Before or after a Driver accepts? This could affect Driver availability and request visibility.
+- If rider cancels the ride after the driver accepts the ride request then, the request is removed for everyone(all drivers, rider himself). 
+What happens if no Driver is found within 10 km? Will the Rider get a retry option or a suggestion to choose a different cab type?
+- We will tell now driver available, try again later
