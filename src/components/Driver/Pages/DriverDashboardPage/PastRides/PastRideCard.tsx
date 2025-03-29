@@ -5,7 +5,7 @@ const PastRideCard = () => {
     <div
       className="
       border border-[#3C3C3C]
-      w-[80%]
+      w-[90%] md:w-[80%]
       aspect-[2/1]
       grid
       grid-cols-[25%_75%]

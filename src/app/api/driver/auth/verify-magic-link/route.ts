@@ -7,7 +7,7 @@ export async function GET(request: Request) {
 
   if (!code) {
     return NextResponse.redirect(
-      `${requestUrl.origin}/user/auth?error=Invalid link`
+      `${requestUrl.origin}/driver/auth?error=Invalid link`
     );
   }
 
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   if (error) {
     console.error("Callback error:", error);
     return NextResponse.redirect(
-      `${requestUrl.origin}/user/auth?error=Invalid link`
+      `${requestUrl.origin}/driver/auth?error=Invalid link`
     );
   }
 
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
   if (!userId || !email) {
     return NextResponse.redirect(
-      `${requestUrl.origin}/user/auth?error=Authentication failed`
+      `${requestUrl.origin}/driver/auth?error=Authentication failed`
     );
   }
 
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
     {
       user_id: userId,
       email: email,
-      role: "rider", // Default role for rider
+      role: "driver", // Default role for driver
     },
     {
       onConflict: "user_id",
@@ -45,11 +45,11 @@ export async function GET(request: Request) {
   if (userError) {
     console.error("User record creation failed:", userError);
     return NextResponse.redirect(
-      `${requestUrl.origin}/user/auth?error=Profile setup failed`
+      `${requestUrl.origin}/driver/auth?error=Profile setup failed`
     );
   }
 
-  // Check rider profile existence
+  // Check driver profile existence
   const { data: rider } = await supabase
     .from("riders")
     .select("is_first_login")
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
   // Redirect logic
   return NextResponse.redirect(
     rider?.is_first_login === false
-      ? `${requestUrl.origin}/user/trip/book-ride`
-      : `${requestUrl.origin}/user/onboarding/profile`
+      ? `${requestUrl.origin}/driver/dashboard`
+      : `${requestUrl.origin}/driver/onboarding/profile`
   );
 }

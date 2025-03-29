@@ -16,8 +16,8 @@ const IncomingRequestList = () => {
         }}
         className="overflow-y-scroll
         w-full h-[calc(95%-70px)] 
-        grid grid-cols-2
-        justify-items-start items-start"
+        grid grid-cols-1 md:grid-cols-2 
+        justify-items-center md:justify-items-start items-start"
       >
         <IncomingRequestCard />
         <IncomingRequestCard />

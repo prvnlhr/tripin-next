@@ -12,23 +12,46 @@ type Session = {
 
 const useUserSession = () => {
   const [session, setSession] = useState<Session>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
 
     const fetchSession = async () => {
       try {
+        setLoading(true);
+
+        // First try to get the session from the current client
+        const {
+          data: { session: currentSession },
+        } = await supabase.auth.getSession();
+
+        if (currentSession?.user) {
+          if (!mounted) return;
+          setSession({
+            userName:
+              currentSession.user.user_metadata?.name ||
+              currentSession.user.user_metadata?.display_name ||
+              "",
+            email: currentSession.user.email || "",
+            userId: currentSession.user.id,
+          });
+          return;
+        }
+
+        // Fallback to getUser() if no session found
         const {
           data: { user },
-          error,
         } = await supabase.auth.getUser();
 
-        if (error) throw error;
         if (!mounted) return;
 
         if (user) {
           setSession({
-            userName: user.user_metadata?.display_name || "",
+            userName:
+              user.user_metadata?.name ||
+              user.user_metadata?.display_name ||
+              "",
             email: user.email || "",
             userId: user.id,
           });
@@ -36,9 +59,10 @@ const useUserSession = () => {
           setSession(null);
         }
       } catch (error) {
-        if (mounted) {
-          console.error("Error fetching session:", error);
-        }
+        console.error("Error fetching session:", error);
+        if (mounted) setSession(null);
+      } finally {
+        if (mounted) setLoading(false);
       }
     };
 
@@ -48,16 +72,18 @@ const useUserSession = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
-
-      if (session?.user) {
-        setSession({
-          userName: session.user.user_metadata?.display_name || "",
-          email: session.user.email || "",
-          userId: session.user.id,
-        });
-      } else {
-        setSession(null);
-      }
+      setSession(
+        session?.user
+          ? {
+              userName:
+                session.user.user_metadata?.name ||
+                session.user.user_metadata?.display_name ||
+                "",
+              email: session.user.email || "",
+              userId: session.user.id,
+            }
+          : null
+      );
     });
 
     return () => {
@@ -66,7 +92,7 @@ const useUserSession = () => {
     };
   }, []);
 
-  return session;
+  return { session, loading };
 };
 
 export default useUserSession;

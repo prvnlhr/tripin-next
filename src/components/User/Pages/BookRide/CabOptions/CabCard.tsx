@@ -26,8 +26,7 @@ const CabCard: React.FC<CabCardProps> = ({ cab }) => {
         <Image
           src={cab.imgSrc}
           alt={cab.type}
-          objectFit="contain"
-          className="w-[70%] aspect-[1/1]"
+          className="w-[70%] aspect-[1/1] object-contain"
         />
       </div>
       <div

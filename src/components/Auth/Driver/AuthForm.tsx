@@ -3,34 +3,25 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createRiderProfile } from "@/lib/services/user/profile/profileService";
-import useUserSession from "@/hooks/useUserSession";
-import authBannerImg from "../../../../../public/assets/banners/authPageBanner.png";
+import authBannerImg from "../../../../public/assets/banners/authPageBanner.png";
 import Image from "next/image";
-import AppLogo from "@/components/Common/AppLogo";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import AppLogo from "@/components/Common/AppLogo";
+import { signInWithMagicLink } from "@/actions/auth/driver/auth";
 
-const profileSchema = z.object({
-  name: z.string().min(1, "Name is required").max(50, "Name is too long"),
-  phone: z
-    .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .max(15, "Phone number is too long")
-    .regex(/^[0-9+\- ]+$/, "Invalid phone number format"),
+const emailSchema = z.object({
+  email: z.string().min(1, "Email is required").email("Invalid email address"),
 });
 
-type ProfileFormData = z.infer<typeof profileSchema>;
+type EmailFormData = z.infer<typeof emailSchema>;
 
-const OnBoardingForm = () => {
-  const router = useRouter();
-
+export default function AuthForm() {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
+  } = useForm<EmailFormData>({
+    resolver: zodResolver(emailSchema),
   });
 
   const [notification, setNotification] = useState<{
@@ -38,18 +29,21 @@ const OnBoardingForm = () => {
     variant: "success" | "error";
   } | null>(null);
 
-  const session = useUserSession();
-  const onSubmit = async (data: ProfileFormData) => {
-    const userId = session.session?.userId;
-    if (!userId) return;
+  const handleMagicLinkRequest = async ({ email }: EmailFormData) => {
     setNotification(null);
     try {
-      await createRiderProfile(userId, data);
-      router.push("/user/trip/book-ride");
-    } catch (error) {
-      console.error("Profile update error:", error);
+      const { success, message } = await signInWithMagicLink(email);
+
       setNotification({
-        message: "Failed to save profile. Please try again.",
+        message: success
+          ? "Magic link sent! Check your email."
+          : message || "Failed to send magic link",
+        variant: success ? "success" : "error",
+      });
+    } catch (error) {
+      console.log(" error:", error);
+      setNotification({
+        message: "An unexpected error occurred",
         variant: "error",
       });
     }
@@ -62,20 +56,20 @@ const OnBoardingForm = () => {
           <Image
             src={authBannerImg}
             fill
+            className="object-cover"
             priority={true}
             alt="Authentication banner"
-            className="object-cover"
           />
         </div>
 
         <div
           className="
-       flex flex-col items-center justify-center  
-       w-[100%] md:w-[40%] 
-       h-[65%] md:h-[100%] border-red-600"
+           flex flex-col items-center justify-center  
+           w-[100%] md:w-[40%] 
+           h-[65%] md:h-[100%] border-red-600"
         >
-          <div className="w-[85%] h-[50px] flex items-center">
-            <div className="w-auto h-[60%] flex items-center">
+          <div className="w-[85%] h-[70px] flex items-center">
+            <div className="w-auto h-[50%] flex items-center">
               <AppLogo />
             </div>
           </div>
@@ -89,9 +83,9 @@ const OnBoardingForm = () => {
             {/* row-1 */}
             <div className="w-[100%] h-[100%] flex items-center">
               <p className="font-light text-[1.7rem] leading-tight">
-                Tell us more
+                Driver partner
                 <br />
-                about you<span className="text-[#B5E4FC]">.</span>
+                sign in<span className="text-[#B5E4FC]">.</span>
               </p>
             </div>
             {/* row-2 */}
@@ -110,69 +104,43 @@ const OnBoardingForm = () => {
             </div>
             {/* row-3 */}
             <form
-              onSubmit={handleSubmit(onSubmit)}
+              onSubmit={handleSubmit(handleMagicLinkRequest)}
               className="w-[100%] h-auto  border-green-500"
             >
               <div
                 className="
-                 w-full h-auto 
-                 grid
-                 grid-cols-[100%]
-                 grid-rows-[auto_auto]"
+                w-full h-auto 
+                grid
+                grid-cols-[100%]
+                grid-rows-[auto]"
               >
-                {/* input group - Name */}
+                {/* input group */}
                 <div className="w-full h-auto  border-red-500">
                   <label className="w-full h-[30px] flex items-center text-[0.9rem] text-[#B5E4FC] font-normal">
-                    NAME
+                    EMAIL ADDRESS
                   </label>
                   <div className="h-[40px] border-b border-[#505354]">
                     <div className="flex-1 h-full flex items-center">
                       <input
-                        {...register("name")}
-                        className="flex-1 bg-transparent outline-none font-light text-[0.8rem]"
+                        {...register("email")}
+                        className="h-full flex-1 outline-none font-light text-white text-[0.8rem]
+                        bg-transparent"
                         placeholder="Enter your email address"
                         disabled={isSubmitting}
+                        autoComplete="email"
                       />
                       <div className="h-full aspect-square flex  items-center justify-center">
                         <Icon
-                          icon="tdesign:user-1-filled"
+                          icon="tabler:mail-filled"
                           className="text-[#B5E4FC] w-[40%] h-[40%]"
                         />
                       </div>
                     </div>
                   </div>
                   <div className="w-full h-[30px] flex items-center">
-                    {errors.name && (
+                    {errors.email && (
                       <p className="text-red-500 text-[0.75rem] font-medium">
-                        {errors.name.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="w-full h-auto  border-red-500">
-                  <label className="w-full h-[30px] flex items-center text-[0.9rem] text-[#B5E4FC] font-normal">
-                    PHONE
-                  </label>
-                  <div className="h-[40px] border-b border-[#505354]">
-                    <div className="flex-1 h-full flex items-center">
-                      <input
-                        {...register("phone")}
-                        className="flex-1 bg-transparent outline-none font-light text-[0.8rem]"
-                        placeholder="Enter your email address"
-                        disabled={isSubmitting}
-                      />
-                      <div className="h-full aspect-square flex  items-center justify-center">
-                        <Icon
-                          icon="solar:phone-bold"
-                          className="text-[#B5E4FC] w-[40%] h-[40%]"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w-full h-[30px] flex items-center">
-                    {errors.phone && (
-                      <p className="text-red-500 text-[0.75rem] font-medium">
-                        {errors.phone.message}
+                        {errors.email.message}
                       </p>
                     )}
                   </div>
@@ -196,6 +164,4 @@ const OnBoardingForm = () => {
       </div>
     </div>
   );
-};
-
-export default OnBoardingForm;
+}

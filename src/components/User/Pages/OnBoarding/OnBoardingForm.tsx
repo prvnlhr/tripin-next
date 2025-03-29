@@ -40,7 +40,7 @@ const OnBoardingForm = () => {
 
   const session = useUserSession();
   const onSubmit = async (data: ProfileFormData) => {
-    const userId = session?.userId;
+    const userId = session?.session?.userId;
     if (!userId) return;
     setNotification(null);
     try {
@@ -62,7 +62,8 @@ const OnBoardingForm = () => {
           <Image
             src={authBannerImg}
             fill
-            objectFit="cover"
+            priority={true}
+            className="object-cover"
             alt="Authentication banner"
           />
         </div>

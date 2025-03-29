@@ -27,27 +27,83 @@ export async function updateSession(request: NextRequest) {
       },
     }
   );
-
-  await supabase.auth.getUser();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
-  // Debug logging
-  // console.log("Middleware session:", {
-  //   user: user?.email,
-  //   path: pathname,
-  //   cookies: request.cookies.getAll(),
-  // });
 
-  // Your existing routing logic
-  if (user && pathname.startsWith("/user/auth")) {
-    return NextResponse.redirect(new URL("/user/trip/book-ride", request.url));
+  // Route configuration
+  const routeConfig = {
+    rider: {
+      auth: "/user/auth",
+      onboarding: "/user/auth/onboarding/profile",
+      main: "/user/trip",
+      mainRedirect: "/user/trip/book-ride",
+    },
+    driver: {
+      auth: "/driver/auth",
+      onboarding: "/driver/auth/onboarding/profile",
+      main: "/driver/dashboard",
+      mainRedirect: "/driver/dashboard",
+    },
+    admin: {
+      auth: "/admin/auth",
+      onboarding: "/admin/auth/onboarding/profile",
+      main: "/admin/dashboard",
+      mainRedirect: "/admin/dashboard",
+    },
+  } as const;
+
+  // Determine role (default to 'rider' if not set)
+  const role =
+    (user?.user_metadata?.role as keyof typeof routeConfig) || "rider";
+  const config = routeConfig[role];
+
+  const requiresOnboarding = user?.user_metadata?.requires_onboarding !== false;
+
+  console.log({
+    user: user?.email,
+    role,
+    requiresOnboarding,
+    pathname,
+    redirect: supabaseResponse.headers.get("Location"),
+  });
+
+  // 1. Unauthenticated users
+  if (!user) {
+    // Allow auth pages and API route for magic link verification
+    if (
+      pathname === config.auth ||
+      pathname === routeConfig.driver.auth ||
+      pathname === routeConfig.admin.auth ||
+      pathname.startsWith("/api/auth/verify-magic-link")
+    ) {
+      return supabaseResponse;
+    }
+    // Restrict everything else
+    return NextResponse.redirect(new URL(config.auth, request.url));
   }
 
-  if (!user && pathname.startsWith("/user/trip")) {
-    return NextResponse.redirect(new URL("/user/auth", request.url));
+  // 2. Authenticated users
+  // requires_onboarding: true means NOT onboarded, false means onboarded
+
+  if (requiresOnboarding) {
+    // Allowed: onboarding page only
+    if (pathname === config.onboarding || pathname === "/api/user/profile") {
+      return supabaseResponse;
+    }
+    // Restrict everything else, redirect to onboarding
+    return NextResponse.redirect(new URL(config.onboarding, request.url));
+  }
+
+  // Onboarded (requires_onboarding: false)
+  if (!requiresOnboarding) {
+    // Allowed: main pages
+    if (pathname.startsWith(config.main) || pathname === "/api/user/profile") {
+      return supabaseResponse;
+    }
+    // Restrict auth and onboarding pages, redirect to main
+    return NextResponse.redirect(new URL(config.mainRedirect, request.url));
   }
 
   return supabaseResponse;

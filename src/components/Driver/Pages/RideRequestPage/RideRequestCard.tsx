@@ -41,7 +41,7 @@ const RideRequestCard = () => {
           <Icon icon="ep:close" className="h-[40%] w-[40%] text-[white]" />
         </button>
         <Link
-          href={"/driver/ongoing-ride"}
+          href={"/driver/dashboard/ongoing-ride"}
           type="button"
           className="flex h-[80%] ml-[10px] aspect-square cursor-pointer items-center justify-center rounded-full bg-[#32D583]"
         >

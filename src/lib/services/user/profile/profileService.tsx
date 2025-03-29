@@ -37,6 +37,8 @@ export async function createRiderProfile(
   userId: string,
   profileData: RiderProfileData
 ) {
+  console.log(" userId:", userId);
+  console.log(" profileData:", profileData);
   try {
     const response = await fetch(`${BASE_URL}/api/user/profile`, {
       method: "POST",

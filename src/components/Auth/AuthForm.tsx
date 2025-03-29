@@ -5,10 +5,25 @@ import { z } from "zod";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { signInWithMagicLink } from "@/actions/auth/user/auth";
-import authBannerImg from "../../../../public/assets/banners/authPageBanner.png";
+import authBannerImg from "../../../public/assets/banners/authPageBanner.png";
 import Image from "next/image";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import AppLogo from "@/components/Common/AppLogo";
+
+const ROLE_HEADER_MESSAGES = {
+  rider: {
+    line1: "Let's get you",
+    line2: "signed in",
+  },
+  driver: {
+    line1: "Sigin to Driver",
+    line2: "partner portal",
+  },
+  admin: {
+    line1: "Sigin to access",
+    line2: "admin portal",
+  },
+};
 
 const emailSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -31,17 +46,18 @@ export default function AuthForm() {
     variant: "success" | "error";
   } | null>(null);
 
-  // Determine role based on route
   const getCurrentRole = () => {
     if (pathname.includes("/admin/auth")) return "admin";
     if (pathname.includes("/driver/auth")) return "driver";
-    return "rider"; // default
+    return "rider";
   };
+
+  const role = getCurrentRole();
+  const { line1, line2 } = ROLE_HEADER_MESSAGES[role];
 
   const handleMagicLinkRequest = async ({ email }: EmailFormData) => {
     setNotification(null);
     try {
-      const role = getCurrentRole();
       const { success, message } = await signInWithMagicLink(email, role);
 
       setNotification({
@@ -83,9 +99,10 @@ export default function AuthForm() {
             {/* row-1 */}
             <div className="w-[100%] h-[100%] flex items-center">
               <p className="font-light text-[1.7rem] leading-tight">
-                Lets get you
+                {line1}
                 <br />
-                signed in<span className="text-[#B5E4FC]">.</span>
+                {line2}
+                <span className="text-[#B5E4FC]">.</span>
               </p>
             </div>
             {/* row-2 */}

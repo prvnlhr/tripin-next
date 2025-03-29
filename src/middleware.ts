@@ -6,5 +6,12 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/user/trip/:path*", "/user/auth/:path*", "/user/auth/callback"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$|public/).*)",
+    "/user/:path*",
+    "/driver/:path*",
+    "/admin/:path*",
+    "/api/auth/verify-magic-link",
+    "/api/user/profile",
+  ],
 };

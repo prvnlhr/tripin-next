@@ -2,25 +2,17 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-type AuthRole = "rider" | "driver" | "admin";
-
-export async function signInWithMagicLink(
-  email: string,
-  role: AuthRole = "rider"
-) {
+export async function signInWithMagicLink(email: string) {
   const supabase = await createClient();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   try {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         shouldCreateUser: true,
-        data: { role },
-        emailRedirectTo: `${baseUrl}/api/auth/verify-magic-link?role=${role}`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/api/driver/auth/verify-magic-link`,
       },
     });
-
     if (error) {
       console.error("Sign-in error:", error.message);
       return {
@@ -34,18 +26,25 @@ export async function signInWithMagicLink(
       message: "Check your email for the magic link!",
     };
   } catch (error) {
-    console.error("Authentication error:", error);
+    let errorMessage = "An unexpected error occurred";
+
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      console.error("Authentication error:", errorMessage);
+    } else {
+      console.error("Unknown authentication error occurred:", error);
+    }
+
     return {
       success: false,
-      message:
-        error instanceof Error ? error.message : "An unexpected error occurred",
+      message: errorMessage,
     };
   }
 }
 
-// signOut remains unchanged
 export async function signOut() {
   const supabase = await createClient();
+
   try {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;

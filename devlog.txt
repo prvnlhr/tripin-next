@@ -410,4 +410,97 @@ Now this is for only the new users.
 
 
 
-/lib
+
+
+i have three frontend routes,
+
+user/auth
+driver/auth
+admin/auth
+all of the above will show same form
+
+
+as of now this middleware seems to bother me very much. Neither the redirection or the route protection nothing works. in many of the api call it also gives me error too many redirects.
+I want to re-write the this middleware. only the top part which was taken from supabase docs is correct. blew that everything is bullshit.
+What iam trying to achieve is,
+
+
+
+ first lets start with two main aspects,
+ Either a user is authenticated or a user is not authenticated
+ we check this by auth.getUser();
+
+
+ now if a user is authenticated, there can be two conditions,
+ either  isOnboarded or not.
+
+ if not isOnboarded then based on the role we redirect to its onboarding page.
+ if isOnboarded then we redirects to main page.
+
+
+ if user is not authenticated all the paths  except the path which has auth in them are restricted.
+
+
+
+
+
+list of all the frontend path:
+/user/auth...
+/driver/auth...
+/admin/auth...
+/user/trip...
+/driver/dashboard...
+/admin/dashboard...
+/user/auth/onboarding/profile 
+/driver/auth/onboarding/profile 
+/admin/auth/onboarding/profile 
+
+
+---------------------------------------------------
+
+-> not authenticated
+   - restrict:
+     /user/trip...
+     /driver/dashboard...
+     /admin/dashboard...
+     /user/auth/onboarding/profile 
+     /driver/auth/onboarding/profile 
+     /admin/auth/onboarding/profile 
+
+   - allowed:
+     /user/auth
+     /driver/auth
+     /admin/auth
+
+---------------------------------------------------
+-> authenticated
+
+   -> not isOnboarded
+      - restrict:
+        /user/auth
+        /driver/auth
+        /admin/auth
+        /user/trip...
+        /driver/dashboard...
+        /admin/dashboard...
+
+      - allowed:
+        /user/auth/onboarding/profile
+        /driver/auth/onboarding/profile
+        /admin/auth/onboarding/profile      
+
+   -> isOnboarded
+      - restrict:
+        /user/auth
+        /driver/auth
+        /admin/auth
+        /user/auth/onboarding/profile
+        /driver/auth/onboarding/profile
+        /admin/auth/onboarding/profile
+
+      - allowed:
+        /user/trip...
+        /driver/dashboard...
+        /admin/dashboard...      
+
+

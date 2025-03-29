@@ -5,7 +5,7 @@ const IncomingRequestCard = () => {
   return (
     <div
       className="
-       w-[80%]
+       w-[90%] md:w-[80%]
        aspect-[4/2.5]
        bg-[linear-gradient(180deg,#1F2224_0%,#1F1F20_100%)]
        border border-[#3C3C3C] rounded-[30px]
@@ -54,7 +54,7 @@ const IncomingRequestCard = () => {
       </div>
       <div className="col-start-3 row-start-3 w-full h-full flex justify-end items-end">
         <Link
-          href={"ride-request/f47ac10b-58cc-4372-a567-0e02b2c3d479"}
+          href={"dashboard/ride-request/f47ac10b-58cc-4372-a567-0e02b2c3d479"}
           type="button"
           className="flex h-[80%] aspect-square cursor-pointer items-center justify-center rounded-full bg-white"
         >
