@@ -9,6 +9,7 @@ import authBannerImg from "../../../public/assets/banners/authPageBanner.png";
 import Image from "next/image";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import AppLogo from "@/components/Common/AppLogo";
+import Link from "next/link";
 
 const ROLE_HEADER_MESSAGES = {
   rider: {
@@ -16,11 +17,11 @@ const ROLE_HEADER_MESSAGES = {
     line2: "signed in",
   },
   driver: {
-    line1: "Sigin to Driver",
+    line1: "Sign in to Driver",
     line2: "partner portal",
   },
   admin: {
-    line1: "Sigin to access",
+    line1: "Sign in to access",
     line2: "admin portal",
   },
 };
@@ -30,6 +31,22 @@ const emailSchema = z.object({
 });
 
 type EmailFormData = z.infer<typeof emailSchema>;
+
+type NotificationState =
+  | {
+      type: "success";
+      message: string;
+    }
+  | {
+      type: "unauthorized";
+      message: string;
+      redirectLink: string;
+      role: string;
+    }
+  | {
+      type: "error";
+      message: string;
+    };
 
 export default function AuthForm() {
   const pathname = usePathname();
@@ -41,12 +58,11 @@ export default function AuthForm() {
     resolver: zodResolver(emailSchema),
   });
 
-  const [notification, setNotification] = useState<{
-    message: string;
-    variant: "success" | "error";
-  } | null>(null);
+  const [notification, setNotification] = useState<NotificationState | null>(
+    null
+  );
 
-  const getCurrentRole = () => {
+  const getCurrentRole = (): "rider" | "driver" | "admin" => {
     if (pathname.includes("/admin/auth")) return "admin";
     if (pathname.includes("/driver/auth")) return "driver";
     return "rider";
@@ -58,27 +74,42 @@ export default function AuthForm() {
   const handleMagicLinkRequest = async ({ email }: EmailFormData) => {
     setNotification(null);
     try {
-      const { success, message } = await signInWithMagicLink(email, role);
+      const result = await signInWithMagicLink(email, role);
+
+      if (!result.success) {
+        if (result.errorType === "WRONG_ROLE") {
+          setNotification({
+            type: "unauthorized",
+            message: "Unauthorized access",
+            redirectLink: result.correctPortal,
+            role: result.correctRole,
+          });
+        } else {
+          setNotification({
+            type: "error",
+            message: result.message || "Failed to send magic link",
+          });
+        }
+        return;
+      }
 
       setNotification({
-        message: success
-          ? "Magic link sent! Check your email."
-          : message || "Failed to send magic link",
-        variant: success ? "success" : "error",
+        type: "success",
+        message: "Check your email for the sign in link",
       });
     } catch (error) {
       console.error("Sign-in error:", error);
       setNotification({
+        type: "error",
         message: "An unexpected error occurred",
-        variant: "error",
       });
     }
   };
 
-  // UI remains exactly the same as before
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="w-full h-full md:w-[70%] md:h-[70%] flex flex-col md:flex-row">
+        {/* Left Banner Image */}
         <div className="relative w-[100%] md:w-[60%] h-[35%] md:h-[100%] rounded-[0px] md:rounded-[20px] overflow-hidden">
           <Image
             src={authBannerImg}
@@ -89,14 +120,18 @@ export default function AuthForm() {
           />
         </div>
 
+        {/* Right Auth Content */}
         <div className="flex flex-col items-center justify-center w-[100%] md:w-[40%] h-[65%] md:h-[100%]">
+          {/* Logo */}
           <div className="w-[85%] h-[50px] flex items-center">
             <div className="w-auto h-[60%] flex items-center">
               <AppLogo />
             </div>
           </div>
-          <div className="w-[80%] h-[calc(100%-50px)] grid grid-cols-[100%] grid-rows-[70px_50px_auto]">
-            {/* row-1 */}
+
+          {/* Main Content Area */}
+          <div className="w-[80%] h-[calc(100%-50px)] grid grid-cols-[100%] grid-rows-[70px_70px_auto]">
+            {/* Header */}
             <div className="w-[100%] h-[100%] flex items-center">
               <p className="font-light text-[1.7rem] leading-tight">
                 {line1}
@@ -105,27 +140,46 @@ export default function AuthForm() {
                 <span className="text-[#B5E4FC]">.</span>
               </p>
             </div>
-            {/* row-2 */}
-            <div className="w-[100%] h-[100%] flex items-center">
+
+            {/* Notification Area */}
+            <div className="w-[100%] h-[100%] flex flex-col justify-center items-center">
               {notification && (
-                <div
-                  className={`w-auto py-1 px-4 rounded text-[0.75rem] border ${
-                    notification.variant === "success"
-                      ? "text-green-500 border-green-500 bg-green-500/10"
-                      : "text-red-500 border-red-500 bg-red-500/10"
-                  }`}
-                >
-                  {notification.message}
-                </div>
+                <>
+                  {/* Message for all types */}
+                  <div
+                    className={`w-full h-[50%] flex items-center px-[10px] rounded text-[0.8rem] ${
+                      notification.type === "success"
+                        ? "text-green-500 border-green-500 bg-green-500/10"
+                        : notification.type === "error" ||
+                            notification.type === "unauthorized"
+                          ? "text-red-500 border-red-500 bg-red-500/10"
+                          : ""
+                    }`}
+                  >
+                    {notification.message}
+                  </div>
+
+                  {/* Additional link for unauthorized */}
+                  {notification.type === "unauthorized" && (
+                    <div className="w-full flex items-center justify-center h-[50%]">
+                      <Link
+                        href={notification.redirectLink}
+                        className="w-full h-full underline flex px-[10px] items-center justify-start text-[0.8rem] font-normal"
+                      >
+                        Click to sign in as {notification.role}
+                      </Link>
+                    </div>
+                  )}
+                </>
               )}
             </div>
-            {/* row-3 */}
+
+            {/* Form */}
             <form
               onSubmit={handleSubmit(handleMagicLinkRequest)}
               className="w-[100%] h-auto"
             >
               <div className="w-full h-auto grid grid-cols-[100%] grid-rows-[auto]">
-                {/* input group */}
                 <div className="w-full h-auto">
                   <label className="w-full h-[30px] flex items-center text-[0.9rem] text-[#B5E4FC] font-normal">
                     EMAIL ADDRESS

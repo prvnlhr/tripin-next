@@ -1,44 +1,56 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-
-type AuthRole = "rider" | "driver" | "admin";
+import type { AuthResponse } from "@/types/authTypes";
 
 export async function signInWithMagicLink(
   email: string,
-  role: AuthRole = "rider"
-) {
+  attemptedRole: "rider" | "driver" | "admin"
+): Promise<AuthResponse> {
   const supabase = await createClient();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   try {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-        data: { role },
-        emailRedirectTo: `${baseUrl}/api/auth/verify-magic-link?role=${role}`,
-      },
-    });
+    // 1. Check if user exists with a different role
+    const { data: existingUser, error: queryError } = await supabase
+      .from("users")
+      .select("role")
+      .eq("email", email)
+      .maybeSingle();
 
-    if (error) {
-      console.error("Sign-in error:", error.message);
+    if (queryError) throw queryError;
+
+    if (existingUser && existingUser.role !== attemptedRole) {
       return {
         success: false,
-        message: error.message || "Failed to send magic link",
+        errorType: "WRONG_ROLE",
+        correctRole: existingUser.role,
+        correctPortal: `/${existingUser.role}/auth`,
       };
     }
 
+    // 2. Send magic link for new users or correct role
+    const { error: authError } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: true,
+        data: { role: attemptedRole },
+        emailRedirectTo: `${baseUrl}/api/auth/verify-magic-link?role=${attemptedRole}`,
+      },
+    });
+
+    if (authError) throw authError;
+
     return {
       success: true,
-      message: "Check your email for the magic link!",
+      message: "Check your email for the sign in link",
     };
   } catch (error) {
     console.error("Authentication error:", error);
     return {
       success: false,
-      message:
-        error instanceof Error ? error.message : "An unexpected error occurred",
+      errorType: "GENERIC_ERROR",
+      message: error instanceof Error ? error.message : "Authentication failed",
     };
   }
 }
