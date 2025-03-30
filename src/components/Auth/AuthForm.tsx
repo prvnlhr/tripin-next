@@ -4,12 +4,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { signInWithMagicLink } from "@/actions/auth/user/auth";
+import { signInWithMagicLink } from "@/actions/auth/auth";
 import authBannerImg from "../../../public/assets/banners/authPageBanner.png";
 import Image from "next/image";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import AppLogo from "@/components/Common/AppLogo";
 import Link from "next/link";
+import SubmitBtn from "../Common/SubmitBtn";
 
 const ROLE_HEADER_MESSAGES = {
   rider: {
@@ -211,16 +212,7 @@ export default function AuthForm() {
                 </div>
               </div>
               <div className="w-[100%] h-[80px] flex items-center">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="h-[50px] w-[50px] flex items-center justify-center rounded-full bg-white disabled:opacity-50 cursor-pointer"
-                >
-                  <Icon
-                    icon="bi:arrow-up"
-                    className="h-[40%] w-[40%] rotate-90 text-black"
-                  />
-                </button>
+                <SubmitBtn isSubmitting={isSubmitting} />
               </div>
             </form>
           </div>

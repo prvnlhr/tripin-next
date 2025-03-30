@@ -1,6 +1,6 @@
 "use client";
 import AppLogo from "@/components/Common/AppLogo";
-import { signOut } from "@/actions/auth/user/auth";
+import { signOut } from "@/actions/auth/auth";
 import { useRouter } from "next/navigation";
 import useUserSession from "@/hooks/useUserSession";
 

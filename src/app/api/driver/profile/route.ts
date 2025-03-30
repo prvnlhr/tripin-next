@@ -5,11 +5,20 @@ import { NextRequest } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const { userId, profileData } = await req.json();
-    const { name, phone } = profileData;
+    const { name, phone, car_name, car_model, cab_type, license_plate } =
+      profileData;
 
     console.log("Request data:", { userId, profileData });
 
-    if (!userId || !name || !phone) {
+    if (
+      !userId ||
+      !name ||
+      !phone ||
+      !car_name ||
+      !car_model ||
+      !cab_type ||
+      !license_plate
+    ) {
       return createResponse(400, null, "All fields are required.");
     }
 
@@ -27,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Update rider profile
-    const { error: profileError } = await supabase.from("riders").upsert(
+    const { error: profileError } = await supabase.from("drivers").upsert(
       {
         user_id: userId,
         ...profileData,

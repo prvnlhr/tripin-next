@@ -1,6 +1,6 @@
 import React from "react";
 
-const PastRideCard = () => {
+const PastRideListCard = () => {
   return (
     <div
       className="
@@ -37,4 +37,4 @@ const PastRideCard = () => {
   );
 };
 
-export default PastRideCard;
+export default PastRideListCard;

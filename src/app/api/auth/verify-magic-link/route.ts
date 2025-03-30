@@ -30,13 +30,13 @@ export async function GET(request: Request) {
     // 2. Determine user's role
     const resolvedRole = role || data.user?.user_metadata?.role || "rider";
 
-    // 3. Update users table (EXACTLY matching your schema)
+    // 3. Update users table
     const { error: userError } = await supabase.from("users").upsert(
       {
         user_id: userId,
         email,
         role: resolvedRole,
-        updated_at: new Date().toISOString(), // Only fields that exist in your schema
+        updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" }
     );
@@ -49,12 +49,12 @@ export async function GET(request: Request) {
       requestUrl.origin
     );
 
-    // 5. Update session metadata (not stored in DB)
+    // 5. Update session metadata
     await supabase.auth.updateUser({
       data: {
         ...data.user?.user_metadata,
         role: resolvedRole,
-        requires_onboarding: requiresOnboarding, // Session-only flag
+        requires_onboarding: requiresOnboarding,
         last_verified: new Date().toISOString(),
       },
     });

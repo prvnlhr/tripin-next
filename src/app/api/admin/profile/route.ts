@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Update rider profile
-    const { error: profileError } = await supabase.from("riders").upsert(
+    const { error: profileError } = await supabase.from("admins").upsert(
       {
         user_id: userId,
         ...profileData,

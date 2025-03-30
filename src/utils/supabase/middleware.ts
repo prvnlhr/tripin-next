@@ -5,6 +5,19 @@ export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
+
+  if (
+    request.nextUrl.pathname.startsWith("/api") &&
+    ![
+      "/api/auth/verify-magic-link",
+      "/api/user/profile",
+      "/api/driver/profile",
+      "/api/admin/profile",
+    ].some((path) => request.nextUrl.pathname.startsWith(path))
+  ) {
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -61,14 +74,6 @@ export async function updateSession(request: NextRequest) {
 
   const requiresOnboarding = user?.user_metadata?.requires_onboarding !== false;
 
-  console.log({
-    user: user?.email,
-    role,
-    requiresOnboarding,
-    pathname,
-    redirect: supabaseResponse.headers.get("Location"),
-  });
-
   // 1. Unauthenticated users
   if (!user) {
     // Allow auth pages and API route for magic link verification
@@ -89,7 +94,12 @@ export async function updateSession(request: NextRequest) {
 
   if (requiresOnboarding) {
     // Allowed: onboarding page only
-    if (pathname === config.onboarding || pathname === "/api/user/profile") {
+    if (
+      pathname === config.onboarding ||
+      pathname === "/api/user/profile" ||
+      pathname === "/api/driver/profile" ||
+      pathname === "/api/admin/profile"
+    ) {
       return supabaseResponse;
     }
     // Restrict everything else, redirect to onboarding
@@ -99,7 +109,12 @@ export async function updateSession(request: NextRequest) {
   // Onboarded (requires_onboarding: false)
   if (!requiresOnboarding) {
     // Allowed: main pages
-    if (pathname.startsWith(config.main) || pathname === "/api/user/profile") {
+    if (
+      pathname.startsWith(config.main) ||
+      pathname === "/api/user/profile" ||
+      pathname === "/api/driver/profile" ||
+      pathname === "/api/admin/profile"
+    ) {
       return supabaseResponse;
     }
     // Restrict auth and onboarding pages, redirect to main
@@ -108,3 +123,12 @@ export async function updateSession(request: NextRequest) {
 
   return supabaseResponse;
 }
+
+// return supabaseResponse;
+// console.log({
+//   user: user?.email,
+//   role,
+//   requiresOnboarding,
+//   pathname,
+//   redirect: supabaseResponse.headers.get("Location"),
+// });

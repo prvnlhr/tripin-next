@@ -1,60 +1,70 @@
 import React from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Link from "next/link";
-const IncomingRequestCard = () => {
+import { DriverData } from "@/types/userType";
+
+interface VerificationRequestListCardProps {
+  driverRequest: DriverData;
+}
+const VerificationRequestListCard: React.FC<
+  VerificationRequestListCardProps
+> = ({ driverRequest }) => {
   return (
     <div
       className="
-       w-[90%] md:w-[80%]
-       aspect-[4/2.5]
+       w-[90%] md:w-[23%]
+       aspect-[4/2.7]
        bg-[linear-gradient(180deg,#1F2224_0%,#1F1F20_100%)]
        border border-[#3C3C3C] rounded-[30px]
-       grid
-       grid-cols-[50%_25%_25%]
-       grid-rows-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]
-       p-[20px]
-       mb-[20px]
+       grid grid-cols-[50%_25%_25%] grid-rows-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]
+       p-[20px] mb-[20px] md:m-[1%]
        "
     >
-      <div className="col-start-1 col-end-2 w-full h-full flex flex-col ">
+      <div className="col-start-1 col-end-2 w-full h-full flex flex-col">
         <div className="w-full  h-[25px] flex items-center  border-red-500">
-          <p className="text-[0.7rem] text-[white] font-medium">FROM</p>
+          <p className="text-[0.7rem] text-[white] font-medium">DRIVER NAME</p>
         </div>
         <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
-          <p className="text-[1.2rem] text-[white] font-light">Pepper Pots</p>
+          <p className="text-[1.2rem] text-[white] font-light truncate whitespace-nowrap">
+            {driverRequest.name}
+          </p>
         </div>
       </div>
       <div className="col-start-2 col-end-4 w-full h-full flex flex-col ">
         <div className="w-full  h-[25px] flex items-center  border-red-500">
-          <p className="text-[0.7rem] text-[white] font-medium">DISTANCE</p>
+          <p className="text-[0.7rem] text-[white] font-medium">PHONE</p>
         </div>
         <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
-          <p className="text-[0.8rem] text-[white] font-light">Approx 2.5km</p>
+          <p className="text-[0.8rem] text-[white] font-light">
+            {driverRequest.phone}
+          </p>
         </div>
       </div>
       <div className="col-span-3 row-start-2 w-full h-full flex flex-col ">
         <div className="w-full  h-[25px] flex items-center  border-red-500">
-          <p className="text-[0.7rem] text-[white] font-medium">PICKUP</p>
+          <p className="text-[0.7rem] text-[white] font-medium">
+            LICENSE PLATE NUMBER
+          </p>
         </div>
         <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
           <p className="text-[0.8rem] text-[white] font-light">
-            Jodhpur, C road Sadarpura
+            {driverRequest.license_plate}
           </p>
         </div>
       </div>
       <div className="col-span-2 row-start-3 w-full h-full flex flex-col ">
         <div className="w-full  h-[25px] flex items-center border-red-500">
-          <p className="text-[0.7rem] text-[white] font-medium">DROPOFF</p>
+          <p className="text-[0.7rem] text-[white] font-medium">CAR</p>
         </div>
         <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
           <p className="text-[0.8rem] text-[white] font-light">
-            Jodhpur, airport - termial 1
+            {driverRequest.car_name + " " + driverRequest.car_model}
           </p>
         </div>
       </div>
       <div className="col-start-3 row-start-3 w-full h-full flex justify-end items-end">
         <Link
-          href={"dashboard/ride-request/f47ac10b-58cc-4372-a567-0e02b2c3d479"}
+          href={`dashboard/verification-request/${driverRequest.driver_id}`}
           type="button"
           className="flex h-[80%] aspect-square cursor-pointer items-center justify-center rounded-full bg-white"
         >
@@ -68,4 +78,4 @@ const IncomingRequestCard = () => {
   );
 };
 
-export default IncomingRequestCard;
+export default VerificationRequestListCard;

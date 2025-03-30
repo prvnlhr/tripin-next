@@ -2,11 +2,11 @@
 import AppLogo from "@/components/Common/AppLogo";
 import { signOut } from "@/actions/auth/auth";
 import { useRouter } from "next/navigation";
-import useUserSession from "@/hooks/useUserSession";
+// import useUserSession from "@/hooks/useUserSession";
 
 const MainHeader = () => {
   const router = useRouter();
-  const session = useUserSession();
+  // const session = useUserSession();
 
   const handleSignOut = async () => {
     try {
@@ -26,7 +26,7 @@ const MainHeader = () => {
         <AppLogo />
       </div>
 
-      {session && (
+      {/* {session && (
         <button
           onClick={handleSignOut}
           className="flex items-center justify-center gap-2"
@@ -38,7 +38,7 @@ const MainHeader = () => {
             </div>
           </div>
         </button>
-      )}
+      )} */}
     </div>
   );
 };

@@ -45,8 +45,8 @@ const OnBoardingForm = () => {
     if (!userId) return;
     setNotification(null);
     try {
-      await createProfile("rider", userId, data);
-      router.push("/user/trip/book-ride");
+      await createProfile("admin", userId, data);
+      router.push("/admin/dashboard");
     } catch (error) {
       console.error("Profile update error:", error);
       setNotification({

@@ -1,5 +1,5 @@
 import React from "react";
-import PastRideCard from "./PastRideCard";
+import PastRideListCard from "./PastRideListCard";
 
 const PastRideList = () => {
   return (
@@ -20,13 +20,7 @@ const PastRideList = () => {
         grid grid-cols-1 md:grid-cols-2
         justify-items-center md:justify-items-start items-start"
       >
-        <PastRideCard />
-        <PastRideCard />
-        <PastRideCard />
-        <PastRideCard />
-        <PastRideCard />
-        <PastRideCard />
-        <PastRideCard />
+        <PastRideListCard />
       </div>
     </div>
   );

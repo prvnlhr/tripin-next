@@ -55,7 +55,7 @@ export async function signInWithMagicLink(
   }
 }
 
-// signOut remains unchanged
+// signOut 
 export async function signOut() {
   const supabase = await createClient();
   try {
