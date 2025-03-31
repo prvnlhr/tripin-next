@@ -41,7 +41,7 @@ const OnBoardingForm = () => {
 
   const session = useUserSession();
   const onSubmit = async (data: ProfileFormData) => {
-    const userId = session?.session?.userId;
+    const userId = session?.userId;
     if (!userId) return;
     setNotification(null);
     try {

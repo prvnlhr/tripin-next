@@ -13,7 +13,7 @@ const VerifiedDriverList: React.FC<VerifiedDriverListProps> = ({
     <div className="w-full h-full">
       <div className="w-full h-[70px] flex items-center justify-start">
         <p className="font-light text-[1.7rem] leading-tight">
-          Past rides completed <span className="text-[#B5E4FC]">.</span>
+          Verified Drivers <span className="text-[#B5E4FC]">.</span>
         </p>
       </div>
       <div
