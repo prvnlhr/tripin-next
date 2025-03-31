@@ -504,3 +504,25 @@ list of all the frontend path:
         /admin/dashboard...      
 
 
+----------------------------------------------------------------------------------------------------------
+RIDE BOOKING LOGIC FLOW::
+
+
+Factors for a ride to receive a ride request from the rider,
+1. Should have the cab type for which the rider has opted.
+2. Should be in the 5km proximity.
+3. Driver's availability.
+
+Ride make a ride request. All the drivers sees that request if the driver meets the above factors.
+At this point the request is awaiting to be accepted. When any of the eligible driver accepts the request
+the request is removed from the request table. Now at this point since the request is accepted this request
+gets converted to ride and an entry is created in ride table. This ride table hold info the rider/driver
+both of their locations, ride status. From this table we will show the rider about the drivers details and driver the 
+riders details. Both of them will see the status as live feed on their respective dashboard.
+Now as the driver changes the ride status it is reflect for both driver and rider.
+Once the the is completed, then this data can be used to show the rider and driver about the past rides they have undertook.
+See they can see if the ride was completed successfully or cancel etc etc...
+Now once the ride is successfully completed we can then generated a payment request. 
+
+
+

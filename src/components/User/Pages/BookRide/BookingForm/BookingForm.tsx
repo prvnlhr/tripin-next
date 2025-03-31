@@ -114,6 +114,23 @@ const BookingForm = () => {
 
   const handleSearchRide = () => {
     if (sourceInput && destInput) {
+      if (sourceInput && destInput) {
+        // Log the source and destination latitude and longitude
+        const sourceLatLng = sourceAutocomplete?.getPlace()?.geometry?.location;
+        const destLatLng = destAutocomplete?.getPlace()?.geometry?.location;
+
+        if (sourceLatLng && destLatLng) {
+          const sourceLat = sourceLatLng.lat();
+          const sourceLng = sourceLatLng.lng();
+          const destLat = destLatLng.lat();
+          const destLng = destLatLng.lng();
+
+          console.log("Source Location Latitude:", sourceLat);
+          console.log("Source Location Longitude:", sourceLng);
+          console.log("Destination Location Latitude:", destLat);
+          console.log("Destination Location Longitude:", destLng);
+        }
+      }
       updateURL({ rideOption: "true" });
     }
   };
