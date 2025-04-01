@@ -39,6 +39,7 @@ const BookRidePage: React.FC<BookRidePageProps> = ({ rideOption }) => {
            w-full h-[60vh] md:w-[50%] md:h-full md:justify-center
            md:border-[#3C3C3C] border-l-1 border-none"
         >
+          
           <CabList />
         </section>
       )}
