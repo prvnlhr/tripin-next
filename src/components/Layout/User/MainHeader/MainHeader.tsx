@@ -34,7 +34,7 @@ const MainHeader = () => {
         >
           <div className="h-10 w-10 flex items-center justify-center rounded-full border-2 border-[#B5E4FC] p-0.5">
             <div className="flex h-full w-full items-center justify-center rounded-full bg-[#46494A] text-white font-medium">
-              {session?.email.charAt(0).toUpperCase()}
+              {session?.userName.charAt(0).toUpperCase()}
             </div>
           </div>
         </button>

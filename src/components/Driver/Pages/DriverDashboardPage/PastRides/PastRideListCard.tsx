@@ -1,6 +1,10 @@
+import { PastRide } from "@/types/rideTypes";
 import React from "react";
 
-const PastRideListCard = () => {
+interface PastRideListCardProps {
+  pastRide: PastRide;
+}
+const PastRideListCard: React.FC<PastRideListCardProps> = ({ pastRide }) => {
   return (
     <div
       className="
@@ -21,13 +25,13 @@ const PastRideListCard = () => {
       <div className="w-full h-full col-start-2 col-end-3 row-start-1 row-end-2 flex flex-col justify-evenly border-green-500">
         <p className="text-[0.8rem] text-[#B5E4FC] font-medium">FROM</p>
         <p className="text-[0.8rem] text-[white] font-light">
-          Ratanada, Jodhpur
+          {pastRide.pickup_address}
         </p>
       </div>
       <div className="w-full h-full col-start-2 col-end-3 row-start-2 row-end-3 flex flex-col justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-medium">FROM</p>
         <p className="text-[0.8rem] text-[white] font-light">
-          Ratanada, Jodhpur
+          {pastRide.dropoff_address}
         </p>
       </div>
       <div className="w-full h-full col-start-2 col-end-3 row-start-3 row-end-4 flex flex-col justify-evenly border-red-400">

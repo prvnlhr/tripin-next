@@ -10,9 +10,9 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/api") &&
     ![
       "/api/auth/verify-magic-link",
-      "/api/user/profile",
-      "/api/driver/profile",
-      "/api/admin/profile",
+      "/api/user/profile/:path*",
+      "/api/driver/profile/:path*",
+      "/api/admin/profile/:path*",
     ].some((path) => request.nextUrl.pathname.startsWith(path))
   ) {
     return supabaseResponse;
@@ -73,7 +73,6 @@ export async function updateSession(request: NextRequest) {
   const config = routeConfig[role];
 
   const requiresOnboarding = user?.user_metadata?.requires_onboarding !== false;
-
   // 1. Unauthenticated users
   if (!user) {
     // Allow auth pages and API route for magic link verification

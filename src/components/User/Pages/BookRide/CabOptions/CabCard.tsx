@@ -4,19 +4,28 @@ import { CabOption } from "@/types/cabType";
 
 interface CabCardProps {
   cab: CabOption;
+  isSelected: boolean;
+  onSelect: (cab: CabOption) => void;
 }
-const CabCard: React.FC<CabCardProps> = ({ cab }) => {
-  const fare = 52.3;
+const CabCard: React.FC<CabCardProps> = ({ cab, isSelected, onSelect }) => {
+  const handleClick = () => {
+    if (cab.available) {
+      onSelect(cab);
+    }
+  };
   return (
     <div
-      className="
+      onClick={handleClick}
+      className={`
          w-[100%] h-[28%] 
          bg-[linear-gradient(180deg,#1F2224_0%,#1F1F20_100%)]
-         border border-[#3C3C3C] rounded-[15px]
+         border ${isSelected ? "border-[#B5E4FC]" : "border-[#3C3C3C] "} rounded-[15px]
          grid
          grid-cols-[auto_minmax(0,1fr)]
          grid-rows-[100%]
-         p-[5px]"
+         p-[5px]
+         ${cab.available ? "opacity-100" : "opacity-30"}
+         `}
     >
       <div
         className="
@@ -48,7 +57,7 @@ const CabCard: React.FC<CabCardProps> = ({ cab }) => {
         </div>
         <div className="w-[100%] h-[100%] flex items-center">
           <p className="text-[0.75rem] text-[#B5E4FC] uppercase font-light">
-            {Math.round(cab.fareMultiplier * fare * 100) / 100}
+            {cab.fare.toFixed(2)}
           </p>
         </div>
       </div>

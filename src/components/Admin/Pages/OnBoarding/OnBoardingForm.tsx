@@ -41,11 +41,11 @@ const OnBoardingForm = () => {
 
   const session = useUserSession();
   const onSubmit = async (data: ProfileFormData) => {
-    const userId = session?.userId;
-    if (!userId) return;
+    const adminId = session?.admin_id;
+    if (!adminId) return;
     setNotification(null);
     try {
-      await createProfile("admin", userId, data);
+      await createProfile("admin", adminId, data);
       router.push("/admin/dashboard");
     } catch (error) {
       console.error("Profile update error:", error);

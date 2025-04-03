@@ -12,8 +12,8 @@ export const config = {
     "/driver/:path*",
     "/admin/:path*",
     "/api/auth/verify-magic-link",
-    "/api/user/profile",
-    "/api/driver/profile",
-    "/api/admin/profile",
+    "/api/user/profile/:path*",
+    "/api/driver/profile/:path*",
+    "/api/admin/profile/:path*",
   ],
 };

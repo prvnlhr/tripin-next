@@ -33,7 +33,6 @@ const MapComponent = () => {
   const MAP_ID =
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "YOUR_MAP_ID_HERE";
 
-  // Get user's location on mount
   useEffect(() => {
     if (isLoaded && !map) {
       if (navigator.geolocation) {

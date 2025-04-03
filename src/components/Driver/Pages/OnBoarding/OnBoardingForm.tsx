@@ -50,11 +50,11 @@ const OnBoardingForm = () => {
 
   const session = useUserSession();
   const onSubmit = async (data: ProfileFormData) => {
-    const userId = session.session?.userId;
-    if (!userId) return;
+    const driverId = session?.driver_id;
+    if (!driverId) return;
     setNotification(null);
     try {
-      await createProfile("driver", userId, data);
+      await createProfile("driver", driverId, data);
       router.push("/driver/dashboard");
     } catch (error) {
       console.error("Profile update error:", error);

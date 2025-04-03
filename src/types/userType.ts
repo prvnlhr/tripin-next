@@ -18,6 +18,7 @@ export interface AdminProfileData {
   adminId?: string;
   department?: string;
 }
+
 export interface DriverData {
   cab_type?: "AUTO" | "COMFORT" | "ELITE" | null;
   car_model: string;

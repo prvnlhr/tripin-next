@@ -13,25 +13,24 @@ type ProfileData = RiderProfileData | DriverProfileData | AdminProfileData;
 
 export async function handleProfileCreateRequest(
   role: UserRole,
-  userId: string,
+  roleId: string,
   profileData: ProfileData
 ) {
   try {
     const endpointMap: Record<UserRole, string> = {
-      rider: "/api/user/profile",
-      driver: "/api/driver/profile",
-      admin: "/api/admin/profile",
+      rider: `/api/user/profile/${roleId}`,
+      driver: `/api/driver/profile/${roleId}`,
+      admin: `/api/admin/profile/${roleId}`,
     };
 
     const url = `${BASE_URL}${endpointMap[role]}`;
 
     const response = await fetch(url, {
-      method: "POST",
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId,
         profileData,
       }),
     });
@@ -56,8 +55,8 @@ export async function handleProfileCreateRequest(
 
 export async function createProfile(
   role: UserRole,
-  userId: string,
+  roleId: string,
   profileData: ProfileData
 ) {
-  return handleProfileCreateRequest(role, userId, profileData);
+  return handleProfileCreateRequest(role, roleId, profileData);
 }

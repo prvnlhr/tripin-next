@@ -1,10 +1,14 @@
+import { NormalizedDriverRide } from "@/lib/services/ride/rideServices";
 import React from "react";
 
-const TripDetailsCard = () => {
+interface TripDetailsCardProps {
+  ongoingRide: NormalizedDriverRide | null;
+}
+const TripDetailsCard: React.FC<TripDetailsCardProps> = ({ ongoingRide }) => {
   return (
     <div
       className="
-      w-[60%] h-[30%] 
+      w-[100%] md:w-[60%]  h-[30%] 
       grid
       grid-cols-2
       grid-rows-2
@@ -16,20 +20,22 @@ const TripDetailsCard = () => {
       <div className="w-[100%] h-[100%] flex flex-col justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">PICKUP</p>
         <p className="w-[95%] text-[0.8rem] text-[white] font-light whitespace-nowrap truncate">
-          Jodhpur, Sardarpura, near C road
+          {ongoingRide?.pickup_address}
         </p>
       </div>
       <div className="w-[100%] h-[100%] flex flex-col justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">DROPOFF</p>
         <p className="w-[95%] text-[0.8rem]  text-[white] font-light whitespace-nowrap truncate">
-          Jodhpur, international airport
+          {ongoingRide?.dropoff_address}
         </p>
       </div>
       <div className="w-[100%] h-[100%] flex flex-col justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">
           JOURNEY DISTANCE
         </p>
-        <p className="text-[0.8rem] text-[white] font-light">Approx. - 2.5km</p>
+        <p className="text-[0.8rem] text-[white] font-light">
+          Approx - {ongoingRide?.estimated_distance_km}
+        </p>
       </div>
     </div>
   );

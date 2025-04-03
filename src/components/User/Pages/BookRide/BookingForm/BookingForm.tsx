@@ -32,6 +32,14 @@ const BookingForm = () => {
 
   const updateURL = (params: Record<string, string | null>) => {
     const searchParams = new URLSearchParams(window.location.search);
+
+    if (
+      (params.src === null || params.dest === null) &&
+      searchParams.has("rideOption")
+    ) {
+      searchParams.delete("rideOption");
+    }
+
     Object.entries(params).forEach(([key, value]) => {
       if (value === null) searchParams.delete(key);
       else searchParams.set(key, value);
@@ -114,9 +122,24 @@ const BookingForm = () => {
 
   const handleSearchRide = () => {
     if (sourceInput && destInput) {
+      const sourceLatLng = sourceAutocomplete?.getPlace()?.geometry?.location;
+      const destLatLng = destAutocomplete?.getPlace()?.geometry?.location;
+
+      if (sourceLatLng && destLatLng) {
+        const sourceLat = sourceLatLng.lat();
+        const sourceLng = sourceLatLng.lng();
+        const destLat = destLatLng.lat();
+        const destLng = destLatLng.lng();
+        console.log("Source Location Latitude:", sourceLat);
+        console.log("Source Location Longitude:", sourceLng);
+        console.log("Destination Location Latitude:", destLat);
+        console.log("Destination Location Longitude:", destLng);
+      }
+
       updateURL({ rideOption: "true" });
     }
   };
+
   const isButtonActive = sourceInput && destInput;
   return (
     <div className="w-[100%] h-[100%] md:w-[90%] flex flex-col">

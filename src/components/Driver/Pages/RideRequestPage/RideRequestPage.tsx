@@ -1,7 +1,13 @@
 import React from "react";
 import RideRequestCard from "./RideRequestCard";
+import { RideRequestDetails } from "@/types/rideTypes";
 
-const RideRequestPage = () => {
+interface RideRequestPageProps {
+  rideRequestDetails: RideRequestDetails;
+}
+const RideRequestPage: React.FC<RideRequestPageProps> = ({
+  rideRequestDetails,
+}) => {
   return (
     <div
       className="
@@ -15,7 +21,7 @@ const RideRequestPage = () => {
           </p>
         </div>
         <div className="w-full h-[calc(100%-70px)] flex justify-start items-start">
-          <RideRequestCard />
+          <RideRequestCard rideRequestDetails={rideRequestDetails} />
         </div>
       </div>
     </div>

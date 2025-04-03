@@ -1,7 +1,13 @@
 import React from "react";
 import IncomingRequestListCard from "./IncomingRequestListCard";
-
-const IncomingRequestList = () => {
+import { RideRequest } from "@/types/rideTypes";
+import IncomingRidePlaceholder from "../../Placeholder/IncomingRidePlaceholder";
+interface IncomingRequestListProps {
+  incomingRequests: RideRequest[];
+}
+const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
+  incomingRequests,
+}) => {
   return (
     <div className="w-full h-full">
       <div className="w-full h-[70px] flex items-center justify-start">
@@ -19,11 +25,21 @@ const IncomingRequestList = () => {
         grid grid-cols-1 md:grid-cols-2 
         justify-items-center md:justify-items-start items-start"
       >
-        <IncomingRequestListCard />
-        <IncomingRequestListCard />
-        <IncomingRequestListCard />
-        <IncomingRequestListCard />
-        <IncomingRequestListCard />
+        {incomingRequests.length > 0 ? (
+          incomingRequests.map((rideRequest) => (
+            <IncomingRequestListCard
+              key={rideRequest.id}
+              rideRequest={rideRequest}
+            />
+          ))
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center">
+            <p className="text-[1rem] text-[#B5E4FC] font-normal mb-[20px]">
+              No active ride requests at the moment
+            </p>
+            <IncomingRidePlaceholder />
+          </div>
+        )}
       </div>
     </div>
   );

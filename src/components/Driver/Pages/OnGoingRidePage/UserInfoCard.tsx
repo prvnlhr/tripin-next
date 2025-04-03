@@ -1,10 +1,15 @@
+import { NormalizedDriverRide } from "@/lib/services/ride/rideServices";
 import React from "react";
 
-const UserInfoCard = () => {
+interface UserInfoCardProps {
+  ongoingRide: NormalizedDriverRide | null;
+}
+
+const UserInfoCard: React.FC<UserInfoCardProps> = ({ ongoingRide }) => {
   return (
     <div
       className="
-       w-[60%] h-[30%]
+       w-[100%] md:w-[60%] h-[30%]
        bg-[linear-gradient(180deg,#1F2224_0%,#1F1F20_100%)]
        border border-[#3C3C3C] rounded-[30px]
        grid
@@ -14,11 +19,15 @@ const UserInfoCard = () => {
     >
       <div className="w-full h-full flex flex-col items-start justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">RIDERS NAME</p>
-        <p className="text-[0.8rem] text-[white] font-light">Pepper Pots</p>
+        <p className="text-[0.8rem] text-[white] font-light">
+          {ongoingRide?.rider_name}
+        </p>
       </div>
       <div className="w-full h-full flex flex-col items-start justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">PHONE</p>
-        <p className="text-[0.8rem] text-[white] font-light">9358583070 </p>
+        <p className="text-[0.8rem] text-[white] font-light">
+          {ongoingRide?.rider_phone}
+        </p>
       </div>
     </div>
   );

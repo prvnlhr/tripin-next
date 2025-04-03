@@ -1,7 +1,11 @@
 import React from "react";
 import PastRideListCard from "./PastRideListCard";
-
-const PastRideList = () => {
+import { PastRide } from "@/types/rideTypes";
+import IncomingRidePlaceholder from "../../Placeholder/IncomingRidePlaceholder";
+interface PastRideListProps {
+  pastRides: PastRide[];
+}
+const PastRideList: React.FC<PastRideListProps> = ({ pastRides }) => {
   return (
     <div className="w-full h-full">
       <div className="w-full h-[70px] flex items-center justify-start">
@@ -20,7 +24,18 @@ const PastRideList = () => {
         grid grid-cols-1 md:grid-cols-2
         justify-items-center md:justify-items-start items-start"
       >
-        <PastRideListCard />
+        {pastRides.length > 0 ? (
+          pastRides.map((pastRide) => (
+            <PastRideListCard key={pastRide.id} pastRide={pastRide} />
+          ))
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center">
+            <p className="text-[1rem] text-[#B5E4FC] font-normal mb-[20px]">
+              No past rides
+            </p>
+            <IncomingRidePlaceholder />
+          </div>
+        )}
       </div>
     </div>
   );

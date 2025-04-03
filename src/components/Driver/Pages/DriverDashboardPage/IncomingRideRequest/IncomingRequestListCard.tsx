@@ -1,7 +1,13 @@
 import React from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Link from "next/link";
-const IncomingRequestListCard = () => {
+import { RideRequest } from "@/types/rideTypes";
+interface IncomingRequestListCardProps {
+  rideRequest: RideRequest;
+}
+const IncomingRequestListCard: React.FC<IncomingRequestListCardProps> = ({
+  rideRequest,
+}) => {
   return (
     <div
       className="
@@ -37,8 +43,8 @@ const IncomingRequestListCard = () => {
           <p className="text-[0.7rem] text-[white] font-medium">PICKUP</p>
         </div>
         <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
-          <p className="text-[0.8rem] text-[white] font-light">
-            Jodhpur, C road Sadarpura
+          <p className="text-[0.8rem] text-[white] font-light truncate">
+            {rideRequest.pickup_address}
           </p>
         </div>
       </div>
@@ -47,14 +53,14 @@ const IncomingRequestListCard = () => {
           <p className="text-[0.7rem] text-[white] font-medium">DROPOFF</p>
         </div>
         <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
-          <p className="text-[0.8rem] text-[white] font-light">
-            Jodhpur, airport - termial 1
+          <p className="text-[0.8rem] text-[white] font-light truncate">
+            {rideRequest.dropoff_address}
           </p>
         </div>
       </div>
       <div className="col-start-3 row-start-3 w-full h-full flex justify-end items-end">
         <Link
-          href={"dashboard/ride-request/f47ac10b-58cc-4372-a567-0e02b2c3d479"}
+          href={`dashboard/ride-request/${rideRequest.id}`}
           type="button"
           className="flex h-[80%] aspect-square cursor-pointer items-center justify-center rounded-full bg-white"
         >

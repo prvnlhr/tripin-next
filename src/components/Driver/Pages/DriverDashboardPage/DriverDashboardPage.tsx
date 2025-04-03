@@ -1,12 +1,18 @@
 import React from "react";
 import IncomingRequestList from "./IncomingRideRequest/IncomingRequestList";
 import PastRideList from "./PastRides/PastRideList";
+import { DashboardData } from "@/types/rideTypes";
 
-const DriverDashboardPage = () => {
+interface DriverDashboardPageProps {
+  dashboardData: DashboardData;
+}
+const DriverDashboardPage: React.FC<DriverDashboardPageProps> = ({
+  dashboardData,
+}) => {
   return (
     <div
       className="
-      w-full h-full overflow-y-scroll
+       w-[100%] h-full overflow-y-scroll
        border-green-500"
       style={{
         scrollbarWidth: "none",
@@ -14,10 +20,10 @@ const DriverDashboardPage = () => {
       }}
     >
       <section className="w-full h-[80%]">
-        <IncomingRequestList />
+        <IncomingRequestList incomingRequests={dashboardData?.rideRequests} />
       </section>
       <section className="w-full h-[80%]">
-        <PastRideList />
+        <PastRideList pastRides={dashboardData?.pastRides} />
       </section>
     </div>
   );

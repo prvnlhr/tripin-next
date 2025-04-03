@@ -1,14 +1,21 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
+type UserRole = "rider" | "driver" | "admin";
+type UserMetadata = {
+  role: UserRole;
+  requires_onboarding: boolean;
+  last_verified: string;
+  email: string;
+  rider_id?: string;
+  driver_id?: string;
+  admin_id?: string;
+};
+
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const role = requestUrl.searchParams.get("role") as
-    | "rider"
-    | "driver"
-    | "admin"
-    | null;
+  const role = requestUrl.searchParams.get("role") as UserRole | null;
 
   if (!code) {
     return NextResponse.redirect(
@@ -24,13 +31,13 @@ export async function GET(request: Request) {
     if (error) throw error;
 
     const userId = data.user?.id;
-    const email = data.user?.email;
-    if (!userId || !email) throw new Error("Authentication failed");
+    const email = data.user?.email ?? "";
+    if (!userId) throw new Error("Authentication failed");
 
-    // 2. Determine user's role
+    // 2. Determine user's role (default to rider if not specified)
     const resolvedRole = role || data.user?.user_metadata?.role || "rider";
 
-    // 3. Update users table
+    // 3. Create or update user in users table
     const { error: userError } = await supabase.from("users").upsert(
       {
         user_id: userId,
@@ -42,22 +49,40 @@ export async function GET(request: Request) {
     );
     if (userError) throw userError;
 
-    // 4. Check onboarding status from role-specific table
-    const { requiresOnboarding, redirectPath } = await checkOnboardingStatus(
+    // 4. Ensure role-specific record exists and get onboarding status
+    const { roleId, requiresOnboarding } = await ensureRoleSpecificRecord(
       userId,
-      resolvedRole,
-      requestUrl.origin
+      resolvedRole
     );
 
-    // 5. Update session metadata
+    // 5. Prepare metadata with all required fields
+    const metadataUpdate: UserMetadata = {
+      role: resolvedRole,
+      requires_onboarding: requiresOnboarding,
+      last_verified: new Date().toISOString(),
+      email,
+    };
+
+    // Add role-specific ID to metadata
+    if (resolvedRole === "rider") {
+      metadataUpdate.rider_id = roleId;
+    } else if (resolvedRole === "driver") {
+      metadataUpdate.driver_id = roleId;
+    } else if (resolvedRole === "admin") {
+      metadataUpdate.admin_id = roleId;
+    }
+
+    // 6. Update session metadata
     await supabase.auth.updateUser({
-      data: {
-        ...data.user?.user_metadata,
-        role: resolvedRole,
-        requires_onboarding: requiresOnboarding,
-        last_verified: new Date().toISOString(),
-      },
+      data: metadataUpdate,
     });
+
+    // 7. Determine redirect path based on onboarding status
+    const redirectPath = getRedirectPath(
+      resolvedRole,
+      requiresOnboarding,
+      requestUrl.origin
+    );
 
     return NextResponse.redirect(redirectPath);
   } catch (error) {
@@ -68,11 +93,10 @@ export async function GET(request: Request) {
   }
 }
 
-async function checkOnboardingStatus(
+async function ensureRoleSpecificRecord(
   userId: string,
-  role: "rider" | "driver" | "admin",
-  origin: string
-): Promise<{ requiresOnboarding: boolean; redirectPath: string }> {
+  role: UserRole
+): Promise<{ roleId: string; requiresOnboarding: boolean }> {
   const supabase = await createClient();
   const roleTable = {
     rider: "riders",
@@ -80,6 +104,55 @@ async function checkOnboardingStatus(
     admin: "admins",
   }[role];
 
+  // Check if record exists
+  const { data: existingRecord, error: fetchError } = await supabase
+    .from(roleTable)
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (fetchError) throw fetchError;
+
+  // If record exists, return its ID and onboarding status
+  if (existingRecord) {
+    return {
+      roleId: existingRecord[`${role}_id`],
+      requiresOnboarding: existingRecord.is_first_login !== false,
+    };
+  }
+
+  // Create new record if it doesn't exist
+  const insertData = {
+    user_id: userId,
+    is_first_login: true,
+    ...(role === "driver" ? { approval_status: "pending" } : {}),
+    ...(role === "rider" || role === "admin"
+      ? {
+          name: "",
+          phone: "",
+        }
+      : {}),
+  };
+
+  const { data: newRecord, error: insertError } = await supabase
+    .from(roleTable)
+    .insert(insertData)
+    .select()
+    .single();
+
+  if (insertError) throw insertError;
+
+  return {
+    roleId: newRecord[`${role}_id`],
+    requiresOnboarding: true, // New records always require onboarding
+  };
+}
+
+function getRedirectPath(
+  role: UserRole,
+  requiresOnboarding: boolean,
+  origin: string
+): string {
   const paths = {
     rider: {
       completed: "/user/trip/book-ride",
@@ -95,20 +168,7 @@ async function checkOnboardingStatus(
     },
   };
 
-  const { data: profile, error } = await supabase
-    .from(roleTable)
-    .select("is_first_login")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  if (error) throw error;
-
-  const requiresOnboarding = !profile || profile.is_first_login !== false;
-
-  return {
-    requiresOnboarding,
-    redirectPath: requiresOnboarding
-      ? `${origin}${paths[role].onboarding}`
-      : `${origin}${paths[role].completed}`,
-  };
+  return requiresOnboarding
+    ? `${origin}${paths[role].onboarding}`
+    : `${origin}${paths[role].completed}`;
 }
