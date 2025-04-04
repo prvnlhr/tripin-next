@@ -74,14 +74,13 @@ export async function updateVerificationRequest(
         result.error ||
           result.message ||
           "Failed to update verification request."
-
       );
     }
 
     console.log(
-        `Verification request ${approvalStatus} successfully:`,
-        result.message
-      );
+      `Verification request ${approvalStatus} successfully:`,
+      result.message
+    );
     return result.data;
   } catch (error) {
     const err = error as Error;

@@ -8,7 +8,7 @@ const VerifiedDriverListCard: React.FC<VerifiedDriverListCardProps> = ({
 }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear();
     return `${month}-${year}`;
   };
@@ -54,7 +54,7 @@ const VerifiedDriverListCard: React.FC<VerifiedDriverListCardProps> = ({
       </div>
       <div className="w-full h-full  flex justify-start items-center border-red-400">
         <div
-          className={`w-auto h-[60%] px-[10px] flex items-center rounded border text-[0.7rem]  font-medium border-green-500 ${verifiedDriver.is_online ? "bg-green-500 border-green-500/10 text-green-500" : "border-red-500 bg-red-500/10 text-red-500"}`}
+          className={`w-auto h-[60%] px-[10px] flex items-center rounded border text-[0.7rem]  font-medium border-green-500 ${verifiedDriver.is_online ? "bg-green-500/10 border-green-500 text-green-500" : "border-red-500 bg-red-500/10 text-red-500"}`}
         >
           <span
             className={`aspect-square h-[5px] ${verifiedDriver.is_online ? "bg-green-500" : "bg-red-500"} rounded-full mr-[5px]`}

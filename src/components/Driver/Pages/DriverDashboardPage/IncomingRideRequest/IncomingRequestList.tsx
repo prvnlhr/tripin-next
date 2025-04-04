@@ -1,13 +1,74 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import IncomingRequestListCard from "./IncomingRequestListCard";
 import { RideRequest } from "@/types/rideTypes";
 import IncomingRidePlaceholder from "../../Placeholder/IncomingRidePlaceholder";
+import { createClient } from "@/utils/supabase/client";
+import useUserSession from "@/hooks/useUserSession";
 interface IncomingRequestListProps {
   incomingRequests: RideRequest[];
 }
 const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
   incomingRequests,
 }) => {
+  const [incomingRequestsData, setIncomingRequestsData] =
+    useState(incomingRequests);
+
+  // console.log(" incomingRequestsData:", incomingRequestsData);
+  const session = useUserSession();
+  const driverId = session?.driver_id;
+  const supabase = createClient();
+
+  useEffect(() => {
+    setIncomingRequestsData(incomingRequests);
+  }, [incomingRequests]);
+
+  useEffect(() => {
+    if (!driverId) return;
+
+    console.log(" driverId:", driverId);
+
+    const channel = supabase
+      .channel(`driver_requests_${driverId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "ride_requests",
+          filter: `driver_id=eq.${driverId}`,
+        },
+        (payload) => {
+          // Add new request to the beginning of the list
+          console.log("Change received!", payload);
+          setIncomingRequestsData((prev) => [
+            payload.new as RideRequest,
+            ...prev,
+          ]);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "ride_requests",
+          filter: `driver_id=eq.${driverId}`,
+        },
+        (payload) => {
+          console.log("Change received!", payload);
+          setIncomingRequestsData((prev) =>
+            prev.filter((request) => request.id !== payload.old.id)
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [driverId, supabase]);
+
   return (
     <div className="w-full h-full">
       <div className="w-full h-[70px] flex items-center justify-start">
@@ -23,10 +84,10 @@ const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
         className="overflow-y-scroll
         w-full h-[calc(95%-70px)] 
         grid grid-cols-1 md:grid-cols-2 
-        justify-items-center md:justify-items-start items-start"
+        justify-items-center md:justify-items-start items-start py-[20px] md:py-[0px]"
       >
-        {incomingRequests.length > 0 ? (
-          incomingRequests.map((rideRequest) => (
+        {incomingRequestsData.length > 0 ? (
+          incomingRequestsData.map((rideRequest) => (
             <IncomingRequestListCard
               key={rideRequest.id}
               rideRequest={rideRequest}

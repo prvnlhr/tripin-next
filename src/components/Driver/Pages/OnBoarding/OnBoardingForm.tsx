@@ -27,7 +27,7 @@ const profileSchema = z.object({
     .max(20, "License plate is too long")
     .nullable()
     .optional(),
-  cab_type: z.string().max(50, "Cab type is too long").nullable().optional(),
+  // cab_type: z.string().max(50, "Cab type is too long").nullable().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -50,7 +50,9 @@ const OnBoardingForm = () => {
 
   const session = useUserSession();
   const onSubmit = async (data: ProfileFormData) => {
+    console.log(session);
     const driverId = session?.driver_id;
+    console.log(" driverId:", driverId);
     if (!driverId) return;
     setNotification(null);
     try {
@@ -281,8 +283,8 @@ const OnBoardingForm = () => {
                   </div>
                 </div>
 
-                {/* Car Type plate */}
-                <div className="w-[95%] h-full flex flex-col  border-red-500">
+                {/* Car Type */}
+                {/* <div className="w-[95%] h-full flex flex-col  border-red-500">
                   <label className="w-full h-[20px] flex items-center text-[0.8rem] text-[#B5E4FC] font-normal">
                     CAR TYPE
                   </label>
@@ -309,7 +311,7 @@ const OnBoardingForm = () => {
                       </p>
                     )}
                   </div>
-                </div>
+                </div> */}
               </div>
 
               {/* submit button */}

@@ -9,7 +9,7 @@ interface Coordinate {
 }
 
 interface BookingDetails {
-  userId: string;
+  riderId: string;
   cabType: string;
   pickup_coordinates: Coordinate;
   dropoff_coordinates: Coordinate;
@@ -144,18 +144,7 @@ async function createRideRequests(
 ): Promise<void> {
   const supabase = await createClient();
 
-  // Get rider_id from users table based on userId
-  const { data: riderData, error: riderError } = await supabase
-    .from("riders")
-    .select("rider_id")
-    .eq("user_id", bookingDetails.userId)
-    .single();
-
-  if (riderError || !riderData) {
-    throw new Error("Rider not found");
-  }
-
-  const riderId = riderData.rider_id;
+  const riderId = bookingDetails.riderId;
 
   // Prepare ride request data for each eligible driver
   const rideRequests = eligibleDrivers.map((driver) => ({
@@ -187,7 +176,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     const bookingDetails: BookingDetails = await request.json();
 
     if (
-      !bookingDetails.userId ||
+      !bookingDetails.riderId ||
       !bookingDetails.cabType ||
       !bookingDetails.pickup_coordinates ||
       !bookingDetails.dropoff_coordinates ||

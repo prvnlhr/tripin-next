@@ -34,6 +34,9 @@ export async function GET(request: Request) {
     const email = data.user?.email ?? "";
     if (!userId) throw new Error("Authentication failed");
 
+    console.log("rolexxxxxxxxxxxxxx", role);
+    console.log("data////////////////", data);
+
     // 2. Determine user's role (default to rider if not specified)
     const resolvedRole = role || data.user?.user_metadata?.role || "rider";
 
@@ -71,6 +74,11 @@ export async function GET(request: Request) {
     } else if (resolvedRole === "admin") {
       metadataUpdate.admin_id = roleId;
     }
+
+    console.log(
+      " metadataUpdate>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:",
+      metadataUpdate
+    );
 
     // 6. Update session metadata
     await supabase.auth.updateUser({
@@ -125,7 +133,13 @@ async function ensureRoleSpecificRecord(
   const insertData = {
     user_id: userId,
     is_first_login: true,
-    ...(role === "driver" ? { approval_status: "pending" } : {}),
+    ...(role === "driver"
+      ? {
+          name: "",
+          phone: "",
+          approval_status: "pending",
+        }
+      : {}),
     ...(role === "rider" || role === "admin"
       ? {
           name: "",
@@ -144,7 +158,7 @@ async function ensureRoleSpecificRecord(
 
   return {
     roleId: newRecord[`${role}_id`],
-    requiresOnboarding: true, // New records always require onboarding
+    requiresOnboarding: true,
   };
 }
 

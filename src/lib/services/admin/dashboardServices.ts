@@ -8,6 +8,9 @@ export async function getDashboardContent() {
       headers: {
         "Content-Type": "application/json",
       },
+      next: {
+        tags: ["adminDashboard"],
+      },
     });
 
     const result = await response.json();

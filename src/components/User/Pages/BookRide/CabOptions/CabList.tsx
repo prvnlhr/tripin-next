@@ -11,6 +11,7 @@ import comfortImg from "../../../../../../public/assets/cab/comfort.png";
 import eliteImg from "../../../../../../public/assets/cab/elite.png";
 import { CabOption } from "@/types/cabType";
 import useUserSession from "@/hooks/useUserSession";
+import CabCardSkeleton from "./CabCardSkeleton";
 
 const CabList = () => {
   const searchParams = useSearchParams();
@@ -113,7 +114,7 @@ const CabList = () => {
       dest &&
       srcAddress &&
       destAddress &&
-      session?.userId
+      session?.rider_id
     ) {
       const [pickupLat, pickupLng] = src.split(",").map(Number);
       const [dropoffLat, dropoffLng] = dest.split(",").map(Number);
@@ -130,7 +131,7 @@ const CabList = () => {
       };
 
       const bookingDetails = {
-        userId: session.userId,
+        riderId: session.rider_id,
         cabType: selectedCabOption.type,
         pickup_coordinates: {
           lat: pickupLat,
@@ -144,7 +145,7 @@ const CabList = () => {
         dropoff_address: decodeAddress(destAddress),
       };
 
-      console.log("Booking details:", bookingDetails);
+      // console.log("Booking details:", bookingDetails);
 
       try {
         const res = await requestRide(bookingDetails);
@@ -159,8 +160,10 @@ const CabList = () => {
   };
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-white text-xl">Loading ride options...</div>
+      <div className="w-full h-[calc(100%-70px)] space-y-4 overflow-y-auto">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <CabCardSkeleton key={index} />
+        ))}
       </div>
     );
   }

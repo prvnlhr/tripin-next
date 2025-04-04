@@ -229,6 +229,7 @@ export async function updateRideStatus(rideId: string, status: RideStatus) {
     }
     const successMessage = result.message || `Ride status updated to ${status}`;
     console.log(`Success: ${successMessage}`);
+    await revalidateTagHandler("adminDashboard");
     return successMessage;
   } catch (error) {
     const err = error as Error;

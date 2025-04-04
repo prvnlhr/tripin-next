@@ -9,7 +9,7 @@ export interface DriverProfileData {
   car_name: string | null;
   car_model: string | null;
   license_plate: string | null;
-  cab_type: string | null;
+  cab_type?: string | null;
 }
 
 export interface AdminProfileData {

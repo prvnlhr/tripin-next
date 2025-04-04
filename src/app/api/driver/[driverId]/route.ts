@@ -6,6 +6,7 @@ export async function GET(request: Request, segmentData: { params: Params }) {
   try {
     const supabase = await createClient();
     const { driverId } = await segmentData.params;
+    console.log(" driverId:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", driverId);
 
     if (!driverId) {
       return createResponse(

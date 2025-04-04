@@ -40,7 +40,7 @@ interface RideRequestResponse {
 }
 
 interface RideRequestPayload {
-  userId: string;
+  riderId: string;
   cabType: "AUTO" | "COMFORT" | "ELITE";
   pickup_coordinates: {
     lat: number;
