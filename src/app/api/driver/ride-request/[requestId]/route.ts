@@ -1,10 +1,57 @@
 import { createResponse } from "@/utils/apiResponseUtils";
 import { createClient } from "@/utils/supabase/server";
-import { RideRequestDetails } from "@/types/rideTypes";
+import { wkbToLatLng } from "@/utils/geoUtils";
 
 type Params = Promise<{ requestId: string }>;
 
-// Get the details of the Ride Request
+interface Coordinates {
+  lat: number;
+  lng: number;
+}
+
+interface RiderDetails {
+  rider_id: string;
+  name: string;
+  phone: string;
+}
+
+interface RideData {
+  id: string;
+  rider_id: string;
+  driver_id: string | null;
+  pickup_location: string | null;
+  pickup_address: string;
+  dropoff_location: string | null;
+  dropoff_address: string;
+  current_driver_location: string | null;
+  distance_km: number;
+  duration_minutes: number;
+  fare: number;
+  status: string;
+  created_at: string;
+  riders: RiderDetails;
+}
+
+interface RideResponse {
+  id: string;
+  rider_id: string;
+  driver_id: string | null;
+  rider_details: RiderDetails;
+  pickup_location: Coordinates;
+  pickup_address: string;
+  dropoff_location: Coordinates;
+  dropoff_address: string;
+  current_driver_location: Coordinates | null;
+  distance_km: number;
+  duration_minutes: number;
+  fare: number;
+  status: string;
+  created_at: string;
+}
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------------
+// -- GETTING DETAILS OF A  RIDE REQUEST --------------------------------------------------------------------------------------------------------------
+
 export async function GET(request: Request, segmentData: { params: Params }) {
   try {
     const supabase = await createClient();
@@ -14,296 +61,210 @@ export async function GET(request: Request, segmentData: { params: Params }) {
     if (!requestId || typeof requestId !== "string") {
       return createResponse(400, null, "Valid requestId is required");
     }
-
-    // Fetch ride request details with rider name from 'ride_requests' and 'riders' tables
-    const { data: rideRequest, error: rideRequestError } = await supabase
-      .from("ride_requests")
+    const { data: rideData, error } = (await supabase
+      .from("rides_new")
       .select(
         `
-        id,
-        rider_id,
-        pickup_coordinates,
-        pickup_address,
-        dropoff_coordinates,
-        dropoff_address,
-        distance_km,
-        duration_minutes,
-        cab_type,
-        created_at,
-        expires_at,
-        riders (name)
-      `
+      id,
+      rider_id,
+      driver_id,
+      pickup_location,
+      pickup_address,
+      dropoff_location,
+      dropoff_address,
+      current_driver_location,
+      distance_km,
+      duration_minutes,
+      fare,
+      status,
+      created_at,
+      riders:rider_id (rider_id, name, phone)
+    `
       )
       .eq("id", requestId)
-      .single();
+      .single()) as { data: RideData | null; error: unknown };
 
-    if (rideRequestError || !rideRequest) {
-      return createResponse(
-        404,
-        null,
-        `Ride request not found for requestId: ${requestId}`
-      );
+    if (error || !rideData) {
+      console.error("Error fetching ride request:", error);
+      return createResponse(404, null, "Ride request not found");
     }
 
-    const rider_name =
-      rideRequest.riders && !Array.isArray(rideRequest.riders)
-        ? (rideRequest.riders as { name: string }).name
-        : "Unknown";
-
-    // Construct the response with rider_name
-    const responseData: RideRequestDetails = {
-      id: rideRequest.id,
-      rider_id: rideRequest.rider_id,
-      pickup_coordinates: rideRequest.pickup_coordinates,
-      pickup_address: rideRequest.pickup_address,
-      dropoff_coordinates: rideRequest.dropoff_coordinates,
-      dropoff_address: rideRequest.dropoff_address,
-      distance_km: rideRequest.distance_km,
-      duration_minutes: rideRequest.duration_minutes,
-      cab_type: rideRequest.cab_type,
-      created_at: rideRequest.created_at,
-      expires_at: rideRequest.expires_at,
-      rider_name,
+    // 3. Transform the data
+    const transformLocation = (wkb: string | null): Coordinates | null => {
+      if (!wkb) return null;
+      const coords = wkbToLatLng(wkb);
+      return coords || null;
     };
 
-    // Return the ride request details with rider_name
-    return createResponse<RideRequestDetails>(200, responseData);
+    const response: RideResponse = {
+      id: rideData.id,
+      rider_id: rideData.rider_id,
+      driver_id: rideData.driver_id,
+      rider_details: {
+        rider_id: rideData.riders.rider_id,
+        name: rideData.riders.name,
+        phone: rideData.riders.phone,
+      },
+      pickup_location: transformLocation(rideData.pickup_location)!,
+      pickup_address: rideData.pickup_address,
+      dropoff_location: transformLocation(rideData.dropoff_location)!,
+      dropoff_address: rideData.dropoff_address,
+      current_driver_location: transformLocation(
+        rideData.current_driver_location
+      ),
+      distance_km: rideData.distance_km,
+      duration_minutes: rideData.duration_minutes,
+      fare: rideData.fare,
+      status: rideData.status,
+      created_at: rideData.created_at,
+    };
+
+    return createResponse(200, response);
   } catch (error) {
-    console.error("Ride Request API Error:", error);
+    console.error("Error in GET ride request:", error);
     return createResponse(
       500,
       null,
-      error instanceof Error ? error.message : "Unknown error",
-      "Failed to fetch ride request details"
+      error instanceof Error ? error.message : "Internal server error"
     );
   }
 }
 
-interface Coordinate {
-  lat: number;
-  lng: number;
+// ------------------------------------------------------------------------------------------------------------------------------------------
+// -- ACCEPTING A RIDE REQUEST --------------------------------------------------------------------------------------------------------------
+
+interface RideUpdatePayload {
+  rider_id: string;
+  driver_id: string;
+  status?:
+    | "DRIVER_ASSIGNED"
+    | "REACHED_PICKUP"
+    | "TRIP_STARTED"
+    | "COMPLETED"
+    | "CANCELLED";
 }
 
-async function calculateRouteDistance(points: {
-  pickup: Coordinate;
-  dropoff: Coordinate;
-}): Promise<{
-  distanceKm: number;
-  durationMinutes: number;
-  source: "google" | "postgis";
-}> {
-  const { pickup, dropoff } = points;
+interface UpdateRidePayload {
+  status:
+    | "DRIVER_ASSIGNED"
+    | "REACHED_PICKUP"
+    | "TRIP_STARTED"
+    | "COMPLETED"
+    | "CANCELLED";
+  driver_id: string;
+  accepted_at?: string;
+  reached_pickup_at?: string;
+  trip_started_at?: string;
+  completed_at?: string;
+}
+
+export async function PATCH(request: Request, segmentData: { params: Params }) {
   const supabase = await createClient();
-
   try {
-    const googleResponse = await fetch(
-      `https://maps.googleapis.com/maps/api/distancematrix/json?` +
-        `origins=${pickup.lat},${pickup.lng}&` +
-        `destinations=${dropoff.lat},${dropoff.lng}&` +
-        `key=${process.env.GOOGLE_MAPS_API_KEY}`
-    );
-
-    const googleData = await googleResponse.json();
-
-    if (
-      googleData.status === "OK" &&
-      googleData.rows[0]?.elements[0]?.distance
-    ) {
-      return {
-        distanceKm: googleData.rows[0].elements[0].distance.value / 1000,
-        durationMinutes: googleData.rows[0].elements[0].duration.value / 60,
-        source: "google",
-      };
-    }
-  } catch (error) {
-    console.warn("Google Maps API failed, falling back to PostGIS:", error);
-  }
-
-  const { data: straightLineDistance } = await supabase.rpc(
-    "calculate_distance_meters",
-    {
-      point1: `POINT(${pickup.lng} ${pickup.lat})`,
-      point2: `POINT(${dropoff.lng} ${dropoff.lat})`,
-    }
-  );
-
-  const distanceKm = (straightLineDistance || 0) / 1000;
-  return {
-    distanceKm: distanceKm * 1.3, // Add 30% buffer for urban routes
-    durationMinutes: distanceKm * 2, // Estimate 2 mins per km
-    source: "postgis",
-  };
-}
-
-async function calculateFare(
-  cabType: string,
-  distanceKm: number
-): Promise<number> {
-  const supabase = await createClient();
-
-  // Get fare pricing from database
-  const { data: farePricing, error } = await supabase
-    .from("fare_pricing")
-    .select("*")
-    .eq("id", 1)
-    .single();
-
-  if (error || !farePricing) {
-    throw new Error(
-      "Failed to fetch fare pricing: " + (error?.message || "No pricing data")
-    );
-  }
-
-  let fare: number;
-
-  switch (cabType) {
-    case "AUTO":
-      fare = farePricing.auto_base + distanceKm * farePricing.auto_per_km;
-      fare = Math.max(fare, farePricing.auto_min_fare);
-      break;
-    case "COMFORT":
-      fare = farePricing.comfort_base + distanceKm * farePricing.comfort_per_km;
-      fare = Math.max(fare, farePricing.comfort_min_fare);
-      break;
-    case "ELITE":
-      fare = farePricing.elite_base + distanceKm * farePricing.elite_per_km;
-      fare = Math.max(fare, farePricing.elite_min_fare);
-      break;
-    default:
-      throw new Error("Invalid cab type: " + cabType);
-  }
-
-  return parseFloat(fare.toFixed(2)); // Round to 2 decimal places
-}
-
-export async function POST(request: Request, segmentData: { params: Params }) {
-  try {
-    const supabase = await createClient();
+    // 1. Extract and validate parameters
     const { requestId } = await segmentData.params;
-    const rideDetails = await request.json();
+    const rideDetails: RideUpdatePayload = await request.json();
 
-    if (!requestId) {
+    if (!requestId || typeof requestId !== "string") {
+      return createResponse(400, null, "Valid request ID is required");
+    }
+
+    if (!rideDetails.rider_id || !rideDetails.driver_id) {
       return createResponse(
         400,
         null,
-        "Request ID is required",
-        "Missing required parameters"
+        "Both rider_id and driver_id are required"
       );
     }
 
-    if (!rideDetails) {
-      return createResponse(
-        400,
-        null,
-        "Ride details are required",
-        "Missing required parameters"
-      );
+    const newStatus = rideDetails.status || "DRIVER_ASSIGNED";
+
+    // 2. Verify the ride exists and is in a valid state
+    const { data: existingRide, error: fetchError } = await supabase
+      .from("rides_new")
+      .select("*")
+      .eq("id", requestId)
+      .eq("rider_id", rideDetails.rider_id)
+      .single();
+
+    if (fetchError || !existingRide) {
+      return createResponse(404, null, "Ride not found or rider mismatch");
     }
 
-    // 1. First check if a ride already exists for this request_id
-    const { data: existingRide, error: checkError } = await supabase
-      .from("rides")
-      .select("id")
-      .eq("request_id", requestId)
-      .maybeSingle();
+    // 3. Update the ride status
+    const updatePayload: UpdateRidePayload = {
+      status: newStatus,
+      driver_id: rideDetails.driver_id,
+    };
 
-    if (checkError) {
-      throw new Error(
-        "Failed to check for existing ride: " + checkError.message
-      );
+    // Set appropriate timestamps based on status
+    if (newStatus === "DRIVER_ASSIGNED") {
+      updatePayload.accepted_at = new Date().toISOString();
+    } else if (newStatus === "REACHED_PICKUP") {
+      updatePayload.reached_pickup_at = new Date().toISOString();
+    } else if (newStatus === "TRIP_STARTED") {
+      updatePayload.trip_started_at = new Date().toISOString();
+    } else if (newStatus === "COMPLETED" || newStatus === "CANCELLED") {
+      updatePayload.completed_at = new Date().toISOString();
     }
 
-    if (existingRide) {
-      return createResponse(
-        409,
-        null,
-        "A ride already exists for this request",
-        "Conflict"
-      );
-    }
-
-    // 2. Calculate accurate distance and duration
-    const pickupCoords = rideDetails.pickup_coordinates.match(/[0-9.]+/g);
-    const dropoffCoords = rideDetails.dropoff_coordinates.match(/[0-9.]+/g);
-
-    if (
-      !pickupCoords ||
-      !dropoffCoords ||
-      pickupCoords.length < 2 ||
-      dropoffCoords.length < 2
-    ) {
-      throw new Error("Invalid coordinate format");
-    }
-
-    const { distanceKm, durationMinutes } = await calculateRouteDistance({
-      pickup: {
-        lat: parseFloat(pickupCoords[1]),
-        lng: parseFloat(pickupCoords[0]),
-      },
-      dropoff: {
-        lat: parseFloat(dropoffCoords[1]),
-        lng: parseFloat(dropoffCoords[0]),
-      },
-    });
-
-    // 3. Calculate fare based on cab type and distance
-    const fareEstimate = await calculateFare(rideDetails.cab_type, distanceKm);
-
-    // 4. Delete all ride_requests for this rider_id
-    const { error: deleteError } = await supabase
-      .from("ride_requests")
-      .delete()
-      .eq("rider_id", rideDetails.rider_id);
-
-    if (deleteError) {
-      throw new Error("Failed to delete ride requests: " + deleteError.message);
-    }
-
-    // 5. Create the new ride with accurate calculations
-    const { data: newRide, error: insertError } = await supabase
-      .from("rides")
-      .insert({
-        request_id: requestId,
-        rider_id: rideDetails.rider_id,
-        driver_id: rideDetails.driver_id,
-        pickup_coordinates: rideDetails.pickup_coordinates,
-        pickup_address: rideDetails.pickup_address,
-        dropoff_coordinates: rideDetails.dropoff_coordinates,
-        dropoff_address: rideDetails.dropoff_address,
-        cab_type: rideDetails.cab_type,
-        estimated_distance_km: distanceKm,
-        estimated_duration_minutes: Math.ceil(durationMinutes),
-        fare_estimate: fareEstimate,
-        status: "ACCEPTED",
-      })
+    const { data: updatedRide, error: updateError } = await supabase
+      .from("rides_new")
+      .update(updatePayload)
+      .eq("id", requestId)
       .select()
       .single();
 
-    if (insertError) {
-      throw new Error("Failed to create ride: " + insertError.message);
+    if (updateError) {
+      throw updateError;
     }
 
-    return createResponse(
-      201,
-      {
-        ...newRide,
-        calculated_distance_km: distanceKm,
-        calculated_duration_minutes: durationMinutes,
-        fare_estimate: fareEstimate,
-      },
-      null,
-      "Ride successfully created with accurate pricing and all related requests cleaned up"
-    );
-  } catch (error) {
-    console.error("POST Error:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+    // 4. If this is a new driver assignment, clean up other requests
+    if (newStatus === "DRIVER_ASSIGNED") {
+      // Delete other requests from this rider
+      const { error: deleteRiderRequestsError } = await supabase
+        .from("rides_new")
+        .delete()
+        .eq("rider_id", rideDetails.rider_id)
+        .eq("status", "SEARCHING")
+        .neq("id", requestId);
 
+      if (deleteRiderRequestsError) {
+        console.error(
+          "Failed to delete rider's other requests:",
+          deleteRiderRequestsError
+        );
+        // Continue even if this fails - it's not critical
+      }
+
+      // Delete other requests to this driver
+      const { error: deleteDriverRequestsError } = await supabase
+        .from("rides_new")
+        .delete()
+        .eq("driver_id", rideDetails.driver_id)
+        .eq("status", "SEARCHING")
+        .neq("id", requestId);
+
+      if (deleteDriverRequestsError) {
+        console.error(
+          "Failed to delete driver's other requests:",
+          deleteDriverRequestsError
+        );
+        // Continue even if this fails - it's not critical
+      }
+    }
+
+    // 5. Return success response
+    return createResponse(200, {
+      ...updatedRide,
+      message: "Ride successfully updated",
+    });
+  } catch (error) {
+    console.error("Error in PATCH ride request:", error);
     return createResponse(
       500,
       null,
-      errorMessage,
-      "Error in processing ride acceptance"
+      error instanceof Error ? error.message : "Internal server error"
     );
   }
 }

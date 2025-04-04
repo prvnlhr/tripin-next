@@ -27,7 +27,9 @@ const IncomingRequestListCard: React.FC<IncomingRequestListCardProps> = ({
           <p className="text-[0.7rem] text-[white] font-medium">FROM</p>
         </div>
         <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
-          <p className="text-[1.2rem] text-[white] font-light">Pepper Pots</p>
+          <p className="text-[1.2rem] text-[white] font-light">
+            {rideRequest.rider_details.name}
+          </p>
         </div>
       </div>
       <div className="col-start-2 col-end-4 w-full h-full flex flex-col ">
@@ -35,7 +37,9 @@ const IncomingRequestListCard: React.FC<IncomingRequestListCardProps> = ({
           <p className="text-[0.7rem] text-[white] font-medium">DISTANCE</p>
         </div>
         <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
-          <p className="text-[0.8rem] text-[white] font-light">Approx 2.5km</p>
+          <p className="text-[0.8rem] text-[white] font-light">
+            Approx {rideRequest.distance_km} km
+          </p>
         </div>
       </div>
       <div className="col-span-3 row-start-2 w-full h-full flex flex-col ">

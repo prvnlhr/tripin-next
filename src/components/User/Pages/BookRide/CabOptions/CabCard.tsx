@@ -9,7 +9,7 @@ interface CabCardProps {
 }
 const CabCard: React.FC<CabCardProps> = ({ cab, isSelected, onSelect }) => {
   const handleClick = () => {
-    if (cab.available) {
+    if (cab.is_available) {
       onSelect(cab);
     }
   };
@@ -24,19 +24,17 @@ const CabCard: React.FC<CabCardProps> = ({ cab, isSelected, onSelect }) => {
          grid-cols-[auto_minmax(0,1fr)]
          grid-rows-[100%]
          p-[5px]
-         ${cab.available ? "opacity-100" : "opacity-30"}
+         ${cab.is_available ? "opacity-100" : "opacity-30"}
          `}
     >
       <div
-        className="
+        className=" 
           h-full aspect-square 
           flex items-center justify-center"
       >
-        <Image
-          src={cab.imgSrc}
-          alt={cab.type}
-          className="w-[70%] aspect-[1/1] object-contain"
-        />
+        <div className="relative w-[70%] aspect-square flex items-center justify-center">
+          <Image src={cab.imgSrc} alt={cab.cab_type} fill={true} />
+        </div>
       </div>
       <div
         className="
@@ -47,7 +45,7 @@ const CabCard: React.FC<CabCardProps> = ({ cab, isSelected, onSelect }) => {
       >
         <div className="w-[100%] h-[100%] flex items-center">
           <p className="text-[0.75rem] text-[#B5E4FC] uppercase font-normal">
-            {cab.type}
+            {cab.cab_type}
           </p>
         </div>
         <div className="w-[100%] h-[100%] flex items-center">

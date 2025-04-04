@@ -3,10 +3,11 @@ import type { StaticImageData } from "next/image";
 export type CabType = "Auto" | "Comfort" | "Elite" | string;
 
 export interface CabOption {
-  type: "AUTO" | "COMFORT" | "ELITE";
+  cab_type: "AUTO" | "COMFORT" | "ELITE";
   fare: number;
-  currency: string;
-  description: string;
+  distance_km: number;
+  duration_minutes: number;
+  is_available: boolean;
   imgSrc: StaticImageData;
-  available: boolean;
+  description: string;
 }

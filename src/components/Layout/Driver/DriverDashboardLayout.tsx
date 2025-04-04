@@ -44,7 +44,7 @@ const DriverDashboardLayout = async ({
          md:flex-row md:flex
          overflow-y-scroll"
       >
-        <div className="w-[100%] md:w-[60%] h-full flex border-green-600">
+        <div className="w-[100%] md:w-[50%] h-full flex border-green-600">
           {children}
         </div>
         <Map driverInfo={driverInfo} />

@@ -14,11 +14,13 @@ const RideRequestCard: React.FC<RideRequestCardProps> = ({
 }) => {
   const session = useUserSession();
   const router = useRouter();
+
   const handleAcceptRideRequest = async () => {
     const rideDetails = {
       ...rideRequestDetails,
       driver_id: session?.driver_id,
     };
+    rideDetails.status = "DRIVER_ASSIGNED";
     const requestId = rideRequestDetails.id;
     try {
       const response = await acceptRideRequest(requestId, rideDetails);
@@ -42,7 +44,7 @@ const RideRequestCard: React.FC<RideRequestCardProps> = ({
       <div className="w-full h-[auto] mb-[15px]">
         <p className="text-[0.9rem] text-[#B5E4FC] font-normal">FROM</p>
         <p className="text-[0.9rem] text-[white] font-light">
-          {rideRequestDetails.rider_name}
+          {rideRequestDetails.rider_details.name}
         </p>
       </div>
       <div className="w-full h-[auto] mb-[15px]">

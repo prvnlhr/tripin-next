@@ -8,16 +8,43 @@ import useUserSession from "@/hooks/useUserSession";
 interface IncomingRequestListProps {
   incomingRequests: RideRequest[];
 }
+
+export interface RideNew {
+  id: string; // UUID
+  rider_id: string; // UUID
+  driver_id: string | null; // Nullable UUID
+  pickup_location: string; // Geography as WKT (e.g., "POINT(lng lat)") or use PostGIS type if mapped
+  pickup_address: string;
+  dropoff_location: string;
+  dropoff_address: string;
+  current_driver_location: string | null;
+  distance_km: number;
+  duration_minutes: number;
+  fare: number;
+  status:
+    | "SEARCHING"
+    | "DRIVER_ASSIGNED"
+    | "REACHED_PICKUP"
+    | "TRIP_STARTED"
+    | "COMPLETED"
+    | "CANCELLED";
+  created_at: string; // ISO Timestamp
+  accepted_at: string | null;
+  reached_pickup_at: string | null;
+  trip_started_at: string | null;
+  completed_at: string | null;
+}
+
 const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
   incomingRequests,
 }) => {
   const [incomingRequestsData, setIncomingRequestsData] =
     useState(incomingRequests);
 
-  // console.log(" incomingRequestsData:", incomingRequestsData);
   const session = useUserSession();
-  const driverId = session?.driver_id;
   const supabase = createClient();
+
+  const driverId = session?.driver_id;
 
   useEffect(() => {
     setIncomingRequestsData(incomingRequests);
@@ -26,8 +53,6 @@ const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
   useEffect(() => {
     if (!driverId) return;
 
-    console.log(" driverId:", driverId);
-
     const channel = supabase
       .channel(`driver_requests_${driverId}`)
       .on(
@@ -35,12 +60,12 @@ const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
         {
           event: "INSERT",
           schema: "public",
-          table: "ride_requests",
+          table: "rides_new",
           filter: `driver_id=eq.${driverId}`,
         },
         (payload) => {
-          // Add new request to the beginning of the list
-          console.log("Change received!", payload);
+          console.log(" payload:", payload.new);
+          console.log("Change received!", payload.new);
           setIncomingRequestsData((prev) => [
             payload.new as RideRequest,
             ...prev,

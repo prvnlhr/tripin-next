@@ -2,10 +2,10 @@ import React from "react";
 import UserInfoCard from "./UserInfoCard";
 import TripDetailsCard from "./TripDetailsCard";
 import RideStatus from "./RideStatus";
-import { NormalizedDriverRide } from "@/lib/services/ride/rideServices";
+import { DriverRideResponse } from "@/types/ongoingRideType";
 
 interface OnGoingRidePageProps {
-  ongoingRide: NormalizedDriverRide | null;
+  ongoingRide: DriverRideResponse | null;
 }
 
 const OnGoingRidePage: React.FC<OnGoingRidePageProps> = ({ ongoingRide }) => {

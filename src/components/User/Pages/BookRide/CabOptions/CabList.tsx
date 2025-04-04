@@ -29,7 +29,6 @@ const CabList = () => {
     null
   );
 
-  // Memoized fetch function
   const fetchCabOptions = useCallback(async () => {
     if (!src || !dest) {
       setError("Missing pickup or dropoff locations");
@@ -41,47 +40,55 @@ const CabList = () => {
       const [srclat, srclng] = src.split(",").map(Number);
       const [destlat, destlng] = dest.split(",").map(Number);
 
-      const options = await getAvailableCabOptions(
+      const response = await getAvailableCabOptions(
         srclat,
         srclng,
         destlat,
         destlng
       );
 
-      const transformedOptions: CabOption[] = [
-        {
-          type: "AUTO",
-          available: options.cabOptions.AUTO.available,
-          fare: options.cabOptions.AUTO.fare,
-          currency: options.currency,
-          imgSrc: autoImg,
-          description:
-            "Fast and cost-effective for short rides and quick commutes",
-        },
-        {
-          type: "COMFORT",
-          available: options.cabOptions.COMFORT.available,
-          fare: options.cabOptions.COMFORT.fare,
-          currency: options.currency,
-          imgSrc: comfortImg,
-          description: "Reliable and smooth for everyday travel",
-        },
-        {
-          type: "ELITE",
-          available: options.cabOptions.ELITE.available,
-          fare: options.cabOptions.ELITE.fare,
-          currency: options.currency,
-          imgSrc: eliteImg,
-          description: "Premium and luxurious for a high-end experience",
-        },
-      ];
+      // Map the API response to include imgSrc and desc
+      const transformedOptions: CabOption[] = response.options.map(
+        (option: {
+          cab_type: "AUTO" | "COMFORT" | "ELITE";
+          fare: number;
+          distance_km: number;
+          duration_minutes: number;
+          is_available: boolean;
+        }) => {
+          const cabDetails = {
+            AUTO: {
+              imgSrc: autoImg.src,
+              desc: "Fast and cost-effective for short rides and quick commutes",
+            },
+            COMFORT: {
+              imgSrc: comfortImg.src,
+              desc: "Reliable and smooth for everyday travel",
+            },
+            ELITE: {
+              imgSrc: eliteImg.src,
+              desc: "Premium and luxurious for a high-end experience",
+            },
+          };
+
+          return {
+            cab_type: option.cab_type,
+            fare: option.fare,
+            distance_km: option.distance_km,
+            duration_minutes: option.duration_minutes,
+            is_available: option.is_available,
+            imgSrc: cabDetails[option.cab_type].imgSrc,
+            description: cabDetails[option.cab_type].desc,
+          };
+        }
+      );
 
       setCabOptions(transformedOptions);
 
       // Auto-select the first available option if none is selected
       if (!selectedCabOption) {
         const firstAvailable = transformedOptions.find(
-          (option) => option.available
+          (option) => option.is_available
         );
         if (firstAvailable) {
           setSelectedCabOption(firstAvailable);
@@ -102,12 +109,12 @@ const CabList = () => {
   }, [fetchCabOptions]);
 
   const handleCabSelect = (cab: CabOption) => {
-    if (cab.available) {
+    if (cab.is_available) {
       setSelectedCabOption(cab);
     }
   };
 
-  const handleConfirmSelection = async () => {
+  const handleConfirmCabSelection = async () => {
     if (
       selectedCabOption &&
       src &&
@@ -132,7 +139,7 @@ const CabList = () => {
 
       const bookingDetails = {
         riderId: session.rider_id,
-        cabType: selectedCabOption.type,
+        cabType: selectedCabOption.cab_type,
         pickup_coordinates: {
           lat: pickupLat,
           lng: pickupLng,
@@ -144,8 +151,6 @@ const CabList = () => {
         pickup_address: decodeAddress(srcAddress),
         dropoff_address: decodeAddress(destAddress),
       };
-
-      // console.log("Booking details:", bookingDetails);
 
       try {
         const res = await requestRide(bookingDetails);
@@ -197,9 +202,9 @@ const CabList = () => {
         <div className="w-full h-[calc(100%-70px)] space-y-4 overflow-y-auto">
           {cabOptions.map((cab) => (
             <CabCard
-              key={cab.type}
+              key={cab.cab_type}
               cab={cab}
-              isSelected={selectedCabOption?.type === cab.type}
+              isSelected={selectedCabOption?.cab_type === cab.cab_type}
               onSelect={handleCabSelect}
             />
           ))}
@@ -208,7 +213,7 @@ const CabList = () => {
         <div className="w-full h-[60px] flex items-center justify-center mt-4">
           <button
             disabled={!selectedCabOption}
-            onClick={handleConfirmSelection}
+            onClick={handleConfirmCabSelection}
             className={`
               w-full h-[80%] 
               ${
@@ -224,7 +229,7 @@ const CabList = () => {
             `}
           >
             {selectedCabOption
-              ? `Confirm ${selectedCabOption.type} (${selectedCabOption.currency} ${selectedCabOption.fare.toFixed(2)})`
+              ? `Confirm ${selectedCabOption.cab_type} ( INR. ${selectedCabOption.fare.toFixed(2)})`
               : "Select ride option"}
           </button>
         </div>

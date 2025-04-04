@@ -1,6 +1,6 @@
 "use client";
 import { updateRideStatus } from "@/lib/services/driver/driversServices";
-import { NormalizedDriverRide } from "@/lib/services/ride/rideServices";
+import { DriverRideResponse } from "@/types/ongoingRideType";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import React, { useState } from "react";
 import { Oval } from "react-loader-spinner";
@@ -44,7 +44,7 @@ const rideStatus = [
 ];
 
 interface RideStatusProps {
-  ongoingRide: NormalizedDriverRide | null;
+  ongoingRide: DriverRideResponse | null;
 }
 const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   const [selectedStatus, setSelectedStatus] = useState("");

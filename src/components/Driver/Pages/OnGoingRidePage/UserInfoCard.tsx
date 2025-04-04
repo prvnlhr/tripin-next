@@ -1,8 +1,8 @@
-import { NormalizedDriverRide } from "@/lib/services/ride/rideServices";
+import { DriverRideResponse } from "@/types/ongoingRideType";
 import React from "react";
 
 interface UserInfoCardProps {
-  ongoingRide: NormalizedDriverRide | null;
+  ongoingRide: DriverRideResponse | null;
 }
 
 const UserInfoCard: React.FC<UserInfoCardProps> = ({ ongoingRide }) => {
@@ -20,13 +20,13 @@ const UserInfoCard: React.FC<UserInfoCardProps> = ({ ongoingRide }) => {
       <div className="w-full h-full flex flex-col items-start justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">RIDERS NAME</p>
         <p className="text-[0.8rem] text-[white] font-light">
-          {ongoingRide?.rider_name}
+          {ongoingRide?.rider_details.name}
         </p>
       </div>
       <div className="w-full h-full flex flex-col items-start justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">PHONE</p>
         <p className="text-[0.8rem] text-[white] font-light">
-          {ongoingRide?.rider_phone}
+          {ongoingRide?.rider_details.phone}
         </p>
       </div>
     </div>

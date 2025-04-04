@@ -1,8 +1,8 @@
-import { NormalizedDriverRide } from "@/lib/services/ride/rideServices";
+import { DriverRideResponse } from "@/types/ongoingRideType";
 import React from "react";
 
 interface TripDetailsCardProps {
-  ongoingRide: NormalizedDriverRide | null;
+  ongoingRide: DriverRideResponse | null;
 }
 const TripDetailsCard: React.FC<TripDetailsCardProps> = ({ ongoingRide }) => {
   return (
@@ -34,7 +34,7 @@ const TripDetailsCard: React.FC<TripDetailsCardProps> = ({ ongoingRide }) => {
           JOURNEY DISTANCE
         </p>
         <p className="text-[0.8rem] text-[white] font-light">
-          Approx - {ongoingRide?.estimated_distance_km}
+          Approx - {ongoingRide?.distance_km}
         </p>
       </div>
     </div>

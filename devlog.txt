@@ -545,3 +545,44 @@ In frontend ui we only want to show three cab type available for that route.
 when the user selects a cab type and clicks the button we then again send request to backend 
 api and then create a ride request to eligible 
 drivers(this time we also want to match the selected cab type by rider) then you know the rest
+
+
+
+
+Well you did not not got my point. lets understand with scenario.
+
+let me explain you the flow of ride request and driver assigning.
+Let say there are three riders, r1, r2, r3
+and three driver, d1, d2,d3
+
+rider r1 makes request to d1, d2 and d3
+rider r2 makes request to d2 and d3
+rider r3 make request to d3
+
+Now driver d2 accepts the request of rider r1,
+
+This is how we are goonna update the rides_new table,
+
+
+First we will change the status of the accepted request to = 'DRIVER_ASSIGNED' from 'SEARCHING'
+
+Then,
+1. Delete the r1's request from other driver
+   - 1. Delete all entries where rider_id: r1 except the current accepted request
+
+2. Since d2 accepted the request now d2 should be removed from all request-> he is now assigned
+   - 1. Delete all enteries where driver_id:d2 except the current accepted request.
+
+
+
+1. delete all entries where driver_id:d2 and rider_id not : r1
+3. delete all the enteries where rider_id:r1 and not driver_id:d2.
+
+Now when we want all the cab option we first get all nearby 
+drivers. Then we want to remove all the drivers which have status other then 'SEARCHING' 
+in rides_new table. If a entry in rides_new table with a driver_id has status other than
+'SEARCHING' means the driver is assigned and we can consider him for cab option
+
+
+
+

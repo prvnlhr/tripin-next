@@ -1,28 +1,30 @@
 "use client";
-import { NormalizedRiderRide } from "@/lib/services/ride/rideServices";
+import { RiderRideResponse } from "@/types/ongoingRideType";
 import { rideStatus } from "@/utils/rideUtils";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
+
 type RideStatus =
-  | "ACCEPTED"
-  | "ARRIVED"
-  | "STARTED"
+  | "SEARCHING"
+  | "DRIVER_ASSIGNED"
+  | "REACHED_PICKUP"
+  | "TRIP_STARTED"
   | "COMPLETED"
   | "CANCELLED";
 
 interface RideStatusProps {
-  ongoingRide: NormalizedRiderRide | null;
+  ongoingRide: RiderRideResponse | null;
 }
 
 const getStepsCompleted = (status: RideStatus | undefined): number => {
   if (!status) return 0;
 
   switch (status) {
-    case "ACCEPTED":
+    case "DRIVER_ASSIGNED":
       return 1;
-    case "ARRIVED":
+    case "REACHED_PICKUP":
       return 2;
-    case "STARTED":
+    case "TRIP_STARTED":
       return 3;
     case "COMPLETED":
     case "CANCELLED":
@@ -33,6 +35,7 @@ const getStepsCompleted = (status: RideStatus | undefined): number => {
 };
 const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   const [rideData, setRideData] = useState(ongoingRide);
+  console.log(" rideData:", rideData);
   const [stepsCompleted, setStepsCompleted] = useState(
     getStepsCompleted(ongoingRide?.status)
   );
@@ -58,9 +61,8 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
           filter: `id=eq.${ongoingRide.id}`,
         },
         (payload) => {
-          const updatedRide = payload.new as NormalizedRiderRide;
+          const updatedRide = payload.new as RiderRideResponse;
           setRideData(updatedRide);
-          console.log(" rideData:", rideData);
           setStepsCompleted(getStepsCompleted(updatedRide.status));
         }
       )

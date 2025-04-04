@@ -1,8 +1,8 @@
-import { NormalizedRiderRide } from "@/lib/services/ride/rideServices";
+import { RiderRideResponse } from "@/types/ongoingRideType";
 import React from "react";
 
 interface DriverInfoCardProps {
-  ongoingRide: NormalizedRiderRide | null;
+  ongoingRide: RiderRideResponse | null;
 }
 
 const DriverInfoCard: React.FC<DriverInfoCardProps> = ({ ongoingRide }) => {
@@ -21,25 +21,26 @@ const DriverInfoCard: React.FC<DriverInfoCardProps> = ({ ongoingRide }) => {
       <div className="w-full h-full flex flex-col items-start justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">DRIVER NAME</p>
         <p className="text-[0.8rem] text-[white] font-light">
-          {ongoingRide?.driver_name}
+          {ongoingRide?.driver_details.name}
         </p>
       </div>
       <div className="w-full h-full flex flex-col items-start justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">DRIVER PHONE</p>
         <p className="text-[0.8rem] text-[white] font-light">
-          {ongoingRide?.driver_phone}
+          {ongoingRide?.driver_details.phone}
         </p>
       </div>
       <div className="w-full h-full flex flex-col items-start justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">CAR</p>
         <p className="text-[0.8rem] text-[white] font-light">
-          {ongoingRide?.driver_car_name} {ongoingRide?.driver_car_model}
+          {ongoingRide?.driver_details.car_name}{" "}
+          {ongoingRide?.driver_details.car_model}
         </p>
       </div>
       <div className="w-full h-full flex flex-col items-start justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-light">LICENSE PLATE</p>
         <p className="text-[0.8rem] text-[white] font-light">
-          {ongoingRide?.driver_license_plate}
+          {ongoingRide?.driver_details.license_plate}
         </p>
       </div>
     </div>

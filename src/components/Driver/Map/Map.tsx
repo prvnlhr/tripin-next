@@ -35,6 +35,30 @@ const Map: React.FC<MapProps> = ({ driverInfo }) => {
   const MAP_ID =
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "YOUR_MAP_ID_HERE";
 
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log("Current location:", {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+          });
+        },
+        (error) => {
+          console.error("Error getting location:", error.message);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0,
+        }
+      );
+    } else {
+      console.warn("Geolocation is not supported by this browser");
+    }
+  }, []);
+
   // Initialize geocoder when Google Maps is loaded
   useEffect(() => {
     if (isLoaded && window.google && !geocoderRef.current) {
@@ -174,12 +198,14 @@ const Map: React.FC<MapProps> = ({ driverInfo }) => {
   }
 
   return (
-    <section className="w-full md:w-[40%] h-[60vh] md:h-[100%] flex items-center justify-center md:items-center md:justify-end">
-      <div className="flex flex-col items-center justify-center w-[100%] h-[100%] md:w-[100%] md:h-[90%]">
+    <section className="w-full md:w-[50%] h-[60vh] md:h-[100%] flex items-center justify-center md:items-start md:justify-end">
+      <div className="border-red-500 flex flex-col items-center justify-center w-[100%] h-[100%] md:w-[100%] md:h-[95%]">
         <div className="w-full h-[70px] flex items-center">
           <div>
-            <p className="text-[0.7rem] text-[#B5E4FC]">CURRENT LOCATION:</p>
-            <p className="font-normal text-[0.6rem] text-white">
+            <p className="text-[0.9rem] font-normal text-[#B5E4FC]">
+              CURRENT LOCATION:
+            </p>
+            <p className="font-light text-[0.7rem] text-white">
               {currentAddress}
             </p>
           </div>

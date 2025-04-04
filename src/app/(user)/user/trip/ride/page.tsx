@@ -1,7 +1,7 @@
 import { getOngoingRide } from "@/lib/services/ride/rideServices";
 import { createClient } from "@/utils/supabase/server";
-import { NormalizedRiderRide } from "@/lib/services/ride/rideServices";
 import OnGoingRidePage from "@/components/User/Pages/OnGoingRidePage/OnGoingRidePage";
+import { RiderRideResponse } from "@/types/ongoingRideType";
 const page = async () => {
   const supabase = await createClient();
   const {
@@ -12,10 +12,7 @@ const page = async () => {
     return;
   }
   const riderId = user?.user_metadata.rider_id as string;
-  const ongoingRide = (await getOngoingRide(
-    "rider",
-    riderId
-  )) as NormalizedRiderRide | null;
+  const ongoingRide: RiderRideResponse = await getOngoingRide("rider", riderId);
 
   return <OnGoingRidePage ongoingRide={ongoingRide} />;
 };

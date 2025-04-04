@@ -6,7 +6,7 @@ import { DriverData } from "@/types/userType";
 
 export async function getDriverInfo(driverId: string): Promise<DriverData> {
   try {
-    const response = await fetch(`${BASE_URL}/api/driver/${driverId}`, {
+    const response = await fetch(`${BASE_URL}/api/driver/details/${driverId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -167,7 +167,7 @@ export async function acceptRideRequest(
     const response = await fetch(
       `${BASE_URL}/api/driver/ride-request/${requestId}`,
       {
-        method: "POST",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },

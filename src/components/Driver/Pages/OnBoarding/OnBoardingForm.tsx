@@ -20,14 +20,18 @@ const profileSchema = z.object({
     .min(10, "Phone number must be at least 10 digits")
     .max(15, "Phone number is too long")
     .regex(/^[0-9+\- ]+$/, "Invalid phone number format"),
-  car_name: z.string().max(50, "Car name is too long").nullable().optional(),
-  car_model: z.string().max(50, "Car model is too long").nullable().optional(),
+  car_name: z
+    .string()
+    .min(1, "Car name is required")
+    .max(50, "Car name is too long"),
+  car_model: z
+    .string()
+    .min(1, "Car model is required")
+    .max(50, "Car model is too long"),
   license_plate: z
     .string()
-    .max(20, "License plate is too long")
-    .nullable()
-    .optional(),
-  // cab_type: z.string().max(50, "Cab type is too long").nullable().optional(),
+    .min(1, "License plate is required")
+    .max(20, "License plate is too long"),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -50,9 +54,7 @@ const OnBoardingForm = () => {
 
   const session = useUserSession();
   const onSubmit = async (data: ProfileFormData) => {
-    console.log(session);
     const driverId = session?.driver_id;
-    console.log(" driverId:", driverId);
     if (!driverId) return;
     setNotification(null);
     try {
@@ -282,36 +284,6 @@ const OnBoardingForm = () => {
                     )}
                   </div>
                 </div>
-
-                {/* Car Type */}
-                {/* <div className="w-[95%] h-full flex flex-col  border-red-500">
-                  <label className="w-full h-[20px] flex items-center text-[0.8rem] text-[#B5E4FC] font-normal">
-                    CAR TYPE
-                  </label>
-                  <div className="w-full flex-1 border-b border-[#505354]">
-                    <div className="flex-1 h-full flex items-center">
-                      <input
-                        {...register("cab_type")}
-                        className="w-full h-full bg-transparent outline-none font-light text-[0.8rem]"
-                        placeholder="Hatchback, Sedan, SUV"
-                        disabled={isSubmitting}
-                      />
-                      <div className="h-full aspect-square hidden items-center justify-center">
-                        <Icon
-                          icon="tdesign:user-1-filled"
-                          className="text-[#B5E4FC] w-[40%] h-[40%]"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w-full h-[30px] flex items-center">
-                    {errors.cab_type && (
-                      <p className="text-red-500 text-[0.75rem] font-medium">
-                        {errors.cab_type.message}
-                      </p>
-                    )}
-                  </div>
-                </div> */}
               </div>
 
               {/* submit button */}

@@ -1,30 +1,6 @@
 const BASE_URL: string =
   process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-interface RideOptionsResponse {
-  cabOptions: {
-    AUTO: {
-      fare: number;
-      available: boolean;
-      drivers: number;
-    };
-    COMFORT: {
-      fare: number;
-      available: boolean;
-      drivers: number;
-    };
-    ELITE: {
-      fare: number;
-      available: boolean;
-      drivers: number;
-    };
-  };
-  distanceKm: number;
-  currency: string;
-  pickupPoint: string;
-  dropoffPoint: string;
-}
-
 interface RideRequestResponse {
   bookingId: string;
   driverDetails?: {
@@ -58,7 +34,7 @@ export async function requestRide(
   bookingDetails: RideRequestPayload
 ): Promise<RideRequestResponse> {
   try {
-    const response = await fetch(`${BASE_URL}/api/user/ride/request-ride`, {
+    const response = await fetch(`${BASE_URL}/api/rider/ride/request-ride`, {
       method: "POST",
       body: JSON.stringify(bookingDetails),
     });
@@ -86,10 +62,10 @@ export async function getAvailableCabOptions(
   pickupLng: number,
   dropoffLat: number,
   dropoffLng: number
-): Promise<RideOptionsResponse> {
+) {
   try {
     const response = await fetch(
-      `${BASE_URL}/api/user/ride/ride-options?pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropoffLat=${dropoffLat}&dropoffLng=${dropoffLng}`,
+      `${BASE_URL}/api/rider/ride/ride-options?pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropoffLat=${dropoffLat}&dropoffLng=${dropoffLng}&radius=3000`,
       {
         method: "GET",
         headers: {
@@ -111,10 +87,7 @@ export async function getAvailableCabOptions(
           "Failed to fetch available cab options"
       );
     }
-
     console.log("Get Available Cab Options Success:", result.message);
-    console.log(" result:", result);
-
     return result.data;
   } catch (error) {
     const err = error as Error;
