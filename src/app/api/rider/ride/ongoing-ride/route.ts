@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
         "DRIVER_ASSIGNED",
         "REACHED_PICKUP",
         "TRIP_STARTED",
-        "TRIP_STARTED",
+        "TRIP_ENDED",
       ])
       .order("created_at", { ascending: false })
       .limit(1)
