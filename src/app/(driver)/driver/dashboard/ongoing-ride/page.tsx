@@ -2,6 +2,7 @@ import OnGoingRidePage from "@/components/Driver/Pages/OnGoingRidePage/OnGoingRi
 import { getOngoingRide } from "@/lib/services/ride/rideServices";
 import { createClient } from "@/utils/supabase/server";
 import { DriverRideResponse } from "@/types/ongoingRideType";
+import { redirect } from "next/navigation";
 const page = async () => {
   const supabase = await createClient();
   const {
@@ -17,6 +18,9 @@ const page = async () => {
     "driver",
     driverId
   );
+  if (!ongoingRide) {
+    redirect("/");
+  }
   return <OnGoingRidePage ongoingRide={ongoingRide} />;
 };
 

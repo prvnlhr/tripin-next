@@ -64,7 +64,6 @@ const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
           filter: `driver_id=eq.${driverId}`,
         },
         (payload) => {
-          console.log(" payload:", payload.new);
           console.log("Change received!", payload.new);
           setIncomingRequestsData((prev) => [
             payload.new as RideRequest,
@@ -77,7 +76,7 @@ const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
         {
           event: "DELETE",
           schema: "public",
-          table: "ride_requests",
+          table: "rides_new",
           filter: `driver_id=eq.${driverId}`,
         },
         (payload) => {

@@ -3,11 +3,11 @@ import { createResponse } from "@/utils/apiResponseUtils";
 
 interface RideUpdatePayload {
   rider_id: string;
-  driver_id: string;
   status:
     | "DRIVER_ASSIGNED"
     | "REACHED_PICKUP"
     | "TRIP_STARTED"
+    | "TRIP_ENDED"
     | "COMPLETED"
     | "CANCELLED";
 }
@@ -17,17 +17,20 @@ interface UpdateRidePayload {
     | "DRIVER_ASSIGNED"
     | "REACHED_PICKUP"
     | "TRIP_STARTED"
+    | "TRIP_ENDED"
     | "COMPLETED"
     | "CANCELLED";
 
-  driver_id: string;
+  rider_id: string;
   accepted_at?: string;
   reached_pickup_at?: string;
   trip_started_at?: string;
+  trip_ended_at?: string;
   completed_at?: string;
 }
 type Params = Promise<{ rideId: string }>;
 
+// -- PATCH API UPDATE THE RIDE STATUS BY DRIVER FOR RIDER --
 export async function PATCH(request: Request, segmentData: { params: Params }) {
   const supabase = await createClient();
   try {
@@ -35,18 +38,9 @@ export async function PATCH(request: Request, segmentData: { params: Params }) {
     const { rideId } = await segmentData.params;
     const rideDetails: RideUpdatePayload = await request.json();
 
-    if (!rideId || typeof rideId !== "string") {
-      return createResponse(400, null, "Valid request ID is required");
+    if (!rideId || !rideDetails.rider_id) {
+      return createResponse(400, null, "Both rider_id and rideId are required");
     }
-
-    if (!rideDetails.rider_id || !rideDetails.driver_id) {
-      return createResponse(
-        400,
-        null,
-        "Both rider_id and driver_id are required"
-      );
-    }
-
     const newStatus = rideDetails.status;
 
     // 2. Verify the ride exists and is in a valid state
@@ -64,17 +58,18 @@ export async function PATCH(request: Request, segmentData: { params: Params }) {
     // 3. Update the ride status
     const updatePayload: UpdateRidePayload = {
       status: newStatus,
-      driver_id: rideDetails.driver_id,
+      rider_id: rideDetails.rider_id,
     };
 
     if (newStatus === "REACHED_PICKUP") {
       updatePayload.reached_pickup_at = new Date().toISOString();
     } else if (newStatus === "TRIP_STARTED") {
       updatePayload.trip_started_at = new Date().toISOString();
+    } else if (newStatus === "TRIP_ENDED") {
+      updatePayload.trip_ended_at = new Date().toISOString();
     } else if (newStatus === "COMPLETED" || newStatus === "CANCELLED") {
       updatePayload.completed_at = new Date().toISOString();
     }
-
     const { data: updatedRide, error: updateError } = await supabase
       .from("rides_new")
       .update(updatePayload)

@@ -42,6 +42,7 @@ export async function getDriverInfo(driverId: string): Promise<DriverData> {
       // Optional fields
       location: result.data.location || null,
       // is_first_login is excluded as it's not in DriverData
+      activeRides: result.data.active_rides_count,
     };
 
     console.log("Get Driver Info Success:", result.message);
@@ -192,6 +193,7 @@ export async function acceptRideRequest(
 
     console.log("Accept Ride Request Success:", result.message);
     console.log("Accept Ride Request Success:", result.data);
+    await revalidateTagHandler("driverInfo");
     return result.data; // Returns the created ride object
   } catch (error) {
     const err = error as Error;
@@ -200,14 +202,15 @@ export async function acceptRideRequest(
   }
 }
 
-type RideStatus =
-  | "ACCEPTED"
-  | "ARRIVED"
-  | "STARTED"
-  | "COMPLETED"
-  | "CANCELLED";
-
-export async function updateRideStatus(rideId: string, status: RideStatus) {
+//
+interface RideStatusData {
+  rider_id: string;
+  status: string;
+}
+export async function updateRideStatus(
+  rideId: string,
+  statusData: RideStatusData
+) {
   try {
     const response = await fetch(
       `${BASE_URL}/api/driver/ongoing-ride/${rideId}`,
@@ -216,7 +219,7 @@ export async function updateRideStatus(rideId: string, status: RideStatus) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(statusData),
       }
     );
 
@@ -228,8 +231,7 @@ export async function updateRideStatus(rideId: string, status: RideStatus) {
       throw new Error(errorMessage);
     }
     const successMessage = result.message || `Ride status updated to ${status}`;
-    console.log(`Success: ${successMessage}`);
-    await revalidateTagHandler("adminDashboard");
+    // await revalidateTagHandler("adminDashboard");
     return successMessage;
   } catch (error) {
     const err = error as Error;

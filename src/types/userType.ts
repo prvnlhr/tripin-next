@@ -33,4 +33,14 @@ export interface DriverData {
   phone: string;
   updated_at: string;
   user_id: string;
+  activeRides: number;
 }
+
+export interface RiderData {
+  rider_id: string;
+  name: string;
+  phone: string;
+  user_id: string;
+  activeRides: number;
+}
+

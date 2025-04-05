@@ -17,6 +17,7 @@ const CabCard: React.FC<CabCardProps> = ({ cab, isSelected, onSelect }) => {
     <div
       onClick={handleClick}
       className={`
+         ${cab.is_available ? "cursor-pointer" : "cursor-not-allowed"} 
          w-[100%] h-[28%] 
          bg-[linear-gradient(180deg,#1F2224_0%,#1F1F20_100%)]
          border ${isSelected ? "border-[#B5E4FC]" : "border-[#3C3C3C] "} rounded-[15px]

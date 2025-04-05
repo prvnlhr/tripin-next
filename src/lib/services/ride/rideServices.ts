@@ -6,18 +6,11 @@ const BASE_URL =
 
 type UserRole = "rider" | "driver";
 
-// interface ApiResponse<T> {
-//   status: number;
-//   data: T;
-//   error: string | null;
-//   message: string | null;
-// }
-
 // --- FETCH FUNCTION ---
 export async function fetchOngoingRide(role: UserRole, roleId: string) {
   try {
     const endpointMap: Record<UserRole, string> = {
-      rider: "/api/user/ride/ongoing-ride",
+      rider: "/api/rider/ride/ongoing-ride",
       driver: "/api/driver/ongoing-ride",
     };
 
@@ -40,10 +33,7 @@ export async function fetchOngoingRide(role: UserRole, roleId: string) {
     }
 
     const result = await response.json();
-    return result;
-    // as
-    // | ApiResponse<RiderRideResponse>
-    // | ApiResponse<DriverRideResponse>;
+    return result?.data;
   } catch (error) {
     console.error("Fetch Ongoing Ride Error:", error);
     throw error instanceof Error

@@ -1,7 +1,6 @@
 import { createResponse } from "@/utils/apiResponseUtils";
 import { createClient } from "@/utils/supabase/server";
 import { wkbToLatLng } from "@/utils/geoUtils";
-
 type Params = Promise<{ requestId: string }>;
 
 interface Coordinates {
@@ -15,21 +14,16 @@ interface RiderDetails {
   phone: string;
 }
 
-interface RideData {
-  id: string;
-  rider_id: string;
-  driver_id: string | null;
-  pickup_location: string | null;
-  pickup_address: string;
-  dropoff_location: string | null;
-  dropoff_address: string;
-  current_driver_location: string | null;
-  distance_km: number;
-  duration_minutes: number;
-  fare: number;
-  status: string;
-  created_at: string;
-  riders: RiderDetails;
+interface DriverDetails {
+  driver_id: string;
+  name: string;
+  phone: string;
+  location: string;
+  car_name: string;
+  car_model: string;
+  license_plate: string;
+  cab_type: string;
+  is_online: boolean;
 }
 
 interface RideResponse {
@@ -37,6 +31,7 @@ interface RideResponse {
   rider_id: string;
   driver_id: string | null;
   rider_details: RiderDetails;
+  driver_details: DriverDetails | null;
   pickup_location: Coordinates;
   pickup_address: string;
   dropoff_location: Coordinates;
@@ -49,9 +44,7 @@ interface RideResponse {
   created_at: string;
 }
 
-// ----------------------------------------------------------------------------------------------------------------------------------------------------
-// -- GETTING DETAILS OF A  RIDE REQUEST --------------------------------------------------------------------------------------------------------------
-
+// -- GETTING DETAILS OF A RIDE REQUEST MADE BY RIDER :  FOR THE RIDE REQUEST PAGE --
 export async function GET(request: Request, segmentData: { params: Params }) {
   try {
     const supabase = await createClient();
@@ -61,35 +54,37 @@ export async function GET(request: Request, segmentData: { params: Params }) {
     if (!requestId || typeof requestId !== "string") {
       return createResponse(400, null, "Valid requestId is required");
     }
-    const { data: rideData, error } = (await supabase
+
+    const { data: rideData, error } = await supabase
       .from("rides_new")
       .select(
         `
-      id,
-      rider_id,
-      driver_id,
-      pickup_location,
-      pickup_address,
-      dropoff_location,
-      dropoff_address,
-      current_driver_location,
-      distance_km,
-      duration_minutes,
-      fare,
-      status,
-      created_at,
-      riders:rider_id (rider_id, name, phone)
-    `
+        id,
+        rider_id,
+        driver_id,
+        rider_details,
+        driver_details,
+        pickup_location,
+        pickup_address,
+        dropoff_location,
+        dropoff_address,
+        current_driver_location,
+        distance_km,
+        duration_minutes,
+        fare,
+        status,
+        created_at
+      `
       )
       .eq("id", requestId)
-      .single()) as { data: RideData | null; error: unknown };
+      .single();
 
     if (error || !rideData) {
       console.error("Error fetching ride request:", error);
       return createResponse(404, null, "Ride request not found");
     }
 
-    // 3. Transform the data
+    // Transform the data
     const transformLocation = (wkb: string | null): Coordinates | null => {
       if (!wkb) return null;
       const coords = wkbToLatLng(wkb);
@@ -100,11 +95,8 @@ export async function GET(request: Request, segmentData: { params: Params }) {
       id: rideData.id,
       rider_id: rideData.rider_id,
       driver_id: rideData.driver_id,
-      rider_details: {
-        rider_id: rideData.riders.rider_id,
-        name: rideData.riders.name,
-        phone: rideData.riders.phone,
-      },
+      rider_details: rideData.rider_details as RiderDetails,
+      driver_details: rideData.driver_details as DriverDetails | null,
       pickup_location: transformLocation(rideData.pickup_location)!,
       pickup_address: rideData.pickup_address,
       dropoff_location: transformLocation(rideData.dropoff_location)!,
@@ -131,7 +123,7 @@ export async function GET(request: Request, segmentData: { params: Params }) {
 }
 
 // ------------------------------------------------------------------------------------------------------------------------------------------
-// -- ACCEPTING A RIDE REQUEST --------------------------------------------------------------------------------------------------------------
+// -- PATCH API TO ACCEPT A RIDE REQUEST --------------------------------------------------------------------------------------------------------------
 
 interface RideUpdatePayload {
   rider_id: string;
@@ -140,6 +132,7 @@ interface RideUpdatePayload {
     | "DRIVER_ASSIGNED"
     | "REACHED_PICKUP"
     | "TRIP_STARTED"
+    | "TRIP_ENDED"
     | "COMPLETED"
     | "CANCELLED";
 }
@@ -149,12 +142,14 @@ interface UpdateRidePayload {
     | "DRIVER_ASSIGNED"
     | "REACHED_PICKUP"
     | "TRIP_STARTED"
+    | "TRIP_ENDED"
     | "COMPLETED"
     | "CANCELLED";
   driver_id: string;
   accepted_at?: string;
   reached_pickup_at?: string;
   trip_started_at?: string;
+  trip_ended_at?: string;
   completed_at?: string;
 }
 
@@ -204,6 +199,8 @@ export async function PATCH(request: Request, segmentData: { params: Params }) {
       updatePayload.reached_pickup_at = new Date().toISOString();
     } else if (newStatus === "TRIP_STARTED") {
       updatePayload.trip_started_at = new Date().toISOString();
+    } else if (newStatus === "TRIP_ENDED") {
+      updatePayload.trip_ended_at = new Date().toISOString();
     } else if (newStatus === "COMPLETED" || newStatus === "CANCELLED") {
       updatePayload.completed_at = new Date().toISOString();
     }

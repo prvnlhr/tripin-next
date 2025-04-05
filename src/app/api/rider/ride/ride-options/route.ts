@@ -191,7 +191,7 @@ export async function GET(request: NextRequest) {
     const { data: assignedRides, error: ridesError } = await supabase
       .from("rides_new")
       .select("driver_id")
-      .neq("status", "SEARCHING");
+      .in("status", ["DRIVER_ASSIGNED", "REACHED_PICKUP", "TRIP_STARTED"]);
 
     if (ridesError) {
       console.error("Error checking assigned rides:", ridesError);

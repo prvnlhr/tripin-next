@@ -34,7 +34,7 @@ const TripDetailsCard: React.FC<TripDetailsCardProps> = ({ ongoingRide }) => {
           JOURNEY DISTANCE
         </p>
         <p className="text-[0.8rem] text-[white] font-light">
-          Approx - {ongoingRide?.distance_km}
+          Approx - {ongoingRide?.distance_km} KM
         </p>
       </div>
     </div>

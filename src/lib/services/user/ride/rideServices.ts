@@ -47,8 +47,6 @@ export async function requestRide(
         result.error || result.message || "Failed to request ride"
       );
     }
-
-    console.log("Ride requested successfully:", result.message);
     return result.data;
   } catch (error) {
     const err = error as Error;

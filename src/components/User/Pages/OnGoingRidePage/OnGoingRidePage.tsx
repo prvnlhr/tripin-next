@@ -17,7 +17,7 @@ const OnGoingRidePage: React.FC<OnGoingRidePageProps> = ({ ongoingRide }) => {
         </p>
       </div>
       <div
-        className="w-full h-[calc(100%-70px)] border-green-500 overflow-y-scroll"
+        className="w-full h-[calc(100%-70px)] border-green-500 overflow-y-scroll mb-[50px] md:mb-[0px]"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",

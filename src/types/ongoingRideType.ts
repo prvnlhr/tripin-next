@@ -20,6 +20,7 @@ export interface BaseRideResponse {
     | "DRIVER_ASSIGNED"
     | "REACHED_PICKUP"
     | "TRIP_STARTED"
+    | "TRIP_ENDED"
     | "COMPLETED"
     | "CANCELLED";
   created_at: string;

@@ -14,21 +14,16 @@ interface RiderDetails {
   phone: string;
 }
 
-interface RideData {
-  id: string;
-  rider_id: string;
-  driver_id: string | null;
-  pickup_location: string | null;
-  pickup_address: string;
-  dropoff_location: string | null;
-  dropoff_address: string;
-  current_driver_location: string | null;
-  distance_km: number;
-  duration_minutes: number;
-  fare: number;
-  status: string;
-  created_at: string;
-  riders: RiderDetails;
+interface DriverDetails {
+  driver_id: string;
+  name: string;
+  phone: string;
+  location: string;
+  car_name: string;
+  car_model: string;
+  license_plate: string;
+  cab_type: string;
+  is_online: boolean;
 }
 
 interface RideResponse {
@@ -36,6 +31,7 @@ interface RideResponse {
   rider_id: string;
   driver_id: string | null;
   rider_details: RiderDetails;
+  driver_details: DriverDetails | null;
   pickup_location: Coordinates;
   pickup_address: string;
   dropoff_location: Coordinates;
@@ -52,44 +48,54 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const driverId = request.nextUrl.searchParams.get("driverId");
-    console.log(
-      " driverId>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:",
-      driverId
-    );
 
-    // Validate requestId
+    // Validate driverId
     if (!driverId || typeof driverId !== "string") {
-      return createResponse(400, null, "Valid requestId is required");
+      return createResponse(400, null, "Valid driverId is required");
     }
-    const { data: rideData, error } = (await supabase
+
+    const { data: rideData, error } = await supabase
       .from("rides_new")
       .select(
         `
-      id,
-      rider_id,
-      driver_id,
-      pickup_location,
-      pickup_address,
-      dropoff_location,
-      dropoff_address,
-      current_driver_location,
-      distance_km,
-      duration_minutes,
-      fare,
-      status,
-      created_at,
-      riders:rider_id (rider_id, name, phone)
-    `
+        id,
+        rider_id,
+        driver_id,
+        rider_details,
+        driver_details,
+        pickup_location,
+        pickup_address,
+        dropoff_location,
+        dropoff_address,
+        current_driver_location,
+        distance_km,
+        duration_minutes,
+        fare,
+        status,
+        created_at
+      `
       )
       .eq("driver_id", driverId)
-      .single()) as { data: RideData | null; error: unknown };
+      // .neq("status", "COMPLETED")
+      // .neq("status", "CANCELLED")
+      .in("status", [
+        "DRIVER_ASSIGNED",
+        "REACHED_PICKUP",
+        "TRIP_STARTED",
+        "TRIP_ENDED",
+      ])
+      .maybeSingle();
 
-    if (error || !rideData) {
+    if (error) {
       console.error("Error fetching ongoing ride:", error);
       return createResponse(404, null, "Ongoing ride not found");
     }
 
-    // 3. Transform the data
+    if (!rideData) {
+      return createResponse(200, null, "No ongoing ride found");
+    }
+
+    // Transform the data
     const transformLocation = (wkb: string | null): Coordinates | null => {
       if (!wkb) return null;
       const coords = wkbToLatLng(wkb);
@@ -100,11 +106,8 @@ export async function GET(request: NextRequest) {
       id: rideData.id,
       rider_id: rideData.rider_id,
       driver_id: rideData.driver_id,
-      rider_details: {
-        rider_id: rideData.riders.rider_id,
-        name: rideData.riders.name,
-        phone: rideData.riders.phone,
-      },
+      rider_details: rideData.rider_details as RiderDetails,
+      driver_details: rideData.driver_details as DriverDetails | null,
       pickup_location: transformLocation(rideData.pickup_location)!,
       pickup_address: rideData.pickup_address,
       dropoff_location: transformLocation(rideData.dropoff_location)!,
@@ -118,12 +121,10 @@ export async function GET(request: NextRequest) {
       status: rideData.status,
       created_at: rideData.created_at,
     };
-    console.log(" responsexxxxx:", response);
 
-    // return createResponse(200, response);
-    return new Response(JSON.stringify(response), { status: 200 });
+    return createResponse(200, response);
   } catch (error) {
-    console.error("Error in GET onggoing ride:", error);
+    console.error("Error in GET ongoing ride:", error);
     return createResponse(
       500,
       null,

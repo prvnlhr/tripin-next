@@ -25,6 +25,8 @@ type Driver = {
   car_model: string;
   cab_type: "AUTO" | "COMFORT" | "ELITE";
   is_online: boolean;
+  location: string;
+  license_plate: string;
 };
 
 type BookingDetails = {
@@ -36,6 +38,7 @@ type BookingDetails = {
   dropoff_address: string;
   radius?: number;
 };
+
 type FarePricing = {
   auto_base: number;
   auto_per_km: number;
@@ -108,7 +111,6 @@ async function calculateDistancePostGIS(
 }
 
 // --- FARE CALCULATOR ---
-
 function calculateFare(
   cabType: "AUTO" | "COMFORT" | "ELITE",
   distanceKm: number,
@@ -137,10 +139,10 @@ function calculateFare(
   return parseFloat(Math.max(calculatedFare, min).toFixed(2));
 }
 
-// --- MAIN POST HANDLER ---
+// --- MAIN POST HANDLER : API HANDLER TO MAKE A RIDE REQUEST TO ALL ELIGIBLE DRIVERS---
 export async function POST(request: NextRequest): Promise<Response> {
   const supabase = await createClient();
-  const useGoogle = true; // Could be made configurable via query param
+  const useGoogle = true;
 
   try {
     // 1. Parse and validate booking details
@@ -157,6 +159,16 @@ export async function POST(request: NextRequest): Promise<Response> {
       return createResponse(400, null, "Missing required booking details");
     }
 
+    const { data: rider, error: riderError } = await supabase
+      .from("riders")
+      .select("rider_id, name, phone")
+      .eq("rider_id", bookingDetails.riderId)
+      .single();
+
+    if (riderError || !rider) {
+      return createResponse(404, null, "Rider not found");
+    }
+
     const radius = bookingDetails.radius || 3000; // Default 3km radius
 
     // 2. Calculate distance and duration
@@ -170,7 +182,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           bookingDetails.dropoff_coordinates
         ));
 
-    // 3. Find eligible drivers (online, in radius, not assigned, matching cab type)
+    // 3. Find eligible drivers
     const { data: eligibleDrivers, error: driversError } = await supabase
       .rpc("get_nearby_drivers", {
         lat: bookingDetails.pickup_coordinates.lat,
@@ -189,11 +201,11 @@ export async function POST(request: NextRequest): Promise<Response> {
       return createResponse(404, null, "No available drivers found");
     }
 
-    // 4. Filter out drivers already assigned to other rides
+    // 4. Filter out assigned drivers
     const { data: assignedRides, error: ridesError } = await supabase
       .from("rides_new")
       .select("driver_id")
-      .neq("status", "SEARCHING");
+      .in("status", ["DRIVER_ASSIGNED", "REACHED_PICKUP", "TRIP_STARTED"]);
 
     if (ridesError) {
       console.error("Error checking assigned rides:", ridesError);
@@ -210,7 +222,8 @@ export async function POST(request: NextRequest): Promise<Response> {
 
     if (availableDrivers.length === 0) {
       return createResponse(
-        404,
+        200,
+        null,
         null,
         "All matching drivers are currently busy"
       );
@@ -234,18 +247,39 @@ export async function POST(request: NextRequest): Promise<Response> {
     );
 
     // 6. Create ride requests for all available drivers
-    const rideRequests = availableDrivers.map((driver: Driver) => ({
-      rider_id: bookingDetails.riderId,
-      driver_id: driver.driver_id,
-      pickup_location: `POINT(${bookingDetails.pickup_coordinates.lng} ${bookingDetails.pickup_coordinates.lat})`,
-      pickup_address: bookingDetails.pickup_address,
-      dropoff_location: `POINT(${bookingDetails.dropoff_coordinates.lng} ${bookingDetails.dropoff_coordinates.lat})`,
-      dropoff_address: bookingDetails.dropoff_address,
-      distance_km: distanceInfo.distanceKm,
-      duration_minutes: Math.round(distanceInfo.durationMinutes),
-      fare: fare,
-      status: "SEARCHING",
-    }));
+    const rideRequests = availableDrivers.map((driver: Driver) => {
+      // Prepare driver details with ALL required fields
+      const driverDetails = {
+        driver_id: driver.driver_id,
+        name: driver.name,
+        phone: driver.phone,
+        location: driver.location,
+        car_name: driver.car_name || "",
+        car_model: driver.car_model || "",
+        license_plate: driver.license_plate || "",
+        cab_type: driver.cab_type,
+        is_online: driver.is_online,
+      };
+
+      return {
+        rider_id: bookingDetails.riderId,
+        rider_details: {
+          rider_id: rider.rider_id,
+          name: rider.name,
+          phone: rider.phone,
+        },
+        driver_id: driver.driver_id,
+        driver_details: driverDetails,
+        pickup_location: `POINT(${bookingDetails.pickup_coordinates.lng} ${bookingDetails.pickup_coordinates.lat})`,
+        pickup_address: bookingDetails.pickup_address,
+        dropoff_location: `POINT(${bookingDetails.dropoff_coordinates.lng} ${bookingDetails.dropoff_coordinates.lat})`,
+        dropoff_address: bookingDetails.dropoff_address,
+        distance_km: distanceInfo.distanceKm,
+        duration_minutes: Math.round(distanceInfo.durationMinutes),
+        fare: fare,
+        status: "SEARCHING",
+      };
+    });
 
     const { error: insertError } = await supabase
       .from("rides_new")

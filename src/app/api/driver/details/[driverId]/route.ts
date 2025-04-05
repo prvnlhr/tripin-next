@@ -16,7 +16,7 @@ export async function GET(request: Request, segmentData: { params: Params }) {
       );
     }
 
-    const { data: driver, error } = await supabase
+    const { data: driver, error: driverError } = await supabase
       .from("drivers")
       .select(
         `
@@ -39,8 +39,10 @@ export async function GET(request: Request, segmentData: { params: Params }) {
       .eq("driver_id", driverId)
       .single();
 
-    if (error) {
-      throw new Error("Failed to fetch driver information: " + error.message);
+    if (driverError) {
+      throw new Error(
+        "Failed to fetch driver information: " + driverError.message
+      );
     }
 
     if (!driver) {
@@ -52,9 +54,31 @@ export async function GET(request: Request, segmentData: { params: Params }) {
       );
     }
 
+    // Get count of active rides for this driver
+    const { count: activeRidesCount, error: countError } = await supabase
+      .from("rides_new")
+      .select("*", { count: "exact", head: true })
+      .eq("driver_id", driverId)
+      // .neq("status", "COMPLETED")
+      // .neq("status", "CANCELLED");
+      .in("status", [
+        "DRIVER_ASSIGNED",
+        "REACHED_PICKUP",
+        "TRIP_STARTED",
+        "TRIP_ENDED",
+      ]);
+
+    if (countError) {
+      console.error("Error fetching ride count:", countError);
+      // Continue with response even if count fails
+    }
+
     return createResponse(
       200,
-      driver,
+      {
+        ...driver,
+        active_rides_count: activeRidesCount || 0,
+      },
       null,
       "Driver information fetched successfully"
     );

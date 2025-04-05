@@ -2,6 +2,7 @@ import { createResponse } from "@/utils/apiResponseUtils";
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest } from "next/server";
 
+//  -- NOT IN USE ----------------
 export async function GET(
   request: NextRequest,
   { params }: { params: { driverId: string } }

@@ -8,54 +8,23 @@ interface Coordinates {
   lng: number;
 }
 
-interface RawDriverDetails {
+interface DriverDetails {
   driver_id: string;
-  user_id: string;
   name: string;
   phone: string;
-  location: string | null;
-  car_name: string | null;
-  car_model: string | null;
-  license_plate: string | null;
-  cab_type: string | null;
+  location: string;
+  car_name: string;
+  car_model: string;
+  license_plate: string;
+  cab_type: string;
   is_online: boolean;
-}
-
-interface TransformedDriverDetails {
-  driver_id: string;
-  user_id: string;
-  name: string;
-  phone: string;
-  location: Coordinates | null;
-  car_name: string | null;
-  car_model: string | null;
-  license_plate: string | null;
-  cab_type: string | null;
-  is_online: boolean;
-}
-
-interface RideData {
-  id: string;
-  rider_id: string;
-  driver_id: string | null;
-  pickup_location: string | null;
-  pickup_address: string;
-  dropoff_location: string | null;
-  dropoff_address: string;
-  current_driver_location: string | null;
-  distance_km: number;
-  duration_minutes: number;
-  fare: number;
-  status: string;
-  created_at: string;
-  drivers: RawDriverDetails | null;
 }
 
 interface RideResponse {
   id: string;
   rider_id: string;
   driver_id: string | null;
-  driver_details: TransformedDriverDetails | null;
+  driver_details: DriverDetails | null;
   pickup_location: Coordinates;
   pickup_address: string;
   dropoff_location: Coordinates;
@@ -72,19 +41,19 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const riderId = request.nextUrl.searchParams.get("riderId");
-    console.log(" riderId>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.:", riderId);
 
     if (!riderId || typeof riderId !== "string") {
       return createResponse(400, null, "Valid riderId is required");
     }
 
-    const { data: rideData, error } = (await supabase
+    const { data: rideData, error } = await supabase
       .from("rides_new")
       .select(
         `
         id,
         rider_id,
         driver_id,
+        driver_details,
         pickup_location,
         pickup_address,
         dropoff_location,
@@ -94,30 +63,28 @@ export async function GET(request: NextRequest) {
         duration_minutes,
         fare,
         status,
-        created_at,
-        drivers:driver_id (
-          driver_id,
-          user_id,
-          name,
-          phone,
-          location,
-          car_name,
-          car_model,
-          license_plate,
-          cab_type,
-          is_online
-        )
+        created_at
       `
       )
       .eq("rider_id", riderId)
-      // .in("status", ["DRIVER_ASSIGNED", "REACHED_PICKUP", "TRIP_STARTED"])
+      .in("status", [
+        "DRIVER_ASSIGNED",
+        "REACHED_PICKUP",
+        "TRIP_STARTED",
+        "TRIP_STARTED",
+      ])
       .order("created_at", { ascending: false })
       .limit(1)
-      .single()) as { data: RideData | null; error: unknown };
+      .maybeSingle();
 
-    if (error || !rideData) {
+    if (error) {
       console.error("Error fetching ongoing ride:", error);
       return createResponse(404, null, "Ongoing ride not found");
+    }
+
+    if (!rideData) {
+      console.log("Rider dont have any ongoing rides");
+      return createResponse(200, null, null, "Rider has 0 Ongoing rides");
     }
 
     const transformLocation = (wkb: string | null): Coordinates | null => {
@@ -126,22 +93,19 @@ export async function GET(request: NextRequest) {
       return coords || null;
     };
 
-    // Transform driver details including location
-    let driverDetails: TransformedDriverDetails | null = null;
-    if (rideData.drivers) {
-      driverDetails = {
-        ...rideData.drivers,
-        location: rideData.drivers.location
-          ? wkbToLatLng(rideData.drivers.location)
-          : null,
-      };
-    }
+    // Transform driver_details location if it exists
+    const driverDetails = rideData.driver_details
+      ? {
+          ...rideData.driver_details,
+          location: transformLocation(rideData.driver_details.location),
+        }
+      : null;
 
     const response: RideResponse = {
       id: rideData.id,
       rider_id: rideData.rider_id,
       driver_id: rideData.driver_id,
-      driver_details: driverDetails,
+      driver_details: driverDetails as DriverDetails | null,
       pickup_location: transformLocation(rideData.pickup_location)!,
       pickup_address: rideData.pickup_address,
       dropoff_location: transformLocation(rideData.dropoff_location)!,

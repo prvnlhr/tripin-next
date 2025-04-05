@@ -1,13 +1,18 @@
 import React from "react";
 import BookingForm from "./BookingForm/BookingForm";
 import CabList from "./CabOptions/CabList";
+import { RiderData } from "@/types/userType";
 
 interface BookRidePageProps {
   src: string;
   dest: string;
   rideOption: boolean;
+  riderInfo: RiderData;
 }
-const BookRidePage: React.FC<BookRidePageProps> = ({ rideOption }) => {
+const BookRidePage: React.FC<BookRidePageProps> = ({
+  rideOption,
+  riderInfo,
+}) => {
   return (
     <section
       className={`
@@ -39,8 +44,7 @@ const BookRidePage: React.FC<BookRidePageProps> = ({ rideOption }) => {
            w-full h-[60vh] md:w-[50%] md:h-full md:justify-center
            md:border-[#3C3C3C] border-l-1 border-none"
         >
-          
-          <CabList />
+          <CabList riderInfo={riderInfo} />
         </section>
       )}
     </section>

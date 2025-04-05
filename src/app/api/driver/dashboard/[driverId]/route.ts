@@ -15,6 +15,18 @@ interface RiderDetails {
   phone: string;
 }
 
+interface DriverDetails {
+  driver_id: string;
+  name: string;
+  phone: string;
+  location: Coordinates | null;
+  car_name: string | null;
+  car_model: string | null;
+  license_plate: string | null;
+  cab_type: string | null;
+  is_online: boolean;
+}
+
 interface RideBase {
   id: string;
   rider_id: string;
@@ -31,26 +43,42 @@ interface RideBase {
 
 interface RideRequest extends RideBase {
   current_driver_location: Coordinates | null;
+  driver_id: string | null;
+  driver_details: DriverDetails | null;
 }
 
 interface PastRide extends RideBase {
   status: "COMPLETED" | "CANCELLED";
   completed_at: string | null;
+  driver_id: string | null;
+  driver_details: DriverDetails | null;
 }
 
 interface SupabaseRide {
   id: string;
   rider_id: string;
-  riders: {
+  driver_id: string | null;
+  rider_details: {
     rider_id: string;
     name: string;
     phone: string;
   };
-  pickup_location: string; // WKB format
+  driver_details: {
+    driver_id: string;
+    name: string;
+    phone: string;
+    location: string | null;
+    car_name: string | null;
+    car_model: string | null;
+    license_plate: string | null;
+    cab_type: string | null;
+    is_online: boolean;
+  } | null;
+  pickup_location: string;
   pickup_address: string;
-  dropoff_location: string; // WKB format
+  dropoff_location: string;
   dropoff_address: string;
-  current_driver_location?: string | null; // WKB format
+  current_driver_location: string | null;
   distance_km: number;
   duration_minutes: number;
   fare: number;
@@ -60,16 +88,13 @@ interface SupabaseRide {
 }
 
 // Helper function to safely convert WKB to Coordinates
-function safeWkbToLatLng(wkb: string): Coordinates {
+function safeWkbToLatLng(wkb: string | null): Coordinates | null {
+  if (!wkb) return null;
   const result = wkbToLatLng(wkb);
-  if (!result) {
-    console.error("Invalid location data received");
-    return { lat: 0, lng: 0 }; // Default coordinates if parsing fails
-  }
-  return result;
+  return result || null;
 }
 
-// --- MAIN GET HANDLER ---
+// --- MAIN GET HANDLER TO GET ALL THE RIDE REQUEST FOR A DRIVER ---
 type Params = Promise<{ driverId: string }>;
 
 export async function GET(
@@ -93,7 +118,9 @@ export async function GET(
         `
         id,
         rider_id,
-        riders:rider_id (rider_id, name, phone),
+        driver_id,
+        rider_details,
+        driver_details,
         pickup_location,
         pickup_address,
         dropoff_location,
@@ -120,7 +147,9 @@ export async function GET(
         `
         id,
         rider_id,
-        riders:rider_id (rider_id, name, phone),
+        driver_id,
+        rider_details,
+        driver_details,
         pickup_location,
         pickup_address,
         dropoff_location,
@@ -143,23 +172,35 @@ export async function GET(
     }
 
     // 4. Transform the data
-    const transformRide = (ride: SupabaseRide): RideBase => ({
-      id: ride.id,
-      rider_id: ride.rider_id,
-      rider_details: {
-        rider_id: ride.riders.rider_id,
-        name: ride.riders.name,
-        phone: ride.riders.phone,
-      },
-      pickup_location: safeWkbToLatLng(ride.pickup_location),
-      pickup_address: ride.pickup_address,
-      dropoff_location: safeWkbToLatLng(ride.dropoff_location),
-      dropoff_address: ride.dropoff_address,
-      distance_km: ride.distance_km,
-      duration_minutes: ride.duration_minutes,
-      fare: ride.fare,
-      created_at: ride.created_at,
-    });
+    const transformRide = (ride: SupabaseRide) => {
+      const baseRide = {
+        id: ride.id,
+        rider_id: ride.rider_id,
+        driver_id: ride.driver_id,
+        rider_details: ride.rider_details,
+        pickup_location: safeWkbToLatLng(ride.pickup_location)!,
+        pickup_address: ride.pickup_address,
+        dropoff_location: safeWkbToLatLng(ride.dropoff_location)!,
+        dropoff_address: ride.dropoff_address,
+        distance_km: ride.distance_km,
+        duration_minutes: ride.duration_minutes,
+        fare: ride.fare,
+        created_at: ride.created_at,
+      };
+
+      // Transform driver details if they exist
+      const transformedDriverDetails = ride.driver_details
+        ? {
+            ...ride.driver_details,
+            location: safeWkbToLatLng(ride.driver_details.location),
+          }
+        : null;
+
+      return {
+        ...baseRide,
+        driver_details: transformedDriverDetails,
+      };
+    };
 
     const formattedRequests: RideRequest[] = (rideRequests || []).map(
       (ride) => ({

@@ -11,7 +11,7 @@ interface SubHeaderProps {
   driverInfo: DriverData;
 }
 const SubHeader: React.FC<SubHeaderProps> = ({ driverInfo }) => {
-  const { is_online, driver_id } = driverInfo;
+  const { is_online, driver_id, activeRides } = driverInfo;
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStatusChange = async (newStatus: boolean) => {
@@ -42,25 +42,28 @@ const SubHeader: React.FC<SubHeaderProps> = ({ driverInfo }) => {
       </div>
       <div className="h-[calc(100%-56px)] md:h-full w-[100%] md:flex-1 flex justify-end items-center">
         {/* DRIVER ONGOING RIDE LINK */}
-        <div className="h-full w-auto flex flex-col justify-center border-red-500">
-          <Link
-            href="dashboard/ongoing-ride"
-            className="w-auto h-[40px] flex items-center p-[2px] rounded-full  border border-[#3C3C3C]"
-          >
-            <p className="text-[0.7rem] ml-[10px] whitespace-nowrap">
-              On Going
-            </p>
-            <button
-              type="button"
-              className="h-[100%] aspect-square flex cursor-pointer items-center justify-center ml-[10px] rounded-full bg-[#47494A]"
+
+        {activeRides > 0 && (
+          <div className="h-full w-auto flex flex-col justify-center border-red-500">
+            <Link
+              href="/driver/dashboard/ongoing-ride"
+              className="w-auto h-[40px] flex items-center p-[2px] rounded-full  border border-[#3C3C3C]"
             >
-              <Icon
-                icon="bi:arrow-up"
-                className="h-[40%] w-[40%] rotate-45 text-white"
-              />
-            </button>
-          </Link>
-        </div>
+              <p className="text-[0.7rem] ml-[10px] whitespace-nowrap">
+                On Going
+              </p>
+              <button
+                type="button"
+                className="h-[100%] aspect-square flex cursor-pointer items-center justify-center ml-[10px] rounded-full bg-[#47494A]"
+              >
+                <Icon
+                  icon="bi:arrow-up"
+                  className="h-[40%] w-[40%] rotate-45 text-white"
+                />
+              </button>
+            </Link>
+          </div>
+        )}
 
         {/* DRIVER STATUS TOGGLE */}
         <div className="ml-[10px] h-full w-auto flex flex-col justify-center border-red-500">

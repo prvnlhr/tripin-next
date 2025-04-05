@@ -208,6 +208,7 @@ function calculateFareOptions(
   );
 }
 
+// !! -- NOT IN USE -----------------------------
 // Main API Handler
 export async function GET(request: NextRequest): Promise<Response> {
   const { searchParams } = new URL(request.url);
@@ -234,9 +235,11 @@ export async function GET(request: NextRequest): Promise<Response> {
 
     // 3. Find available drivers
     const nearbyDrivers = await getAvailableDrivers(coordinates.pickup);
+    console.log(" nearbyDrivers:", nearbyDrivers);
 
     // 4. Filter out busy drivers
     const availableDrivers = await filterBusyDrivers(nearbyDrivers);
+    console.log(" availableDrivers:", availableDrivers);
 
     // 5. Get fare pricing
     const farePricing = await getFarePricing();

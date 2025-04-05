@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import CabCard from "./CabCard";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   getAvailableCabOptions,
   requestRide,
@@ -12,13 +12,20 @@ import eliteImg from "../../../../../../public/assets/cab/elite.png";
 import { CabOption } from "@/types/cabType";
 import useUserSession from "@/hooks/useUserSession";
 import CabCardSkeleton from "./CabCardSkeleton";
+import { createClient } from "@/utils/supabase/client";
+import { RiderData } from "@/types/userType";
 
-const CabList = () => {
+interface CabListProps {
+  riderInfo: RiderData;
+}
+const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
+  console.log(" riderInfo:", riderInfo);
   const searchParams = useSearchParams();
   const src = searchParams.get("src");
   const dest = searchParams.get("dest");
   const srcAddress = searchParams.get("srcAddress");
   const destAddress = searchParams.get("destAddress");
+  const router = useRouter();
 
   const session = useUserSession();
 
@@ -163,6 +170,39 @@ const CabList = () => {
       // You might want to show an error to the user here
     }
   };
+  const supabase = createClient();
+  const riderId = session?.rider_id;
+
+  useEffect(() => {
+    // if (!riderId) return;
+
+    const channel = supabase
+      .channel(`driver_requests_accept_${riderId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "rides_new",
+          filter: `rider_id=eq.${riderId}`,
+        },
+        (payload) => {
+          // console.log("Change received for rider:", payload.new);
+          // Handle the new ride request
+          // console.log(payload.new.status);
+          if (payload.new.status === "DRIVER_ASSIGNED") {
+            router.push("ride/ongoing-ride");
+            console.log("driver_assinged");
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel).catch(console.error);
+    };
+  }, [riderId, supabase, router]);
+
   if (loading) {
     return (
       <div className="w-full h-[calc(100%-70px)] space-y-4 overflow-y-auto">
@@ -229,7 +269,7 @@ const CabList = () => {
             `}
           >
             {selectedCabOption
-              ? `Confirm ${selectedCabOption.cab_type} ( INR. ${selectedCabOption.fare.toFixed(2)})`
+              ? `Confirm ${selectedCabOption?.cab_type} ( INR. ${selectedCabOption?.fare.toFixed(2)})`
               : "Select ride option"}
           </button>
         </div>
