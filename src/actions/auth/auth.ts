@@ -9,6 +9,11 @@ export async function signInWithMagicLink(
 ): Promise<AuthResponse> {
   const supabase = await createClient();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  console.log(" baseUrl:", baseUrl);
+  console.log(
+    "ENV CONTENT------------------",
+    process.env.NEXT_PUBLIC_BASE_URL
+  );
 
   try {
     // 1. Check if user exists with a different role
