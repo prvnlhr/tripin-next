@@ -2,10 +2,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import CabCard from "./CabCard";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  getAvailableCabOptions,
-  requestRide,
-} from "@/lib/services/u1_oldx/userx/ride/rideServices";
 import autoImg from "../../../../../../public/assets/cab/auto.png";
 import comfortImg from "../../../../../../public/assets/cab/comfort.png";
 import eliteImg from "../../../../../../public/assets/cab/elite.png";
@@ -15,6 +11,10 @@ import CabCardSkeleton from "./CabCardSkeleton";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "@/context/ToastContext";
 import { RiderData } from "@/types/rider/riderTypes";
+import {
+  getAvailableCabOptions,
+  requestRide,
+} from "@/lib/services/rider/ride/rideServices";
 
 interface CabListProps {
   riderInfo: RiderData;

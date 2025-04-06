@@ -72,11 +72,8 @@ export async function acceptRideRequest(
         result.error || result.message || "Failed to accept Ride Request"
       );
     }
-
-    console.log("Accept Ride Request Success:", result.message);
-    console.log("Accept Ride Request Success:", result.data);
     await revalidateTagHandler("driverInfo");
-    return result.data; // Returns the created ride object
+    return result.data;
   } catch (error) {
     const err = error as Error;
     console.error("Accept Ride Request Error:", error);

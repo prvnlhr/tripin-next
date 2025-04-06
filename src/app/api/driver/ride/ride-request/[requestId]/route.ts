@@ -124,7 +124,6 @@ export async function GET(request: Request, segmentData: { params: Params }) {
 
 // ------------------------------------------------------------------------------------------------------------------------------------------
 // -- PATCH API TO ACCEPT A RIDE REQUEST --------------------------------------------------------------------------------------------------------------
-
 interface RideUpdatePayload {
   rider_id: string;
   driver_id: string;
@@ -205,12 +204,10 @@ export async function PATCH(request: Request, segmentData: { params: Params }) {
       updatePayload.completed_at = new Date().toISOString();
     }
 
-    const { data: updatedRide, error: updateError } = await supabase
+    const { error: updateError } = await supabase
       .from("rides_new")
       .update(updatePayload)
-      .eq("id", requestId)
-      .select()
-      .single();
+      .eq("id", requestId);
 
     if (updateError) {
       throw updateError;
@@ -252,10 +249,7 @@ export async function PATCH(request: Request, segmentData: { params: Params }) {
     }
 
     // 5. Return success response
-    return createResponse(200, {
-      ...updatedRide,
-      message: "Ride successfully updated",
-    });
+    return createResponse(200, null, null, "Ride status updated successfully");
   } catch (error) {
     console.error("Error in PATCH ride request:", error);
     return createResponse(

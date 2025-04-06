@@ -1,4 +1,4 @@
-import { RiderRideResponse } from "@/types/ongoingRideType";
+import { RiderRideResponse } from "@/types/rideTypes";
 import React from "react";
 
 interface TripDetailsCardProps {
