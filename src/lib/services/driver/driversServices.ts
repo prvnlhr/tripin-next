@@ -207,6 +207,7 @@ interface RideStatusData {
   rider_id: string;
   status: string;
 }
+
 export async function updateRideStatus(
   rideId: string,
   statusData: RideStatusData

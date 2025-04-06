@@ -39,3 +39,32 @@ export async function getRiderInfo(riderId: string): Promise<RiderData> {
     throw new Error(`Failed to fetch rider information: ${err.message}`);
   }
 }
+
+export async function completeRide(rideId: string) {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/driver/ongoing-ride/${rideId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      const errorMessage = result.message || "Failed to update ride status";
+      console.error(`Status update failed for ride ${rideId}:`, errorMessage);
+      throw new Error(errorMessage);
+    }
+    const successMessage = result.message || `Ride status updated to ${status}`;
+    // await revalidateTagHandler("adminDashboard");
+    return successMessage;
+  } catch (error) {
+    const err = error as Error;
+    console.error("Update Ride Status Error:", error);
+    throw new Error(`Failed to update ride status: ${err.message}`);
+  }
+}

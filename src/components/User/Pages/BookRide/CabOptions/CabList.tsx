@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import CabCard from "./CabCard";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -14,20 +14,29 @@ import useUserSession from "@/hooks/useUserSession";
 import CabCardSkeleton from "./CabCardSkeleton";
 import { createClient } from "@/utils/supabase/client";
 import { RiderData } from "@/types/userType";
+import { useToast } from "@/context/ToastContext";
 
 interface CabListProps {
   riderInfo: RiderData;
 }
 const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
-  console.log(" riderInfo:", riderInfo);
+  const logRider = false;
+  if (logRider) {
+    console.log(" riderInfo:", riderInfo);
+  }
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const session = useUserSession();
+
+  const { showToast } = useToast();
+
   const src = searchParams.get("src");
   const dest = searchParams.get("dest");
   const srcAddress = searchParams.get("srcAddress");
   const destAddress = searchParams.get("destAddress");
-  const router = useRouter();
 
-  const session = useUserSession();
+  const supabase = createClient();
+  const riderId = session?.rider_id;
 
   const [loading, setLoading] = useState(true);
   const [cabOptions, setCabOptions] = useState<CabOption[]>([]);
@@ -35,6 +44,7 @@ const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
   const [selectedCabOption, setSelectedCabOption] = useState<CabOption | null>(
     null
   );
+  const toastIdRef = useRef<string | number>("");
 
   const fetchCabOptions = useCallback(async () => {
     if (!src || !dest) {
@@ -159,23 +169,38 @@ const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
         dropoff_address: decodeAddress(destAddress),
       };
 
+      const newToastId = showToast({
+        type: "loading",
+        title: "Ride Request Sent",
+        description: `Waiting for drivers to accept your request...`,
+        persistent: true,
+        duration: Infinity,
+        style: {
+          ["--toast-icon-color" as string]: "#1570EF",
+          borderColor: "#101323",
+          color: "#101323",
+          background: "#B9E6FE",
+        },
+      });
+      toastIdRef.current = newToastId;
       try {
         const res = await requestRide(bookingDetails);
         console.log(" res:", res);
       } catch (error) {
         console.log(error);
+        showToast({
+          type: "error",
+          title: "Ride Request Failed",
+          description: `Could not request ride`,
+          toastId: toastIdRef.current,
+          persistent: true,
+          duration: Infinity,
+        });
       }
-    } else {
-      console.error("Missing required booking information");
-      // You might want to show an error to the user here
     }
   };
-  const supabase = createClient();
-  const riderId = session?.rider_id;
 
   useEffect(() => {
-    // if (!riderId) return;
-
     const channel = supabase
       .channel(`driver_requests_accept_${riderId}`)
       .on(
@@ -187,13 +212,18 @@ const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
           filter: `rider_id=eq.${riderId}`,
         },
         (payload) => {
-          // console.log("Change received for rider:", payload.new);
-          // Handle the new ride request
-          // console.log(payload.new.status);
           if (payload.new.status === "DRIVER_ASSIGNED") {
-            router.push("ride/ongoing-ride");
-            console.log("driver_assinged");
+            const driverName = payload.new.driver_details.name;
+            showToast({
+              type: "success",
+              title: "Ride Request Accepted",
+              description: `${driverName} arriving to you`,
+              toastId: toastIdRef.current,
+              duration: 3000,
+              showCloseButton: true,
+            });
           }
+          router.push("ride/ongoing-ride");
         }
       )
       .subscribe();
@@ -201,14 +231,23 @@ const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
     return () => {
       supabase.removeChannel(channel).catch(console.error);
     };
-  }, [riderId, supabase, router]);
+  }, [riderId, supabase, router, showToast]);
 
   if (loading) {
     return (
-      <div className="w-full h-[calc(100%-70px)] space-y-4 overflow-y-auto">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <CabCardSkeleton key={index} />
-        ))}
+      <div className="w-full h-[calc(100%-70px)]">
+        <div className="w-full h-[80px] flex flex-col justify-center items-start"></div>
+        <div
+          className="w-full h-[calc(100%-80px)] flex flex-col justify-between overflow-y-scroll"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+        >
+          {Array.from({ length: 3 }).map((_, index) => (
+            <CabCardSkeleton key={index} />
+          ))}
+        </div>
       </div>
     );
   }

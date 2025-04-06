@@ -1,8 +1,6 @@
 import React from "react";
 
-const page = async ({ searchParams }) => {
-  const qp = await searchParams;
-  console.log(" qpx...:", qp.src);
+const page = async () => {
   return <div>page</div>;
 };
 

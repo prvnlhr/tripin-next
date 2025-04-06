@@ -18,7 +18,7 @@ export const driverRideStatus = [
     label2: "Driver initiated the trip",
     statusValue: "TRIP_STARTED",
     icon: "tabler:location-filled",
-    border: "border-[#FDB022]",
+    border: "border-[#F79009]",
   },
   {
     label1: "Trip End",

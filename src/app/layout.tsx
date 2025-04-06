@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { MapProvider } from "@/context/MapProvider";
-
+import { Providers } from "./provider";
+import { Toaster } from "sonner";
+import LoadingSpinner from "@/components/Common/Spinner/LoadingSpinner";
+import DynamicIcon from "@/components/Common/Toast/DynamicIcon";
 const satoshi = localFont({
   src: [
     {
@@ -179,7 +181,29 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${satoshi.variable} ${lufga.variable} antialiased`}>
-        <MapProvider>{children}</MapProvider>
+        <Providers>{children}</Providers>
+        <Toaster
+          position="top-right"
+          expand={false}
+          richColors
+          closeButton={true}
+          duration={4000}
+          style={{
+            fontFamily: "Lufga",
+          }}
+          toastOptions={{
+            style: {
+              fontFamily: "Lufga",
+              ["--toast-icon-color" as string]: undefined,
+            },
+          }}
+          icons={{
+            success: <DynamicIcon iconType="success" defaultColor="#039855" />,
+            error: <DynamicIcon iconType="error" defaultColor="#D92D20" />,
+            info: <DynamicIcon iconType="info" defaultColor="##1570EF" />,
+            loading: <LoadingSpinner />,
+          }}
+        />
       </body>
     </html>
   );

@@ -28,6 +28,7 @@ interface UpdateRidePayload {
   trip_ended_at?: string;
   completed_at?: string;
 }
+
 type Params = Promise<{ rideId: string }>;
 
 // -- PATCH API UPDATE THE RIDE STATUS BY DRIVER FOR RIDER --

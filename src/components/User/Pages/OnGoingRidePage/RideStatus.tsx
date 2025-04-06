@@ -1,43 +1,22 @@
 "use client";
+import { PaymentController } from "@/components/Payments/PaymentController";
+import { useToast } from "@/context/ToastContext";
+import { finishedRide } from "@/lib/services/user/ride/rideServices";
 import { RiderRideResponse } from "@/types/ongoingRideType";
 import { driverRideStatus } from "@/utils/rideUtils";
 import { createClient } from "@/utils/supabase/client";
-import { useEffect, useState } from "react";
-
-type RideStatus =
-  | "SEARCHING"
-  | "DRIVER_ASSIGNED"
-  | "REACHED_PICKUP"
-  | "TRIP_STARTED"
-  | "TRIP_ENDED"
-  | "COMPLETED"
-  | "CANCELLED";
+import { useEffect, useRef, useState } from "react";
+import { createToastInfo, getCurrentTime } from "@/utils/rider/rideStatusUtils";
+import { getStepsCompleted } from "@/utils/rider/rideStatusUtils";
 
 interface RideStatusProps {
   ongoingRide: RiderRideResponse | null;
 }
 
-const getStepsCompleted = (status: RideStatus | undefined): number => {
-  if (!status) return 0;
-
-  switch (status) {
-    case "DRIVER_ASSIGNED":
-      return 1;
-    case "REACHED_PICKUP":
-      return 2;
-    case "TRIP_STARTED":
-      return 3;
-    case "TRIP_ENDED":
-      return 4;
-    case "COMPLETED":
-    case "CANCELLED":
-      return 5;
-    default:
-      return 0;
-  }
-};
 const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   const supabase = createClient();
+  const { showToast } = useToast();
+  const toastIdRef = useRef<string | number>("");
 
   const [rideStatusData, setRideStatusData] = useState(ongoingRide);
   const [stepsCompleted, setStepsCompleted] = useState(
@@ -47,7 +26,6 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   useEffect(() => {
     setStepsCompleted(getStepsCompleted(ongoingRide?.status));
     setRideStatusData(ongoingRide);
-    console.log(ongoingRide);
   }, [ongoingRide]);
 
   useEffect(() => {
@@ -65,13 +43,56 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
         },
         (payload) => {
           const updatedRide = payload.new as RiderRideResponse;
-          // const newStatus = updatedRide.status;
-          // if (newStatus === "COMPLETED" || newStatus === "CANCELLED") {
-          // }
-          // if (newStatus === "TRIP_ENDED") {
-          // }
+          const newStatus = updatedRide.status;
+          const toastInfo = createToastInfo(newStatus);
+
           setRideStatusData(updatedRide);
           setStepsCompleted(getStepsCompleted(updatedRide.status));
+
+          if (toastInfo) {
+            if (toastIdRef.current) {
+              // Update existing toast
+              showToast({
+                type: "info",
+                title: `${toastInfo.title} - ${getCurrentTime()}`,
+                description: toastInfo.desc,
+                toastId: toastIdRef.current,
+                persistent: true,
+                showCloseButton: true,
+                style: {
+                  ["--toast-icon-color" as string]: toastInfo.color,
+                  borderColor: toastInfo.borderColor,
+                  color: toastInfo.color,
+                  background: toastInfo.background,
+                },
+              });
+            } else {
+              // Create new toast and store its ID
+              const newToastId = showToast({
+                type: "info",
+                title: `${toastInfo.title} - ${getCurrentTime()}`,
+                description: toastInfo.desc,
+                persistent: true,
+                showCloseButton: true,
+                style: {
+                  ["--toast-icon-color" as string]: toastInfo.iconColor,
+                  borderColor: toastInfo.borderColor,
+                  color: toastInfo.color,
+                  background: toastInfo.background,
+                },
+              });
+              toastIdRef.current = newToastId;
+            }
+          }
+
+          // Clear toast when ride is completed
+          if (
+            newStatus === "TRIP_ENDED" ||
+            newStatus === "COMPLETED" ||
+            newStatus === "CANCELLED"
+          ) {
+            // setToastId("");
+          }
         }
       )
       .subscribe();
@@ -79,8 +100,12 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [ongoingRide?.id, supabase]);
+  }, [ongoingRide?.id, supabase, showToast]);
 
+  const handlePaymentSuccess = async () => {
+    console.log("Payment succeeded!");
+    await finishedRide(ongoingRide?.id);
+  };
   return (
     <div
       className="w-[100%] md:w-[60%] h-[400px]
@@ -122,20 +147,12 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
         ))}
       </div>
 
-      <div className="w-[100%] h-[50px] flex items-center justify-center">
+      <div className="w-[100%] h-auto flex items-center justify-start border-green-500 md:p-[5px]">
         {rideStatusData?.status === "TRIP_ENDED" && (
-          <button
-            className={`
-              w-full h-[80%] bg-[#B5E4FC] hover:bg-[#9fd4f0] cursor-pointer
-              border border-[#3C3C3C]
-              font-medium text-[0.9rem] 
-              text-black
-              rounded-lg
-              transition-colors duration-200
-            `}
-          >
-            Make Payement INR - {rideStatusData?.fare}
-          </button>
+          <PaymentController
+            amount={rideStatusData.fare}
+            onPaymentSuccess={handlePaymentSuccess}
+          />
         )}
       </div>
     </div>
