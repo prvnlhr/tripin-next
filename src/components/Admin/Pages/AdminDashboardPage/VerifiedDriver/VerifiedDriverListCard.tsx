@@ -1,4 +1,4 @@
-import { DriverData } from "@/types/userType";
+import { DriverData } from "@/types/driver/driverTypes";
 import React from "react";
 interface VerifiedDriverListCardProps {
   verifiedDriver: DriverData;
