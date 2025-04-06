@@ -8,12 +8,13 @@ export async function signInWithMagicLink(
   attemptedRole: "rider" | "driver" | "admin"
 ): Promise<AuthResponse> {
   const supabase = await createClient();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  console.log(" baseUrl:", baseUrl);
-  console.log(
-    "ENV CONTENT------------------",
-    process.env.NEXT_PUBLIC_BASE_URL
-  );
+  // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const baseUrl = "https://tripin-next.vercel.app";
+  // console.log(" baseUrl:", baseUrl);
+  // console.log(
+  //   "ENV CONTENT------------------",
+  //   process.env.NEXT_PUBLIC_BASE_URL
+  // );
 
   try {
     // 1. Check if user exists with a different role
