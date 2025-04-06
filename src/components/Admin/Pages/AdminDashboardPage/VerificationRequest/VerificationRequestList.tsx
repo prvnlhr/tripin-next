@@ -1,6 +1,6 @@
 import React from "react";
 import VerificationRequestListCard from "./VerificationRequestListCard";
-import { DriverData } from "@/types/userType";
+import { DriverData } from "@/types/driver/driverTypes";
 
 interface VerificationRequestListProps {
   verificationRequestData: DriverData[];

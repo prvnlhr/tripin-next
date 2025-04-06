@@ -4,6 +4,7 @@ import SubHeader from "./SubHeader/SubHeader";
 import { createClient } from "@/utils/supabase/server";
 import { getDriverInfo } from "@/lib/services/driver/driversServices";
 import Map from "@/components/Driver/Map/Map";
+
 const DriverDashboardLayout = async ({
   children,
 }: {

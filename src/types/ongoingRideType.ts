@@ -1,5 +1,5 @@
-// ongoing ride response data
-interface Coordinates {
+// ONGOING RIDE TYPES ----------------------------------------------------------------------------
+interface OnGoingRideCoordinates {
   lat: number;
   lng: number;
 }
@@ -8,11 +8,11 @@ export interface BaseRideResponse {
   id: string;
   rider_id: string;
   driver_id: string;
-  pickup_location: Coordinates;
+  pickup_location: OnGoingRideCoordinates;
   pickup_address: string;
-  dropoff_location: Coordinates;
+  dropoff_location: OnGoingRideCoordinates;
   dropoff_address: string;
-  current_driver_location: Coordinates | null;
+  current_driver_location: OnGoingRideCoordinates | null;
   distance_km: number;
   duration_minutes: number;
   fare: number;
@@ -39,7 +39,7 @@ export interface DriverDetails {
   user_id: string;
   cab_type: "AUTO" | "COMFORT" | "ELITE";
   car_name: string;
-  location: Coordinates;
+  location: OnGoingRideCoordinates;
   car_model: string;
   driver_id: string;
   is_online: boolean;
@@ -54,3 +54,4 @@ export interface RiderRideResponse extends BaseRideResponse {
 export interface DriverRideResponse extends BaseRideResponse {
   rider_details: RiderDetails;
 }
+

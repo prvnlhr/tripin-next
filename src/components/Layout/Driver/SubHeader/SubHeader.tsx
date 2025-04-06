@@ -2,11 +2,11 @@
 import BackBtn from "@/components/Common/BackBtn";
 import React, { useState } from "react";
 import DriverGreeting from "./DriverGreeting";
-import { DriverData } from "@/types/userType";
-import { toggleDriverOnlineStatus } from "@/lib/services/driver/driversServices";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
 import { Oval } from "react-loader-spinner";
+import { toggleDriverOnlineStatus } from "@/lib/services/driver/driversServices";
+import { DriverData } from "@/types/driver/driverTypes";
 interface SubHeaderProps {
   driverInfo: DriverData;
 }

@@ -1,5 +1,5 @@
 import AdminDashboardPage from "@/components/Admin/Pages/AdminDashboardPage/AdminDashboardPage";
-import { getDashboardContent } from "@/lib/services/admin/dashboardServices";
+import { getDashboardContent } from "@/lib/services/admin/adminServices";
 
 export default async function AdminDashboard() {
   const dashboardData = await getDashboardContent();

@@ -1,6 +1,6 @@
 import React from "react";
 import VerifiedDriverListCard from "./VerifiedDriverListCard";
-import { DriverData } from "@/types/userType";
+import { DriverData } from "@/types/driver/driverTypes";
 
 interface VerifiedDriverListProps {
   verifiedDrivers: DriverData[];
@@ -28,7 +28,10 @@ const VerifiedDriverList: React.FC<VerifiedDriverListProps> = ({
          md:justify-start"
       >
         {verifiedDrivers.map((verifiedDriver) => (
-          <VerifiedDriverListCard key={verifiedDriver.driver_id} verifiedDriver={verifiedDriver} />
+          <VerifiedDriverListCard
+            key={verifiedDriver.driver_id}
+            verifiedDriver={verifiedDriver}
+          />
         ))}
       </div>
     </div>

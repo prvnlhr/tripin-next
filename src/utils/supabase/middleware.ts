@@ -10,7 +10,7 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/api") &&
     ![
       "/api/auth/verify-magic-link",
-      "/api/user/profile/:path*",
+      "/api/rider/profile/:path*",
       "/api/driver/profile/:path*",
       "/api/admin/profile/:path*",
     ].some((path) => request.nextUrl.pathname.startsWith(path))
@@ -96,7 +96,7 @@ export async function updateSession(request: NextRequest) {
     // Allowed: onboarding page only
     if (
       pathname === config.onboarding ||
-      pathname === "/api/user/profile" ||
+      pathname === "/api/rider/profile" ||
       pathname === "/api/driver/profile" ||
       pathname === "/api/admin/profile"
     ) {
@@ -111,7 +111,7 @@ export async function updateSession(request: NextRequest) {
     // Allowed: main pages
     if (
       pathname.startsWith(config.main) ||
-      pathname === "/api/user/profile" ||
+      pathname === "/api/rider/profile" ||
       pathname === "/api/driver/profile" ||
       pathname === "/api/admin/profile"
     ) {

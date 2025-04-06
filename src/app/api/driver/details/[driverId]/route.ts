@@ -96,6 +96,7 @@ export async function GET(request: Request, segmentData: { params: Params }) {
   }
 }
 
+// -- NOT IN USE --
 export async function PATCH(request: Request, segmentData: { params: Params }) {
   try {
     const supabase = await createClient();
@@ -122,7 +123,6 @@ export async function PATCH(request: Request, segmentData: { params: Params }) {
         "Failed to fetch current driver status: " + fetchError.message
       );
     }
-
     // Toggle the status
     const newStatus = !currentDriver.is_online;
     const { data: updatedDriver, error: updateError } = await supabase

@@ -9,8 +9,8 @@ import authBannerImg from "../../../../../public/assets/banners/authPageBanner.p
 import Image from "next/image";
 import AppLogo from "@/components/Common/AppLogo";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { createProfile } from "@/lib/services/profile/profileServices";
 import SubmitBtn from "@/components/Common/SubmitBtn";
+import { createProfile } from "@/lib/services/common/profile/profileServices";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),

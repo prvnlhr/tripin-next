@@ -1,7 +1,7 @@
 import React from "react";
 import VerificationRequestList from "./VerificationRequest/VerificationRequestList";
 import VerifiedDriverList from "./VerifiedDriver/VerifiedDriverList";
-import { DriverData } from "@/types/userType";
+import { DriverData } from "@/types/driver/driverTypes";
 
 interface AdminDashboardPageProps {
   dashboardData: {

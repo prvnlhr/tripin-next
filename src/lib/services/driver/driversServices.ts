@@ -1,9 +1,9 @@
 const BASE_URL: string =
   process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 import { revalidateTagHandler } from "@/lib/validation";
-import { DashboardData, RideRequestDetails } from "@/types/rideTypes";
-import { DriverData } from "@/types/userType";
+import { DashboardData, DriverData } from "@/types/driver/driverTypes";
 
+// Getting Driver's info
 export async function getDriverInfo(driverId: string): Promise<DriverData> {
   try {
     const response = await fetch(`${BASE_URL}/api/driver/details/${driverId}`, {
@@ -25,7 +25,6 @@ export async function getDriverInfo(driverId: string): Promise<DriverData> {
       );
     }
 
-    // Validate and transform the data to match DriverData
     const driverData: DriverData = {
       driver_id: result.data.driver_id,
       user_id: result.data.user_id,
@@ -39,9 +38,7 @@ export async function getDriverInfo(driverId: string): Promise<DriverData> {
       approval_status: result.data.approval_status,
       created_at: result.data.created_at,
       updated_at: result.data.updated_at,
-      // Optional fields
       location: result.data.location || null,
-      // is_first_login is excluded as it's not in DriverData
       activeRides: result.data.active_rides_count,
     };
 
@@ -54,16 +51,20 @@ export async function getDriverInfo(driverId: string): Promise<DriverData> {
   }
 }
 
+// Driver changes his online status
 export async function toggleDriverOnlineStatus(
   driverId: string
 ): Promise<{ is_online: boolean }> {
   try {
-    const response = await fetch(`${BASE_URL}/api/driver/${driverId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${BASE_URL}/api/driver/dashboard/${driverId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     const result = await response.json();
 
@@ -90,6 +91,7 @@ export async function toggleDriverOnlineStatus(
   }
 }
 
+// Getting Drivers Dashboard Content Data
 export async function getDriverDashboardData(
   driverId: string
 ): Promise<DashboardData> {
@@ -120,123 +122,5 @@ export async function getDriverDashboardData(
     const err = error as Error;
     console.error("Get Driver Info Error:", error);
     throw new Error(`Failed to fetch driver information: ${err.message}`);
-  }
-}
-
-export async function getRideRequestDetails(requestId: string) {
-  try {
-    const response = await fetch(
-      `${BASE_URL}/api/driver/ride-request/${requestId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        next: {
-          tags: ["rideRequestDetails"],
-        },
-      }
-    );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      console.error(
-        "Get Ride Request Details Error:",
-        result.error || result.message
-      );
-      throw new Error(
-        result.error || result.message || "Failed to fetch Ride Request Details"
-      );
-    }
-
-    console.log("Get Ride Request Details Success:", result.message);
-    const rideRequestDetails: RideRequestDetails = result.data;
-    return rideRequestDetails;
-  } catch (error) {
-    const err = error as Error;
-    console.error("Get Ride Request Details Error:", error);
-    throw new Error(`Failed to fetch Ride Request Details: ${err.message}`);
-  }
-}
-
-export async function acceptRideRequest(
-  requestId: string,
-  rideDetails: RideRequestDetails
-) {
-  try {
-    const response = await fetch(
-      `${BASE_URL}/api/driver/ride-request/${requestId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(rideDetails),
-        next: {
-          tags: ["acceptRideRequest"],
-        },
-      }
-    );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      console.error(
-        "Accept Ride Request Error:",
-        result.error || result.message
-      );
-      throw new Error(
-        result.error || result.message || "Failed to accept Ride Request"
-      );
-    }
-
-    console.log("Accept Ride Request Success:", result.message);
-    console.log("Accept Ride Request Success:", result.data);
-    await revalidateTagHandler("driverInfo");
-    return result.data; // Returns the created ride object
-  } catch (error) {
-    const err = error as Error;
-    console.error("Accept Ride Request Error:", error);
-    throw new Error(`Failed to accept Ride Request: ${err.message}`);
-  }
-}
-
-//
-interface RideStatusData {
-  rider_id: string;
-  status: string;
-}
-
-export async function updateRideStatus(
-  rideId: string,
-  statusData: RideStatusData
-) {
-  try {
-    const response = await fetch(
-      `${BASE_URL}/api/driver/ongoing-ride/${rideId}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(statusData),
-      }
-    );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      const errorMessage = result.message || "Failed to update ride status";
-      console.error(`Status update failed for ride ${rideId}:`, errorMessage);
-      throw new Error(errorMessage);
-    }
-    const successMessage = result.message || `Ride status updated to ${status}`;
-    // await revalidateTagHandler("adminDashboard");
-    return successMessage;
-  } catch (error) {
-    const err = error as Error;
-    console.error("Update Ride Status Error:", error);
-    throw new Error(`Failed to update ride status: ${err.message}`);
   }
 }

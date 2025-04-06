@@ -1,7 +1,7 @@
 import React from "react";
 import IncomingRequestList from "./IncomingRideRequest/IncomingRequestList";
 import PastRideList from "./PastRides/PastRideList";
-import { DashboardData } from "@/types/rideTypes";
+import { DashboardData } from "@/types/driver/driverTypes";
 
 interface DriverDashboardPageProps {
   dashboardData: DashboardData;

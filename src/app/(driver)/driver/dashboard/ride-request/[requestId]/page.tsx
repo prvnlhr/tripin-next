@@ -1,5 +1,5 @@
 import RideRequestPage from "@/components/Driver/Pages/RideRequestPage/RideRequestPage";
-import { getRideRequestDetails } from "@/lib/services/driver/driversServices";
+import { getRideRequestDetails } from "@/lib/services/driver/ride/rideServices";
 import { RideRequestDetails } from "@/types/rideTypes";
 import React from "react";
 

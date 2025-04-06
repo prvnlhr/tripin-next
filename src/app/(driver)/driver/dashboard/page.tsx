@@ -1,6 +1,6 @@
 import DriverDashboardPage from "@/components/Driver/Pages/DriverDashboardPage/DriverDashboardPage";
 import { getDriverDashboardData } from "@/lib/services/driver/driversServices";
-import { DashboardData } from "@/types/rideTypes";
+import { DashboardData } from "@/types/driver/driverTypes";
 import { createClient } from "@/utils/supabase/server";
 
 const page = async () => {

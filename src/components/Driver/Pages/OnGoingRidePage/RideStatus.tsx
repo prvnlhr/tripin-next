@@ -1,6 +1,4 @@
 "use client";
-import { updateRideStatus } from "@/lib/services/driver/driversServices";
-import { DriverRideResponse } from "@/types/ongoingRideType";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import React, { useEffect, useState } from "react";
 import { Oval } from "react-loader-spinner";
@@ -8,6 +6,8 @@ import { riderRideStatus } from "@/utils/rideUtils";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { revalidateTagHandler } from "@/lib/validation";
+import { updateRideStatus } from "@/lib/services/driver/ride/rideServices";
+import { DriverRideResponse } from "@/types/rideTypes";
 type RideStatus =
   | "SEARCHING"
   | "DRIVER_ASSIGNED"

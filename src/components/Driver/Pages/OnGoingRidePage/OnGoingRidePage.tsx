@@ -2,7 +2,7 @@ import React from "react";
 import UserInfoCard from "./UserInfoCard";
 import TripDetailsCard from "./TripDetailsCard";
 import RideStatus from "./RideStatus";
-import { DriverRideResponse } from "@/types/ongoingRideType";
+import { DriverRideResponse } from "@/types/rideTypes";
 
 interface OnGoingRidePageProps {
   ongoingRide: DriverRideResponse | null;

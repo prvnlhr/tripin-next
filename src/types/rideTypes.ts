@@ -1,4 +1,11 @@
-// Reusable interface for Rider's ride data
+// Coordinates interface (reusable)
+export interface Coordinates {
+  longitude: number;
+  latitude: number;
+}
+
+//  RIDE TYPE ---------------------------------------------------------------------
+// Rider's ride data :: -----------------------------------------------------------------
 export interface RiderRideData {
   id: string;
   request_id: string | null;
@@ -25,7 +32,7 @@ export interface RiderRideData {
   driver_location: Coordinates;
 }
 
-// Reusable interface for Driver's ride data
+// Driver's ride data :: -----------------------------------------------------------------
 export interface DriverRideData {
   id: string;
   request_id: string | null;
@@ -47,21 +54,14 @@ export interface DriverRideData {
   rider_phone: string;
 }
 
-// Coordinates interface (reusable)
-export interface Coordinates {
-  longitude: number;
-  latitude: number;
-}
-
-// ------------------------------------------------------
+//  RIDE REQUEST TYPE ---------------------------------------------------------------------
 
 export interface RideRequestCoordinates {
   lat: number;
   lng: number;
 }
 
-interface RiderDetails {
-  rider_id: string;
+export interface RiderProfileData {
   name: string;
   phone: string;
 }
@@ -104,6 +104,7 @@ export interface DashboardData {
   pastRides: PastRide[];
 }
 
+//  RIDE REQUEST DETAILS TYPES ---------------------------------------------------------------
 export interface RideRequestDetails {
   id: string;
   rider_id: string;
@@ -127,4 +128,103 @@ export interface RideRequestDetails {
   created_at: string;
 }
 
-// ------------------------------------------------------------------
+// REQUESTING RIDE PAYLOAD
+export interface RideRequestPayload {
+  riderId: string;
+  cabType: "AUTO" | "COMFORT" | "ELITE";
+  pickup_coordinates: {
+    lat: number;
+    lng: number;
+  };
+  dropoff_coordinates: {
+    lat: number;
+    lng: number;
+  };
+  pickup_address: string;
+  dropoff_address: string;
+}
+
+// RIDE REALTIME CHANGE TYPE --------------------------------
+
+export interface RideNew {
+  id: string; // UUID
+  rider_id: string; // UUID
+  driver_id: string | null; // Nullable UUID
+  pickup_location: string; // Geography as WKT (e.g., "POINT(lng lat)") or use PostGIS type if mapped
+  pickup_address: string;
+  dropoff_location: string;
+  dropoff_address: string;
+  current_driver_location: string | null;
+  distance_km: number;
+  duration_minutes: number;
+  fare: number;
+  status:
+    | "SEARCHING"
+    | "DRIVER_ASSIGNED"
+    | "REACHED_PICKUP"
+    | "TRIP_STARTED"
+    | "COMPLETED"
+    | "CANCELLED";
+  created_at: string; // ISO Timestamp
+  accepted_at: string | null;
+  reached_pickup_at: string | null;
+  trip_started_at: string | null;
+  completed_at: string | null;
+}
+
+// ONGOING RIDE TYPES ----------------------------------------------------------------------------
+interface OnGoingRideCoordinates {
+  lat: number;
+  lng: number;
+}
+
+export interface BaseRideResponse {
+  id: string;
+  rider_id: string;
+  driver_id: string;
+  pickup_location: OnGoingRideCoordinates;
+  pickup_address: string;
+  dropoff_location: OnGoingRideCoordinates;
+  dropoff_address: string;
+  current_driver_location: OnGoingRideCoordinates | null;
+  distance_km: number;
+  duration_minutes: number;
+  fare: number;
+  status:
+    | "DRIVER_ASSIGNED"
+    | "REACHED_PICKUP"
+    | "TRIP_STARTED"
+    | "TRIP_ENDED"
+    | "COMPLETED"
+    | "CANCELLED";
+  created_at: string;
+}
+
+// --- ROLE-SPECIFIC TYPES ---
+export interface RiderDetails {
+  rider_id: string;
+  name: string;
+  phone: string;
+}
+
+export interface DriverDetails {
+  name: string;
+  phone: string;
+  user_id: string;
+  cab_type: "AUTO" | "COMFORT" | "ELITE";
+  car_name: string;
+  location: OnGoingRideCoordinates;
+  car_model: string;
+  driver_id: string;
+  is_online: boolean;
+  license_plate: string;
+}
+
+// --- RESPONSE TYPES ---
+export interface RiderRideResponse extends BaseRideResponse {
+  driver_details: DriverDetails;
+}
+
+export interface DriverRideResponse extends BaseRideResponse {
+  rider_details: RiderDetails;
+}

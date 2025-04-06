@@ -1,6 +1,7 @@
 const BASE_URL: string =
   process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
+// Admin requests the Drivers details
 export async function getVerificationRequestDetails(requestId: string) {
   try {
     const response = await fetch(
@@ -41,6 +42,7 @@ export async function getVerificationRequestDetails(requestId: string) {
   }
 }
 
+// Admin verifies the Driver details
 export async function updateVerificationRequest(
   requestId: string,
   approvalStatus: "approved" | "rejected",

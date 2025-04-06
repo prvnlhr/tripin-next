@@ -3,8 +3,8 @@ import { GoogleMap } from "@react-google-maps/api";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useMap } from "../../../context/MapProvider";
-import { DriverData } from "@/types/userType";
 import { wkbToLatLng } from "@/utils/geoUtils";
+import { DriverData } from "@/types/driver/driverTypes";
 
 interface MapProps {
   driverInfo: DriverData;

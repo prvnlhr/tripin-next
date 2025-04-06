@@ -1,8 +1,8 @@
 import OnGoingRidePage from "@/components/Driver/Pages/OnGoingRidePage/OnGoingRidePage";
-import { getOngoingRide } from "@/lib/services/ride/rideServices";
 import { createClient } from "@/utils/supabase/server";
-import { DriverRideResponse } from "@/types/ongoingRideType";
 import { redirect } from "next/navigation";
+import { getOngoingRide } from "@/lib/services/common/ride/rideServices";
+import { DriverRideResponse } from "@/types/rideTypes";
 const page = async () => {
   const supabase = await createClient();
   const {

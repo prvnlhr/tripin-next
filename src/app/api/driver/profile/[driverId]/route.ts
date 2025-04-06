@@ -1,16 +1,8 @@
 import { createResponse } from "@/utils/apiResponseUtils";
 import { createClient } from "@/utils/supabase/server";
+import { DriverProfileData } from "@/types/driver/driverTypes";
 
 type Params = Promise<{ driverId: string }>;
-
-// Type for driver profile data (without cab_type)
-type DriverProfileData = {
-  name: string;
-  phone: string;
-  car_name: string;
-  car_model: string;
-  license_plate: string;
-};
 
 export async function PATCH(request: Request, segmentData: { params: Params }) {
   const supabase = await createClient();

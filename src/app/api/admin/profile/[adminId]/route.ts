@@ -1,11 +1,6 @@
+import { AdminProfileData } from "@/types/admin/adminTypes";
 import { createResponse } from "@/utils/apiResponseUtils";
 import { createClient } from "@/utils/supabase/server";
-
-// Type for admin profile data
-type AdminProfileData = {
-  name: string;
-  phone: string;
-};
 
 type Params = Promise<{ adminId: string }>;
 

@@ -3,7 +3,7 @@ import MainHeader from "./MainHeader/MainHeader";
 import SubHeader from "./SubHeader/SubHeader";
 import MapComponent from "@/components/Common/Map/MapComponent";
 import { createClient } from "@/utils/supabase/server";
-import { getRiderInfo } from "@/lib/services/user/riderServices";
+import { getRiderInfo } from "@/lib/services/rider/riderServices";
 const UserTripLayout = async ({ children }: { children: React.ReactNode }) => {
   const supabase = await createClient();
 

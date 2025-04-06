@@ -34,9 +34,6 @@ export async function GET(request: Request) {
     const email = data.user?.email ?? "";
     if (!userId) throw new Error("Authentication failed");
 
-    console.log("rolexxxxxxxxxxxxxx", role);
-    console.log("data////////////////", data);
-
     // 2. Determine user's role (default to rider if not specified)
     const resolvedRole = role || data.user?.user_metadata?.role || "rider";
 
@@ -74,11 +71,6 @@ export async function GET(request: Request) {
     } else if (resolvedRole === "admin") {
       metadataUpdate.admin_id = roleId;
     }
-
-    console.log(
-      " metadataUpdate>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:",
-      metadataUpdate
-    );
 
     // 6. Update session metadata
     await supabase.auth.updateUser({
@@ -174,11 +166,11 @@ function getRedirectPath(
     },
     driver: {
       completed: "/driver/dashboard",
-      onboarding: "/driver/auth/onboarding",
+      onboarding: "/driver/auth/onboarding/profile",
     },
     admin: {
       completed: "/admin/dashboard",
-      onboarding: "/admin/auth/onboarding",
+      onboarding: "/admin/auth/onboarding/profile",
     },
   };
 

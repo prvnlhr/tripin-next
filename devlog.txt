@@ -586,3 +586,23 @@ in rides_new table. If a entry in rides_new table with a driver_id has status ot
 
 
 
+
+
+
+
+api/driver/dashboard/[driverId]
+api/driver/detials/[driverId]
+api/driver/profile/[driverId]
+
+
+
+
+api/driver/ride/ride-request
+api/driver/ride/ride-request/[requestId]
+api/driver/ride/ongoing-ride
+api/driver/ride/ongoing-ride/[rideId]
+
+
+
+
+

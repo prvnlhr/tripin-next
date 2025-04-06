@@ -3,8 +3,8 @@ import React from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { RideRequestDetails } from "@/types/rideTypes";
 import useUserSession from "@/hooks/useUserSession";
-import { acceptRideRequest } from "@/lib/services/driver/driversServices";
 import { useRouter } from "next/navigation";
+import { acceptRideRequest } from "@/lib/services/driver/ride/rideServices";
 
 interface RideRequestCardProps {
   rideRequestDetails: RideRequestDetails;

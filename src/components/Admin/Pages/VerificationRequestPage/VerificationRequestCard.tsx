@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { DriverData } from "@/types/userType";
 import { updateVerificationRequest } from "@/lib/services/admin/verificationRequestServices";
 import { useRouter } from "next/navigation";
 import { Oval } from "react-loader-spinner";
+import { DriverData } from "@/types/driver/driverTypes";
 
 const CabTypeEnum = {
   AUTO: "AUTO",

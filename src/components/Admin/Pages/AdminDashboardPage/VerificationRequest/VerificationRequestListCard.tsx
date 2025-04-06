@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import Link from "next/link";
-import { DriverData } from "@/types/userType";
+import { DriverData } from "@/types/driver/driverTypes";
 
 interface VerificationRequestListCardProps {
   driverRequest: DriverData;

@@ -1,4 +1,4 @@
-import { DriverRideResponse } from "@/types/ongoingRideType";
+import { DriverRideResponse } from "@/types/rideTypes";
 import React from "react";
 
 interface UserInfoCardProps {

@@ -5,21 +5,12 @@ import BackBtn from "@/components/Common/BackBtn";
 import UserGreeting from "./UserGreeting";
 import Link from "next/link";
 import { Icon } from "@iconify/react";
-import { RiderData } from "@/types/userType";
-// import { useRouter } from "next/navigation";
+import { RiderData } from "@/types/rider/riderTypes";
 
 interface SubHeaderProps {
   riderInfo: RiderData;
 }
 const SubHeader: React.FC<SubHeaderProps> = ({ riderInfo }) => {
-  // const router = useRouter();
-
-  // useEffect(() => {
-  //   if (riderInfo.activeRides > 0) {
-  //     router.push("ride/ongoing-ride");
-  //   }
-  // }, [riderInfo, router]);
-
   return (
     <div
       className="
