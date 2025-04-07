@@ -9,12 +9,11 @@ export async function signInWithMagicLink(
 ): Promise<AuthResponse> {
   const supabase = await createClient();
   // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const baseUrl = "https://tripin-next.vercel.app";
-  // console.log(" baseUrl:", baseUrl);
-  // console.log(
-  //   "ENV CONTENT------------------",
-  //   process.env.NEXT_PUBLIC_BASE_URL
-  // );
+  // const baseUrl = "https://tripin-next.vercel.app";
+
+  const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+    : "http://localhost:3000";
 
   try {
     // 1. Check if user exists with a different role
