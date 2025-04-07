@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Autocomplete } from "@react-google-maps/api";
 import { useMap } from "@/context/MapProvider";
+import BookingFormSkeleton from "./BookingFormSkeleton";
 
 const BookingForm = () => {
   const router = useRouter();
@@ -113,12 +114,7 @@ const BookingForm = () => {
     if (destAddress) setDestInput(decodeURIComponent(destAddress));
   }, []);
 
-  if (!isLoaded)
-    return (
-      <div className="w-[100%] h-[100%] md:w-[90%] md:min-w-[90%] flex flex-col">
-        Loading...
-      </div>
-    );
+  if (!isLoaded) return <BookingFormSkeleton />;
 
   const handleSearchRide = () => {
     if (sourceInput && destInput) {
@@ -142,7 +138,7 @@ const BookingForm = () => {
 
   const isButtonActive = sourceInput && destInput;
   return (
-    <div className="w-[100%] h-[100%] md:w-[90%] flex flex-col">
+    <div className="w-[100%] min-w-[100%] h-[100%] md:w-[90%] md:min-w-[90%] flex flex-col">
       <div className="w-full h-full">
         <div className="w-full h-[80px] flex flex-col justify-center items-start">
           <p className="font-light text-[1.7rem] leading-tight">

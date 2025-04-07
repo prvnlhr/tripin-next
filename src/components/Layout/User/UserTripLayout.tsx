@@ -22,26 +22,30 @@ const UserTripLayout = async ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div
-      className="
+      className="border-red-500
        h-screen w-screen 
-       flex flex-col items-center 
-       px-[20px] py-[10px]"
+       flex flex-col items-center p-[20px]"
     >
-      <MainHeader />
-      <SubHeader riderInfo={riderInfo} />
       <div
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
         className="
-         h-[calc(100%-240px)] md:h-[calc(100%-160px)] 
-         w-[98%] md:w-[calc(98%)] md:pl-[60px] 
-         md:flex-row md:flex
-         overflow-y-scroll"
+        w-[100%] h-[100%] 
+        flex flex-col items-start md:items-end"
       >
-        {children}
-        <MapComponent />
+        <MainHeader />
+        <SubHeader riderInfo={riderInfo} />
+        <div
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+          className="border-red-500
+          w-[100%] md:w-[calc(100%-60px)] h-[calc(100%-240px)] md:h-[calc(100%-160px)]
+          md:flex md:flex-row
+          overflow-y-scroll"
+        >
+          {children}
+          <MapComponent />
+        </div>
       </div>
     </div>
   );

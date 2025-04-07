@@ -10,7 +10,7 @@ interface OnGoingRidePageProps {
 
 const OnGoingRidePage: React.FC<OnGoingRidePageProps> = ({ ongoingRide }) => {
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-[100%] md:w-[50%] h-full flex flex-col">
       <div className="w-full h-[70px] flex items-center justify-start">
         <p className="font-light text-[1.7rem] leading-tight">
           Ongoing ride <span className="text-[#B5E4FC]">.</span>

@@ -14,41 +14,31 @@ const BookRidePage: React.FC<BookRidePageProps> = ({
   riderInfo,
 }) => {
   return (
-    <section
-      className={`
-       border-blue-400
-       transition-transform duration-[100]
-       w-full
-       flex flex-col 
-       ${rideOption ? "h-auto" : "h-[60vh]"} 
-       ${rideOption ? "md:w-[60%]" : "md:w-[30%]"} 
-       md:h-[100%] 
-       md:flex-row`}
-    >
+    <>
       <section
-        className={`
-         flex items-center justify-center mb-[30px]
-         ${rideOption ? "h-[60vh]" : "h-[100%]"} 
-         ${rideOption ? "md:w-[50%]" : "md:w-[100%]"} 
-         md:h-[100%] md:justify-start md:mb-[0px]
-         border-[red]`}
+        className={`border-blue-500
+         flex items-center justify-center md:justify-start
+         w-[100%]
+         ${rideOption ? "min-w-[30%] md:w-[30%]" : "md:w-[30%]"}
+         ${rideOption ? "h-[60vh]" : "h-[100%]"} md:h-[100%] 
+         mb-[30px] md:mb-[0px]
+         `}
       >
         <BookingForm />
       </section>
-
-      {/* Cab Options */}
       {rideOption && (
         <section
-          className="
-           flex items-start justify-center 
-           w-full h-[60vh] md:w-[50%] md:h-full md:justify-center
-           md:border-[#3C3C3C] border-l-1 border-none"
+          className="border-green-400
+           flex items-start justify-center md:justify-start
+           w-full md:w-[30%] md:min-w-[30%]
+           h-[60vh] md:h-full"
         >
           <CabList riderInfo={riderInfo} />
         </section>
       )}
-    </section>
+    </>
   );
 };
 
 export default BookRidePage;
+// ${rideOption ? "md:w-[30%]" : "md:w-[30%]"}

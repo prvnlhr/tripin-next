@@ -193,16 +193,21 @@ const MapComponent = () => {
 
   return (
     <section
-      className={`border-red-500
-        w-full ${rideOption ? "md:w-[40%]" : "md:w-[70%]"} h-[60vh] md:h-[100%] flex items-center justify-center md:items-start md:justify-end`}
+      className={`
+      w-[100%] ${rideOption ? "md:w-[40%]" : "md:w-[50%]"} 
+      h-[100%] md:h-[100%] 
+      flex flex-col items-center justify-center
+      ml-auto 
+      `}
     >
+      <div className="w-full h-[50px] flex items-center"></div>
       <div
         className="
          flex items-center justify-center 
-         w-[100%] h-[100%] md:w-[90%] md:h-[95%] 
-         border border-[#3C3C3C] 
+         w-[100%] h-[calc(100%-50px)] md:w-[100%] md:h-[calc(95%-50px)] 
          bg-gradient-to-b from-[#1F2224] to-[#1F1F20]
-         rounded-[20px]"
+         rounded-[20px]
+         "
       >
         <GoogleMap
           mapContainerStyle={{

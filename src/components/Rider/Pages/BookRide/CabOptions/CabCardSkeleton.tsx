@@ -6,7 +6,7 @@ const CabCardSkeleton = () => {
       className={`
          w-[100%] h-[28%] 
          bg-[linear-gradient(180deg,#1F2224_0%,#1F1F20_100%)]
-         border  border-[#3C3C3C] rounded-[15px]
+         border-2 border-[#3C3C3C] rounded-[15px]
          grid
          grid-cols-[auto_minmax(0,1fr)]
          grid-rows-[100%]

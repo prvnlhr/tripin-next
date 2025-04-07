@@ -7,7 +7,6 @@ import comfortImg from "../../../../../../public/assets/cab/comfort.png";
 import eliteImg from "../../../../../../public/assets/cab/elite.png";
 import { CabOption } from "@/types/cabType";
 import useUserSession from "@/hooks/useUserSession";
-import CabCardSkeleton from "./CabCardSkeleton";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from "@/context/ToastContext";
 import { RiderData } from "@/types/rider/riderTypes";
@@ -15,6 +14,7 @@ import {
   getAvailableCabOptions,
   requestRide,
 } from "@/lib/services/rider/ride/rideServices";
+import CabListSkeleton from "./CabListSkeleton";
 
 interface CabListProps {
   riderInfo: RiderData;
@@ -233,22 +233,7 @@ const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
   }, [riderId, supabase, router, showToast]);
 
   if (loading) {
-    return (
-      <div className="w-full h-[calc(100%-70px)]">
-        <div className="w-full h-[80px] flex flex-col justify-center items-start"></div>
-        <div
-          className="w-full h-[calc(100%-80px)] flex flex-col justify-between overflow-y-scroll"
-          style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-        >
-          {Array.from({ length: 3 }).map((_, index) => (
-            <CabCardSkeleton key={index} />
-          ))}
-        </div>
-      </div>
-    );
+    return <CabListSkeleton />;
   }
 
   if (error) {
@@ -277,7 +262,7 @@ const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
       </div>
 
       <div className="w-full h-[calc(100%-80px)] flex flex-col justify-between">
-        <div className="w-full h-[calc(100%-70px)] space-y-4 overflow-y-auto">
+        <div className="w-full h-[calc(100%-70px)] space-y-4 flex flex-col justify-end overflow-y-auto">
           {cabOptions.map((cab) => (
             <CabCard
               key={cab.cab_type}
@@ -300,7 +285,7 @@ const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
                   : "bg-[#46494a75] cursor-not-allowed"
               } 
               border border-[#3C3C3C]
-              font-medium text-[0.9rem] 
+              font-medium text-[0.8rem] 
               ${selectedCabOption ? "text-black" : "text-gray-400"} 
               rounded-lg
               transition-colors duration-200
