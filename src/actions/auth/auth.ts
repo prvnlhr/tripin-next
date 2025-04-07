@@ -51,7 +51,7 @@ export async function signInWithMagicLink(
       options: {
         shouldCreateUser: true,
         data: { role: attemptedRole },
-        emailRedirectTo: `api/auth/verify-magic-link?role=${attemptedRole}`,
+        emailRedirectTo: `/api/auth/verify-magic-link?role=${attemptedRole}`,
       },
     });
 
