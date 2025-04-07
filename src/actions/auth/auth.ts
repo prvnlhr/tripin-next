@@ -3,6 +3,16 @@
 import { createClient } from "@/utils/supabase/server";
 import type { AuthResponse } from "@/types/authTypes";
 
+// const getBaseUrl = () => {
+//   if (process.env.NEXT_PUBLIC_SITE_URL) {
+//     return process.env.NEXT_PUBLIC_SITE_URL;
+//   }
+//   if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+//     return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
+//   }
+//   return "http://localhost:3000";
+// };
+
 export async function signInWithMagicLink(
   email: string,
   attemptedRole: "rider" | "driver" | "admin"
@@ -14,6 +24,7 @@ export async function signInWithMagicLink(
   // const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
   //   ? `https://tripin-next.vercel.app`
   //   : "http://localhost:3000";
+  // const baseUrl = getBaseUrl();
 
   try {
     // 1. Check if user exists with a different role
@@ -40,7 +51,7 @@ export async function signInWithMagicLink(
       options: {
         shouldCreateUser: true,
         data: { role: attemptedRole },
-        emailRedirectTo: `https://tripin-next.vercel.app/api/auth/verify-magic-link?role=${attemptedRole}`,
+        emailRedirectTo: `api/auth/verify-magic-link?role=${attemptedRole}`,
       },
     });
 
