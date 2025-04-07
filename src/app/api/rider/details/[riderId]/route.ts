@@ -59,7 +59,7 @@ export async function GET(request: Request, segmentData: { params: Params }) {
         "TRIP_STARTED",
         "TRIP_ENDED",
       ]);
-    console.log(" activeRidesCount:", activeRidesCount);
+    // console.log(" activeRidesCount:", activeRidesCount);
 
     if (countError) {
       console.error("Error fetching ride count:", countError);

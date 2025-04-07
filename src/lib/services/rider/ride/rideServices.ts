@@ -5,7 +5,10 @@ const BASE_URL: string =
   process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 // Rider making a ride request to driver for a particular cab type
-export async function requestRide(bookingDetails: RideRequestPayload) {
+export async function requestRide(
+  bookingDetails: RideRequestPayload,
+  handleAlreadyOngoingRide: ({ msg }: { msg: string }) => void
+) {
   try {
     const response = await fetch(`${BASE_URL}/api/rider/ride/request-ride`, {
       method: "POST",
@@ -13,8 +16,17 @@ export async function requestRide(bookingDetails: RideRequestPayload) {
     });
 
     const result = await response.json();
-
     if (!response.ok) {
+      if (
+        response.status === 409 &&
+        result.error ===
+          "You already have an ongoing ride. Please complete your current ride before booking another"
+      ) {
+        handleAlreadyOngoingRide({
+          msg: "You already have an ongoing ride. Please complete your current ride before booking another",
+        });
+        return;
+      }
       console.error("Request Ride Error:", result.error || result.message);
       throw new Error(
         result.error || result.message || "Failed to request ride"

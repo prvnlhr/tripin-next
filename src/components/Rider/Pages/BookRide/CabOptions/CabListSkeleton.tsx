@@ -15,7 +15,7 @@ const CabListSkeleton = () => {
       <div className="w-full h-[calc(100%-80px)] flex flex-col justify-between">
         <div className="w-full h-[calc(100%-70px)] space-y-4 flex flex-col justify-end overflow-y-auto">
           {Array.from({ length: 3 }).map((_, skIndex) => (
-            <CabCardSkeleton key={skIndex} />
+            <CabCardSkeleton animate={true} key={skIndex} />
           ))}
         </div>
 

@@ -232,7 +232,6 @@ export async function GET(request: NextRequest) {
         };
       }
     );
-
     return createResponse(200, {
       options: cabOptions,
     });

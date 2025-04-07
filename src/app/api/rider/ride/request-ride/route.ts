@@ -140,6 +140,7 @@ function calculateFare(
 }
 
 // --- MAIN POST HANDLER : API HANDLER TO MAKE A RIDE REQUEST TO ALL ELIGIBLE DRIVERS---
+// This is where user requests a cab of particular type(AUTO, COMFORT, ELITE) in 3km radius
 export async function POST(request: NextRequest): Promise<Response> {
   const supabase = await createClient();
   const useGoogle = true;
@@ -156,7 +157,34 @@ export async function POST(request: NextRequest): Promise<Response> {
       !bookingDetails.pickup_address ||
       !bookingDetails.dropoff_address
     ) {
-      return createResponse(400, null, "Missing required booking details");
+      return createResponse(409, null, "Missing required booking details");
+    }
+
+    const riderId = bookingDetails.riderId;
+    //  First check if rider already has a ongoing ride
+    const { data: existingRides, error: existingRidesError } = await supabase
+      .from("rides_new")
+      .select("rider_id, status")
+      .eq("rider_id", riderId)
+      .in("status", [
+        "DRIVER_ASSIGNED",
+        "REACHED_PICKUP",
+        "TRIP_STARTED",
+        "TRIP_ENDED",
+      ]);
+
+    if (existingRidesError) {
+      console.error("Error checking existing rides:", existingRidesError);
+      // Handle error appropriately
+    }
+    const hasOngoingRide = existingRides && existingRides.length > 0;
+
+    if (hasOngoingRide) {
+      return createResponse(
+        409,
+        null,
+        "You already have an ongoing ride. Please complete your current ride before booking another"
+      );
     }
 
     const { data: rider, error: riderError } = await supabase

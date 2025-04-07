@@ -15,6 +15,7 @@ import {
   requestRide,
 } from "@/lib/services/rider/ride/rideServices";
 import CabListSkeleton from "./CabListSkeleton";
+import CabCardSkeleton from "./CabCardSkeleton";
 
 interface CabListProps {
   riderInfo: RiderData;
@@ -131,6 +132,23 @@ const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
     }
   };
 
+  const handleAlreadyOngoingRide = ({ msg }: { msg: string }) => {
+    showToast({
+      type: "error",
+      title: "Ride Request Failed",
+      description: `${msg}`,
+      toastId: toastIdRef.current,
+      persistent: true,
+      duration: Infinity,
+      style: {
+        ["--toast-icon-color" as string]: "#B42318",
+        borderColor: "#B42318",
+        color: "#B42318",
+        background: "#FEE4E2",
+      },
+    });
+  };
+
   const handleConfirmCabSelection = async () => {
     if (
       selectedCabOption &&
@@ -184,16 +202,22 @@ const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
       });
       toastIdRef.current = newToastId;
       try {
-        await requestRide(bookingDetails);
+        await requestRide(bookingDetails, handleAlreadyOngoingRide);
       } catch (error) {
         console.log(error);
         showToast({
           type: "error",
           title: "Ride Request Failed",
-          description: `Could not request ride`,
+          description: `${error}`,
           toastId: toastIdRef.current,
           persistent: true,
           duration: Infinity,
+          style: {
+            ["--toast-icon-color" as string]: "#B42318",
+            borderColor: "#B42318",
+            color: "#B42318",
+            background: "#FEE4E2",
+          },
         });
       }
     }
@@ -263,14 +287,26 @@ const CabList: React.FC<CabListProps> = ({ riderInfo }) => {
 
       <div className="w-full h-[calc(100%-80px)] flex flex-col justify-between">
         <div className="w-full h-[calc(100%-70px)] space-y-4 flex flex-col justify-end overflow-y-auto">
-          {cabOptions.map((cab) => (
-            <CabCard
-              key={cab.cab_type}
-              cab={cab}
-              isSelected={selectedCabOption?.cab_type === cab.cab_type}
-              onSelect={handleCabSelect}
-            />
-          ))}
+          {cabOptions.length > 0 ? (
+            cabOptions.map((cab) => (
+              <CabCard
+                key={cab.cab_type}
+                cab={cab}
+                isSelected={selectedCabOption?.cab_type === cab.cab_type}
+                onSelect={handleCabSelect}
+              />
+            ))
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center">
+              <p className="text-[0.8rem] text-[#B5E4FC] font-light">
+                No cab options are currently available.
+              </p>
+              <p className="text-[0.8rem] text-[#B5E4FC] font-light mb-[20px]">
+                Please try again later.
+              </p>
+              <CabCardSkeleton animate={false} />
+            </div>
+          )}
         </div>
 
         <div className="w-full h-[60px] flex items-center justify-center mt-4">

@@ -1,187 +1,55 @@
+// components/MapComponent.tsx
 "use client";
+import { useMap } from "@/context/MapProvider";
+import { useMapDirections } from "@/hooks/map/useMapDirections";
+import { useMapMarkers } from "@/hooks/map/useMapMarkers";
+import { useMapSync } from "@/hooks/map/useMapSync";
 import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState, useCallback, useRef } from "react";
-import { useMap } from "../../../context/MapProvider";
-
-interface MarkerLibrary {
-  AdvancedMarkerElement: typeof google.maps.marker.AdvancedMarkerElement;
-}
+import { useEffect, useState } from "react";
 
 const MapComponent = () => {
   const { isLoaded } = useMap();
-  const searchParams = useSearchParams();
-  const src = searchParams.get("src");
-  const dest = searchParams.get("dest");
-  const srcAddress = searchParams.get("srcAddress");
-  const destAddress = searchParams.get("destAddress");
-  const rideOption = searchParams.get("rideOption") === "true";
+  const {
+    srcCoords,
+    destCoords,
+    defaultCenter,
+    srcAddress,
+    destAddress,
+    rideOption,
+    updateBounds,
+  } = useMapSync({ isLoaded, map: null });
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [directions, setDirections] =
-    useState<google.maps.DirectionsResult | null>(null);
-  const [srcCoords, setSrcCoords] = useState<google.maps.LatLngLiteral | null>(
-    null
-  );
-  const [destCoords, setDestCoords] =
-    useState<google.maps.LatLngLiteral | null>(null);
-  const [defaultCenter, setDefaultCenter] = useState<google.maps.LatLngLiteral>(
-    { lat: 20.5937, lng: 78.9629 }
-  );
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const { directions } = useMapDirections({
+    isLoaded,
+    map,
+    srcCoords,
+    destCoords,
+  });
+  useMapMarkers({
+    isLoaded,
+    map,
+    srcCoords,
+    destCoords,
+    srcAddress,
+    destAddress,
+  });
 
   const MAP_ID =
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "YOUR_MAP_ID_HERE";
 
+  // Update bounds when map or directions change
   useEffect(() => {
-    if (isLoaded && !map) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            setDefaultCenter({ lat: latitude, lng: longitude });
-          },
-          (error) => {
-            console.warn("Error getting user location:", error.message);
-          },
-          { timeout: 10000 }
-        );
-      } else {
-        console.warn("Geolocation is not supported by this browser.");
-      }
-    }
-  }, [isLoaded, map]);
+    if (map) updateBounds(map, directions);
+  }, [map, directions, updateBounds]);
 
-  // Parse coordinates from URL and clear if not present
-  useEffect(() => {
-    if (src) {
-      const [lat, lng] = src.split(",").map(Number);
-      setSrcCoords({ lat, lng });
-    } else {
-      setSrcCoords(null);
-    }
-    if (dest) {
-      const [lat, lng] = dest.split(",").map(Number);
-      setDestCoords({ lat, lng });
-    } else {
-      setDestCoords(null);
-    }
-  }, [src, dest]);
-
-  // Calculate route only when both points are available
-  useEffect(() => {
-    if (isLoaded && map && srcCoords && destCoords) {
-      const directionsService = new google.maps.DirectionsService();
-      directionsService.route(
-        {
-          origin: srcCoords,
-          destination: destCoords,
-          travelMode: google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === "OK" && result) {
-            setDirections(result);
-          } else {
-            setDirections(null);
-          }
-        }
-      );
-    } else {
-      setDirections(null);
-    }
-  }, [isLoaded, map, srcCoords, destCoords]);
-
-  // Manage markers
-  useEffect(() => {
-    if (!isLoaded || !map) return;
-
-    const updateMarkers = async () => {
-      const markerLib = (await google.maps.importLibrary(
-        "marker"
-      )) as MarkerLibrary;
-      const { AdvancedMarkerElement } = markerLib;
-
-      // Clear existing markers
-      markersRef.current.forEach((marker) => (marker.map = null));
-      markersRef.current = [];
-
-      if (srcCoords) {
-        const srcIcon = document.createElement("img");
-        srcIcon.src = "/assets/map/sourceMarker.png";
-        srcIcon.style.width = "40px";
-        srcIcon.style.height = "40px";
-
-        const srcMarker = new AdvancedMarkerElement({
-          map,
-          position: srcCoords,
-          title: srcAddress
-            ? decodeURIComponent(srcAddress)
-            : "Pickup location",
-          content: srcIcon,
-        });
-        markersRef.current.push(srcMarker);
-      }
-      if (destCoords) {
-        const destIcon = document.createElement("img");
-        destIcon.src = "/assets/map/destMarker.png";
-        destIcon.style.width = "40px";
-        destIcon.style.height = "40px";
-
-        const destMarker = new AdvancedMarkerElement({
-          map,
-          position: destCoords,
-          title: destAddress
-            ? decodeURIComponent(destAddress)
-            : "Drop-off location",
-          content: destIcon,
-        });
-        markersRef.current.push(destMarker);
-      }
-    };
-
-    updateMarkers().catch(console.error);
-  }, [isLoaded, map, srcCoords, destCoords, srcAddress, destAddress]);
-
-  // Fit map to bounds
-  const updateBounds = useCallback(() => {
-    if (map && (srcCoords || destCoords)) {
-      const bounds = new google.maps.LatLngBounds();
-      if (directions) {
-        directions.routes[0].legs.forEach((leg) => {
-          bounds.extend(leg.start_location);
-          bounds.extend(leg.end_location);
-        });
-      } else {
-        if (srcCoords) bounds.extend(srcCoords);
-        if (destCoords) bounds.extend(destCoords);
-      }
-      if (!bounds.isEmpty()) {
-        map.fitBounds(bounds);
-        if (!directions && (srcCoords || destCoords)) {
-          const zoom = map.getZoom() || 12;
-          map.setZoom(Math.min(zoom, 14));
-        }
-      }
-    } else if (map && defaultCenter) {
-      // Center on user's location if no markers are present
-      map.setCenter(defaultCenter);
-      map.setZoom(12);
-      // Default zoom level when centered on user location
-    }
-  }, [map, directions, srcCoords, destCoords, defaultCenter]);
-
-  useEffect(() => {
-    updateBounds();
-  }, [updateBounds]);
-
-  const onLoad = useCallback((mapInstance: google.maps.Map) => {
+  const onLoad = (mapInstance: google.maps.Map) => {
     setMap(mapInstance);
-  }, []);
+  };
 
-  const onUnmount = useCallback(() => {
+  const onUnmount = () => {
     setMap(null);
-    markersRef.current = [];
-  }, []);
+  };
 
   if (!isLoaded) {
     return (
@@ -193,22 +61,10 @@ const MapComponent = () => {
 
   return (
     <section
-      className={`
-      w-[100%] ${rideOption ? "md:w-[40%]" : "md:w-[50%]"} 
-      h-[100%] md:h-[100%] 
-      flex flex-col items-center justify-center
-      ml-auto 
-      `}
+      className={`w-[100%] ${rideOption ? "md:w-[40%]" : "md:w-[50%]"} h-[100%] md:h-[100%] flex flex-col items-center justify-center ml-auto`}
     >
       <div className="w-full h-[50px] flex items-center"></div>
-      <div
-        className="
-         flex items-center justify-center 
-         w-[100%] h-[calc(100%-50px)] md:w-[100%] md:h-[calc(95%-50px)] 
-         bg-gradient-to-b from-[#1F2224] to-[#1F1F20]
-         rounded-[20px]
-         "
-      >
+      <div className="flex items-center justify-center w-[100%] h-[calc(100%-50px)] md:w-[100%] md:h-[calc(95%-50px)] bg-gradient-to-b from-[#1F2224] to-[#1F1F20] rounded-[20px]">
         <GoogleMap
           mapContainerStyle={{
             width: "100%",

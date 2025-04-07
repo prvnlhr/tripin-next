@@ -1,6 +1,11 @@
 import React from "react";
-
-const CabCardSkeleton = () => {
+interface CabCardSkeletonProps {
+  animate: boolean;
+}
+const CabCardSkeleton: React.FC<CabCardSkeletonProps> = ({ animate }) => {
+  const animateStyle = animate
+    ? "animate-[pulse_0.8s_cubic-bezier(0.4,0,0.6,1)_infinite]"
+    : "";
   return (
     <div
       className={`
@@ -11,7 +16,7 @@ const CabCardSkeleton = () => {
          grid-cols-[auto_minmax(0,1fr)]
          grid-rows-[100%]
          p-[5px] 
-         animate-[pulse_0.8s_cubic-bezier(0.4,0,0.6,1)_infinite]
+         ${animateStyle}
          `}
     >
       <div

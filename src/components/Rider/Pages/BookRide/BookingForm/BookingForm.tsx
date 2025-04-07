@@ -1,35 +1,24 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Autocomplete } from "@react-google-maps/api";
 import { useMap } from "@/context/MapProvider";
 import BookingFormSkeleton from "./BookingFormSkeleton";
+import { usePlaceAutocomplete } from "@/hooks/autoComplete/usePlaceAutocomplete";
 
 const BookingForm = () => {
+  const { isLoaded } = useMap();
   const router = useRouter();
-  const [sourceInput, setSourceInput] = useState("");
-  const [destInput, setDestInput] = useState("");
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const destInputRef = useRef<HTMLInputElement>(null);
-  const { isLoaded } = useMap();
-
-  const autocompleteOptions = {
-    fields: ["address_components", "geometry", "formatted_address", "name"],
-    types: ["geocode", "establishment"],
-    componentRestrictions: { country: "in" },
-    bounds: { east: 97.415, north: 37.084, south: 6.753, west: 68.162 },
-  };
-
-  const [sourceAutocomplete, setSourceAutocomplete] =
-    useState<google.maps.places.Autocomplete | null>(null);
-  const [destAutocomplete, setDestAutocomplete] =
-    useState<google.maps.places.Autocomplete | null>(null);
-
-  const onSourceLoad = (autocomplete: google.maps.places.Autocomplete) =>
-    setSourceAutocomplete(autocomplete);
-  const onDestLoad = (autocomplete: google.maps.places.Autocomplete) =>
-    setDestAutocomplete(autocomplete);
+  const searchParams = useSearchParams();
+  const initialSource = searchParams.get("srcAddress")
+    ? decodeURIComponent(searchParams.get("srcAddress") || "")
+    : "";
+  const initialDest = searchParams.get("destAddress")
+    ? decodeURIComponent(searchParams.get("destAddress") || "")
+    : "";
 
   const updateURL = (params: Record<string, string | null>) => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -48,95 +37,59 @@ const BookingForm = () => {
     router.push(`?${searchParams.toString()}`);
   };
 
-  const onSourcePlaceChanged = () => {
-    if (sourceAutocomplete) {
-      const place = sourceAutocomplete.getPlace();
-      if (!place.geometry || !place.geometry.location) {
-        console.warn("No details available for input: '" + place.name + "'");
-        return;
-      }
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-      const address = place.formatted_address || place.name || "";
-      const pinCode =
-        place.address_components?.find((c) => c.types.includes("postal_code"))
-          ?.long_name || "";
-
-      setSourceInput(address);
+  const {
+    inputValue: sourceInput,
+    setInputValue: setSourceInput,
+    autocompleteOptions,
+    onLoad: onSourceLoad,
+    onPlaceChanged: onSourcePlaceChanged,
+    clearInput: clearSource,
+  } = usePlaceAutocomplete({
+    inputRef: sourceInputRef,
+    initialValue: initialSource,
+    onPlaceSelect: ({ lat, lng, address, pinCode }) => {
       updateURL({
         src: `${lat},${lng}`,
         srcAddress: encodeURIComponent(address),
         srcPin: pinCode,
       });
-    }
-  };
+    },
+    onClear: () => {
+      updateURL({ src: null, srcAddress: null, srcPin: null });
+    },
+  });
 
-  const onDestPlaceChanged = () => {
-    if (destAutocomplete) {
-      const place = destAutocomplete.getPlace();
-      if (!place.geometry || !place.geometry.location) {
-        console.warn("No details available for input: '" + place.name + "'");
-        return;
-      }
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-      const address = place.formatted_address || place.name || "";
-      const pinCode =
-        place.address_components?.find((c) => c.types.includes("postal_code"))
-          ?.long_name || "";
-
-      setDestInput(address);
+  const {
+    inputValue: destInput,
+    setInputValue: setDestInput,
+    onLoad: onDestLoad,
+    onPlaceChanged: onDestPlaceChanged,
+    clearInput: clearDestination,
+  } = usePlaceAutocomplete({
+    inputRef: destInputRef,
+    initialValue: initialDest,
+    onPlaceSelect: ({ lat, lng, address, pinCode }) => {
       updateURL({
         dest: `${lat},${lng}`,
         destAddress: encodeURIComponent(address),
         destPin: pinCode,
       });
-    }
-  };
-
-  const clearSource = () => {
-    setSourceInput("");
-    if (sourceInputRef.current) sourceInputRef.current.focus();
-    updateURL({ src: null, srcAddress: null, srcPin: null });
-  };
-
-  const clearDestination = () => {
-    setDestInput("");
-    if (destInputRef.current) destInputRef.current.focus();
-    updateURL({ dest: null, destAddress: null, destPin: null });
-  };
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const srcAddress = params.get("srcAddress");
-    const destAddress = params.get("destAddress");
-    if (srcAddress) setSourceInput(decodeURIComponent(srcAddress));
-    if (destAddress) setDestInput(decodeURIComponent(destAddress));
-  }, []);
-
-  if (!isLoaded) return <BookingFormSkeleton />;
+    },
+    onClear: () => {
+      updateURL({ dest: null, destAddress: null, destPin: null });
+    },
+  });
 
   const handleSearchRide = () => {
     if (sourceInput && destInput) {
-      const sourceLatLng = sourceAutocomplete?.getPlace()?.geometry?.location;
-      const destLatLng = destAutocomplete?.getPlace()?.geometry?.location;
-
-      if (sourceLatLng && destLatLng) {
-        const sourceLat = sourceLatLng.lat();
-        const sourceLng = sourceLatLng.lng();
-        const destLat = destLatLng.lat();
-        const destLng = destLatLng.lng();
-        console.log("Source Location Latitude:", sourceLat);
-        console.log("Source Location Longitude:", sourceLng);
-        console.log("Destination Location Latitude:", destLat);
-        console.log("Destination Location Longitude:", destLng);
-      }
-
       updateURL({ rideOption: "true" });
     }
   };
 
+  if (!isLoaded) return <BookingFormSkeleton />;
+
   const isButtonActive = sourceInput && destInput;
+
   return (
     <div className="w-[100%] min-w-[100%] h-[100%] md:w-[90%] md:min-w-[90%] flex flex-col">
       <div className="w-full h-full">
