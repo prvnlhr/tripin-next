@@ -11,9 +11,9 @@ export async function signInWithMagicLink(
   // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   // const baseUrl = "https://tripin-next.vercel.app";
 
-  const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-    ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-    : "http://localhost:3000";
+  // const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+  //   ? `https://tripin-next.vercel.app`
+  //   : "http://localhost:3000";
 
   try {
     // 1. Check if user exists with a different role
@@ -40,7 +40,7 @@ export async function signInWithMagicLink(
       options: {
         shouldCreateUser: true,
         data: { role: attemptedRole },
-        emailRedirectTo: `${baseUrl}/api/auth/verify-magic-link?role=${attemptedRole}`,
+        emailRedirectTo: `https://tripin-next.vercel.app/api/auth/verify-magic-link?role=${attemptedRole}`,
       },
     });
 
