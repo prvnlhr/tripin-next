@@ -3,28 +3,13 @@
 import { createClient } from "@/utils/supabase/server";
 import type { AuthResponse } from "@/types/authTypes";
 
-// const getBaseUrl = () => {
-//   if (process.env.NEXT_PUBLIC_SITE_URL) {
-//     return process.env.NEXT_PUBLIC_SITE_URL;
-//   }
-//   if (process.env.NEXT_PUBLIC_VERCEL_URL) {
-//     return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
-//   }
-//   return "http://localhost:3000";
-// };
-
 export async function signInWithMagicLink(
   email: string,
   attemptedRole: "rider" | "driver" | "admin"
 ): Promise<AuthResponse> {
   const supabase = await createClient();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  // const baseUrl = "https://tripin-next.vercel.app";
 
-  // const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-  //   ? `https://tripin-next.vercel.app`
-  //   : "http://localhost:3000";
-  // const baseUrl = getBaseUrl();
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   try {
     // 1. Check if user exists with a different role
