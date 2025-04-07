@@ -18,7 +18,7 @@ export async function signInWithMagicLink(
   attemptedRole: "rider" | "driver" | "admin"
 ): Promise<AuthResponse> {
   const supabase = await createClient();
-  // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   // const baseUrl = "https://tripin-next.vercel.app";
 
   // const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
@@ -51,7 +51,7 @@ export async function signInWithMagicLink(
       options: {
         shouldCreateUser: true,
         data: { role: attemptedRole },
-        emailRedirectTo: `/api/auth/verify-magic-link?role=${attemptedRole}`,
+        emailRedirectTo: `${baseUrl}/api/auth/verify-magic-link?role=${attemptedRole}`,
       },
     });
 
