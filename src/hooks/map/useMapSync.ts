@@ -1,8 +1,6 @@
-// hooks/useMapSync.ts
 "use client";
-
 import { useEffect, useState, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useUrlParams } from "../useUrlParams";
 
 interface UseMapSyncProps {
   isLoaded: boolean;
@@ -10,12 +8,7 @@ interface UseMapSyncProps {
 }
 
 export const useMapSync = ({ isLoaded, map }: UseMapSyncProps) => {
-  const searchParams = useSearchParams();
-  const [srcCoords, setSrcCoords] = useState<google.maps.LatLngLiteral | null>(
-    null
-  );
-  const [destCoords, setDestCoords] =
-    useState<google.maps.LatLngLiteral | null>(null);
+  const { params } = useUrlParams();
   const [defaultCenter, setDefaultCenter] = useState<google.maps.LatLngLiteral>(
     {
       lat: 20.5937,
@@ -23,31 +16,30 @@ export const useMapSync = ({ isLoaded, map }: UseMapSyncProps) => {
     }
   );
 
-  // Parse coordinates from URL
-  useEffect(() => {
-    const src = searchParams.get("src");
-    const dest = searchParams.get("dest");
+  const getAllCoordinates = useCallback(() => {
+    const coordinates: google.maps.LatLngLiteral[] = [];
 
-    setSrcCoords(
-      src
-        ? {
-            lat: parseFloat(src.split(",")[0]),
-            lng: parseFloat(src.split(",")[1]),
-          }
-        : null
-    );
+    const parseCoords = (coordStr: string) => {
+      const [lat, lng] = coordStr.split(",").map(Number);
+      return { lat, lng };
+    };
 
-    setDestCoords(
-      dest
-        ? {
-            lat: parseFloat(dest.split(",")[0]),
-            lng: parseFloat(dest.split(",")[1]),
-          }
-        : null
-    );
-  }, [searchParams]);
+    Object.entries(params).forEach(([key, value]) => {
+      // Skip non-coordinate params
+      if (key === "rideOption" || key.includes("Address")) return;
 
-  // Get user location if available
+      try {
+        if (value && value.includes(",")) {
+          coordinates.push(parseCoords(value));
+        }
+      } catch {
+        console.warn(`Failed to parse coordinates from param ${key}: ${value}`);
+      }
+    });
+
+    return coordinates;
+  }, [params]);
+
   useEffect(() => {
     if (isLoaded && !map && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -57,23 +49,15 @@ export const useMapSync = ({ isLoaded, map }: UseMapSyncProps) => {
             lng: position.coords.longitude,
           });
         },
-        (error) => {
-          console.warn("Geolocation error:", error.message);
-        },
+        () => {},
         { timeout: 10000 }
       );
     }
   }, [isLoaded, map]);
 
-  // Fit map to bounds
   const updateBounds = useCallback(
-    (map: google.maps.Map, directions: google.maps.DirectionsResult | null) => {
-      if (!srcCoords && !destCoords) {
-        map.setCenter(defaultCenter);
-        map.setZoom(12);
-        return;
-      }
-
+    (map: google.maps.Map, directions?: google.maps.DirectionsResult) => {
+      const coordinates = getAllCoordinates();
       const bounds = new google.maps.LatLngBounds();
 
       if (directions) {
@@ -81,29 +65,28 @@ export const useMapSync = ({ isLoaded, map }: UseMapSyncProps) => {
           bounds.extend(leg.start_location);
           bounds.extend(leg.end_location);
         });
+      } else if (coordinates.length > 0) {
+        coordinates.forEach((coord) => bounds.extend(coord));
       } else {
-        if (srcCoords) bounds.extend(srcCoords);
-        if (destCoords) bounds.extend(destCoords);
+        map.setCenter(defaultCenter);
+        map.setZoom(12);
+        return;
       }
 
       if (!bounds.isEmpty()) {
-        map.fitBounds(bounds);
-        if (!directions) {
-          const zoom = map.getZoom() || 12;
-          map.setZoom(Math.min(zoom, 14));
-        }
+        const padding = 60;
+        map.fitBounds(bounds, padding);
+
+        const zoom = map.getZoom() || 12;
+        map.setZoom(Math.min(zoom, 14));
       }
     },
-    [srcCoords, destCoords, defaultCenter]
+    [getAllCoordinates, defaultCenter]
   );
 
   return {
-    srcCoords,
-    destCoords,
     defaultCenter,
-    srcAddress: searchParams.get("srcAddress"),
-    destAddress: searchParams.get("destAddress"),
-    rideOption: searchParams.get("rideOption") === "true",
     updateBounds,
+    rideOption: params.rideOption === "true",
   };
 };

@@ -1,25 +1,25 @@
-// hooks/useMapMarkers.ts
 "use client";
-
 import { MarkerLibrary } from "@/types/mapType";
 import { useEffect, useRef } from "react";
+
+interface MarkerConfig {
+  position: google.maps.LatLngLiteral;
+  title?: string;
+  icon: string; // URL to marker image
+  zIndex?: number;
+  onClick?: () => void;
+}
 
 interface UseMapMarkersProps {
   isLoaded: boolean;
   map: google.maps.Map | null;
-  srcCoords: google.maps.LatLngLiteral | null;
-  destCoords: google.maps.LatLngLiteral | null;
-  srcAddress: string | null;
-  destAddress: string | null;
+  markers: MarkerConfig[]; // Single array for ALL markers
 }
 
 export const useMapMarkers = ({
   isLoaded,
   map,
-  srcCoords,
-  destCoords,
-  srcAddress,
-  destAddress,
+  markers = [],
 }: UseMapMarkersProps) => {
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
 
@@ -34,46 +34,33 @@ export const useMapMarkers = ({
         const { AdvancedMarkerElement } = markerLib;
 
         // Clear existing markers
-        markersRef.current.forEach((marker) => (marker.map = null));
+        markersRef.current.forEach((marker) => {
+          google.maps.event.clearInstanceListeners(marker);
+          marker.map = null;
+        });
         markersRef.current = [];
 
-        // Add source marker if exists
-        if (srcCoords) {
-          const srcIcon = document.createElement("img");
-          srcIcon.src = "/assets/map/sourceMarker.png";
-          srcIcon.style.width = "40px";
-          srcIcon.style.height = "40px";
+        // Add all markers from the array
+        markers.forEach((markerConfig) => {
+          const markerIcon = document.createElement("img");
+          markerIcon.src = markerConfig.icon;
+          markerIcon.style.width = "40px";
+          markerIcon.style.height = "40px";
 
-          markersRef.current.push(
-            new AdvancedMarkerElement({
-              map,
-              position: srcCoords,
-              title: srcAddress
-                ? decodeURIComponent(srcAddress)
-                : "Pickup location",
-              content: srcIcon,
-            })
-          );
-        }
+          const marker = new AdvancedMarkerElement({
+            map,
+            position: markerConfig.position,
+            title: markerConfig.title,
+            content: markerIcon,
+            zIndex: markerConfig.zIndex,
+          });
 
-        // Add destination marker if exists
-        if (destCoords) {
-          const destIcon = document.createElement("img");
-          destIcon.src = "/assets/map/destMarker.png";
-          destIcon.style.width = "40px";
-          destIcon.style.height = "40px";
+          if (markerConfig.onClick) {
+            marker.addListener("click", markerConfig.onClick);
+          }
 
-          markersRef.current.push(
-            new AdvancedMarkerElement({
-              map,
-              position: destCoords,
-              title: destAddress
-                ? decodeURIComponent(destAddress)
-                : "Drop-off location",
-              content: destIcon,
-            })
-          );
-        }
+          markersRef.current.push(marker);
+        });
       } catch (error) {
         console.error("Error updating markers:", error);
       }
@@ -82,9 +69,12 @@ export const useMapMarkers = ({
     updateMarkers();
 
     return () => {
-      markersRef.current.forEach((marker) => (marker.map = null));
+      markersRef.current.forEach((marker) => {
+        google.maps.event.clearInstanceListeners(marker);
+        marker.map = null;
+      });
     };
-  }, [isLoaded, map, srcCoords, destCoords, srcAddress, destAddress]);
+  }, [isLoaded, map, markers]);
 
   return { markers: markersRef.current };
 };

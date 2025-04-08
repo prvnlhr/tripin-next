@@ -15,12 +15,13 @@ export const useMapDirections = ({
   srcCoords,
   destCoords,
 }: UseMapDirectionsProps) => {
-  const [directions, setDirections] =
-    useState<google.maps.DirectionsResult | null>(null);
+  const [directions, setDirections] = useState<
+    google.maps.DirectionsResult | undefined
+  >(undefined);
 
   useEffect(() => {
     if (!isLoaded || !map || !srcCoords || !destCoords) {
-      setDirections(null);
+      setDirections(undefined);
       return;
     }
 
@@ -36,7 +37,7 @@ export const useMapDirections = ({
           setDirections(result);
         } else {
           console.warn("Directions request failed:", status);
-          setDirections(null);
+          setDirections(undefined);
         }
       }
     );

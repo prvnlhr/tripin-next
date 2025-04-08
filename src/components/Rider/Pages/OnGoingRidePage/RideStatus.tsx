@@ -26,6 +26,7 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   useEffect(() => {
     setStepsCompleted(getStepsCompleted(ongoingRide?.status));
     setRideStatusData(ongoingRide);
+    console.log(" ongoingRide:", ongoingRide);
   }, [ongoingRide]);
 
   useEffect(() => {

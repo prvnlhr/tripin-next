@@ -1,44 +1,84 @@
-// components/MapComponent.tsx
 "use client";
 import { useMap } from "@/context/MapProvider";
 import { useMapDirections } from "@/hooks/map/useMapDirections";
 import { useMapMarkers } from "@/hooks/map/useMapMarkers";
 import { useMapSync } from "@/hooks/map/useMapSync";
+import { useUrlParams } from "@/hooks/useUrlParams";
 import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const MapComponent = () => {
-  const { isLoaded } = useMap();
-  const {
-    srcCoords,
-    destCoords,
-    defaultCenter,
-    srcAddress,
-    destAddress,
-    rideOption,
-    updateBounds,
-  } = useMapSync({ isLoaded, map: null });
+  // MAP_ID -> custom styled map_id from the google cloud console
+  const MAP_ID =
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "YOUR_MAP_ID_HERE";
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
+
+  const { params } = useUrlParams();
+
+  const { isLoaded } = useMap();
+
+  const { srcCoords, destCoords, defaultCenter } = useMemo(() => {
+    const parseCoords = (coordStr?: string) => {
+      if (!coordStr) return null;
+      const [lat, lng] = coordStr.split(",").map(Number);
+      return isNaN(lat) || isNaN(lng) ? null : { lat, lng };
+    };
+
+    return {
+      srcCoords: parseCoords(params.src),
+      destCoords: parseCoords(params.dest),
+      defaultCenter: { lat: 20.5937, lng: 78.9629 },
+    };
+  }, [params.src, params.dest]);
+
+  const rideOption = params.rideOption === "true";
+
   const { directions } = useMapDirections({
     isLoaded,
     map,
     srcCoords,
     destCoords,
   });
+
+  const allMarkers = useMemo(
+    () => [
+      ...(srcCoords
+        ? [
+            {
+              position: srcCoords,
+              title: params.srcAddress
+                ? decodeURIComponent(params.srcAddress)
+                : "Pickup location",
+              icon: "/assets/map/sourceMarker.png",
+              zIndex: 100,
+            },
+          ]
+        : []),
+      ...(destCoords
+        ? [
+            {
+              position: destCoords,
+              title: params.destAddress
+                ? decodeURIComponent(params.destAddress)
+                : "Drop-off location",
+              icon: "/assets/map/destMarker.png",
+              zIndex: 100,
+            },
+          ]
+        : []),
+    ],
+    [srcCoords, destCoords, params.srcAddress, params.destAddress]
+  );
+
   useMapMarkers({
     isLoaded,
     map,
-    srcCoords,
-    destCoords,
-    srcAddress,
-    destAddress,
+    markers: allMarkers,
   });
 
-  const MAP_ID =
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "YOUR_MAP_ID_HERE";
+  const { updateBounds } = useMapSync({ isLoaded, map });
 
-  // Update bounds when map or directions change
   useEffect(() => {
     if (map) updateBounds(map, directions);
   }, [map, directions, updateBounds]);
@@ -53,9 +93,15 @@ const MapComponent = () => {
 
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center w-full h-full bg-[#1F2224]">
-        Loading Map...
-      </div>
+      <section
+        className={`w-[100%] ${rideOption ? "md:w-[40%]" : "md:w-[50%]"} h-[100%] md:h-[100%] flex flex-col items-center justify-center ml-auto`}
+      >
+        <div className="w-full h-[50px] flex items-center"></div>
+        <div
+          className="border border-[#3C3C3C] flex items-center justify-center w-[100%] h-[calc(100%-50px)] md:w-[100%] md:h-[calc(95%-50px)] bg-gradient-to-b from-[#1F2224] to-[#1F1F20] rounded-[20px]
+          animate-[pulse_0.8s_cubic-bezier(0.4,0,0.6,1)_infinite]"
+        ></div>
+      </section>
     );
   }
 
@@ -64,7 +110,7 @@ const MapComponent = () => {
       className={`w-[100%] ${rideOption ? "md:w-[40%]" : "md:w-[50%]"} h-[100%] md:h-[100%] flex flex-col items-center justify-center ml-auto`}
     >
       <div className="w-full h-[50px] flex items-center"></div>
-      <div className="flex items-center justify-center w-[100%] h-[calc(100%-50px)] md:w-[100%] md:h-[calc(95%-50px)] bg-gradient-to-b from-[#1F2224] to-[#1F1F20] rounded-[20px]">
+      <div className="border border-[#3c3c3c] flex items-center justify-center w-[100%] h-[calc(100%-50px)] md:w-[100%] md:h-[calc(95%-50px)] bg-gradient-to-b from-[#1F2224] to-[#1F1F20] rounded-[20px]">
         <GoogleMap
           mapContainerStyle={{
             width: "100%",
@@ -78,8 +124,10 @@ const MapComponent = () => {
           options={{
             mapId: MAP_ID,
             disableDefaultUI: true,
-            zoomControl: true,
-            clickableIcons: false,
+            zoomControl: false,
+            clickableIcons: true,
+            colorScheme: "DARK",
+            keyboardShortcuts: false,
           }}
         >
           {directions && (
@@ -88,9 +136,9 @@ const MapComponent = () => {
               options={{
                 suppressMarkers: true,
                 polylineOptions: {
-                  strokeColor: "#101323",
-                  strokeWeight: 3,
-                  strokeOpacity: 0.8,
+                  strokeColor: "#B5E4FC",
+                  strokeWeight: 4,
+                  strokeOpacity: 1,
                 },
               }}
             />

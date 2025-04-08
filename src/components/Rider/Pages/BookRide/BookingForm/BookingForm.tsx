@@ -1,41 +1,24 @@
 "use client";
 import { useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Autocomplete } from "@react-google-maps/api";
 import { useMap } from "@/context/MapProvider";
 import BookingFormSkeleton from "./BookingFormSkeleton";
 import { usePlaceAutocomplete } from "@/hooks/autoComplete/usePlaceAutocomplete";
+import { useUrlParams } from "@/hooks/useUrlParams";
 
 const BookingForm = () => {
   const { isLoaded } = useMap();
-  const router = useRouter();
+  const { params, setParams, removeParams } = useUrlParams();
+
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const destInputRef = useRef<HTMLInputElement>(null);
-  const searchParams = useSearchParams();
-  const initialSource = searchParams.get("srcAddress")
-    ? decodeURIComponent(searchParams.get("srcAddress") || "")
+  const initialSource = params.srcAddress
+    ? decodeURIComponent(params.srcAddress)
     : "";
-  const initialDest = searchParams.get("destAddress")
-    ? decodeURIComponent(searchParams.get("destAddress") || "")
+  const initialDest = params.destAddress
+    ? decodeURIComponent(params.destAddress)
     : "";
-
-  const updateURL = (params: Record<string, string | null>) => {
-    const searchParams = new URLSearchParams(window.location.search);
-
-    if (
-      (params.src === null || params.dest === null) &&
-      searchParams.has("rideOption")
-    ) {
-      searchParams.delete("rideOption");
-    }
-
-    Object.entries(params).forEach(([key, value]) => {
-      if (value === null) searchParams.delete(key);
-      else searchParams.set(key, value);
-    });
-    router.push(`?${searchParams.toString()}`);
-  };
 
   const {
     inputValue: sourceInput,
@@ -48,14 +31,14 @@ const BookingForm = () => {
     inputRef: sourceInputRef,
     initialValue: initialSource,
     onPlaceSelect: ({ lat, lng, address, pinCode }) => {
-      updateURL({
+      setParams({
         src: `${lat},${lng}`,
         srcAddress: encodeURIComponent(address),
         srcPin: pinCode,
       });
     },
     onClear: () => {
-      updateURL({ src: null, srcAddress: null, srcPin: null });
+      removeParams(["src", "srcAddress", "srcPin"]);
     },
   });
 
@@ -69,20 +52,20 @@ const BookingForm = () => {
     inputRef: destInputRef,
     initialValue: initialDest,
     onPlaceSelect: ({ lat, lng, address, pinCode }) => {
-      updateURL({
+      setParams({
         dest: `${lat},${lng}`,
         destAddress: encodeURIComponent(address),
         destPin: pinCode,
       });
     },
     onClear: () => {
-      updateURL({ dest: null, destAddress: null, destPin: null });
+      removeParams(["dest", "destAddress", "destPin"]);
     },
   });
 
   const handleSearchRide = () => {
     if (sourceInput && destInput) {
-      updateURL({ rideOption: "true" });
+      setParams({ rideOption: "true" });
     }
   };
 
