@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Elements } from "@stripe/react-stripe-js";
 import { StripePaymentForm } from "./StripePaymentForm";
 import { loadStripe } from "@stripe/stripe-js";
@@ -21,11 +21,12 @@ export const PaymentController = ({
   onPaymentSuccess,
 }: PaymentControllerProps) => {
   const router = useRouter();
-  const { showToast } = useToast(); // Get toast function
+  const { showToast, dismissToast } = useToast(); // Get toast function
   const [showForm, setShowForm] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
   const [initiatingForm, setInitiatingForm] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const toastIdRef = useRef<string | number>("");
 
   const handlePaymentInitiated = async () => {
     setInitiatingForm(true);
@@ -46,26 +47,34 @@ export const PaymentController = ({
     setIsProcessing(true);
 
     // Show success toast
-    showToast({
-      type: "success",
+    const toastId = showToast({
+      type: "loading",
       title: "Payment Successful",
       description: "Redirecting to your trip...",
-      persistent: true,
+      persistent: false,
+      duration: 3000,
+      showCloseButton: true,
       style: {
         background: "#ECFDF5",
         color: "#065F46",
         borderColor: "#A7F3D0",
+        iconColor: "#A7F3D0",
       },
     });
 
-    // Wait 3 seconds
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    toastIdRef.current = toastId;
 
     try {
-      // Call your finish ride function
-      await onPaymentSuccess(); // This should call finishedRide()
+      // 1.Call finish ride which make api request to backend to complete the payment
+      onPaymentSuccess();
 
-      // Redirect
+      // 2. Wait for 3 secs
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      // 3. dismiss the toast
+      dismissToast(toastIdRef.current);
+
+      // 4. redirect
       router.push("/user/trip/book-ride");
     } catch (error) {
       console.error("Error completing ride:", error);

@@ -200,7 +200,7 @@ export default function RootLayout({
           icons={{
             success: <DynamicIcon iconType="success" defaultColor="#039855" />,
             error: <DynamicIcon iconType="error" defaultColor="#D92D20" />,
-            info: <DynamicIcon iconType="info" defaultColor="##1570EF" />,
+            info: <DynamicIcon iconType="info" defaultColor="#1570EF" />,
             loading: <LoadingSpinner />,
           }}
         />

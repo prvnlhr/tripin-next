@@ -52,7 +52,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
       duration: persistent ? Infinity : duration,
       closeButton: showCloseButton,
       ...(style && { style }), 
-      ...restOptions, // Spread any additional options
+      ...restOptions,
     };
 
     switch (type) {
