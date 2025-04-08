@@ -25,7 +25,6 @@ export const useMapSync = ({ isLoaded, map }: UseMapSyncProps) => {
     };
 
     Object.entries(params).forEach(([key, value]) => {
-      // Skip non-coordinate params
       if (key === "rideOption" || key.includes("Address")) return;
 
       try {

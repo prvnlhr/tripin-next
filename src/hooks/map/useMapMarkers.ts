@@ -13,7 +13,7 @@ interface MarkerConfig {
 interface UseMapMarkersProps {
   isLoaded: boolean;
   map: google.maps.Map | null;
-  markers: MarkerConfig[]; // Single array for ALL markers
+  markers: MarkerConfig[];
 }
 
 export const useMapMarkers = ({
