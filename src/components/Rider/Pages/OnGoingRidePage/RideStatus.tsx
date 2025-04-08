@@ -26,7 +26,6 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   useEffect(() => {
     setStepsCompleted(getStepsCompleted(ongoingRide?.status));
     setRideStatusData(ongoingRide);
-    console.log(" ongoingRide:", ongoingRide);
   }, [ongoingRide]);
 
   useEffect(() => {
@@ -107,6 +106,7 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
     console.log("Payment succeeded!");
     await finishedRide(ongoingRide?.id);
   };
+
   return (
     <div
       className="w-[100%] md:w-[60%] h-[400px]
