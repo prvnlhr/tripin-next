@@ -4,7 +4,12 @@ import { MarkerLibrary } from "@/types/mapType";
 import { useUrlParams } from "../useUrlParams";
 
 // STRICTLY define which params represent coordinates
-const COORDINATE_KEYS = ["src", "dest", "driver"] as const;
+const COORDINATE_KEYS = [
+  "src",
+  "dest",
+  "driver_location",
+  "rider_location",
+] as const;
 type CoordinateKey = (typeof COORDINATE_KEYS)[number];
 
 // Marker configuration for each coordinate type
@@ -26,10 +31,15 @@ const MARKER_CONFIG: Record<
     title: (address) => address || "Drop-off location",
     zIndex: 100,
   },
-  driver: {
+  driver_location: {
     icon: "/assets/map/driverMarker.png",
     title: () => "Driver location",
     zIndex: 90,
+  },
+  rider_location: {
+    icon: "/assets/map/sourceMarker.png",
+    title: (address) => address || "Pickup location",
+    zIndex: 100,
   },
 };
 

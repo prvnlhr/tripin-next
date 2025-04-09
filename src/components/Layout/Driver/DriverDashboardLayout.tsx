@@ -3,7 +3,7 @@ import MainHeader from "./MainHeader/MainHeader";
 import SubHeader from "./SubHeader/SubHeader";
 import { createClient } from "@/utils/supabase/server";
 import { getDriverInfo } from "@/lib/services/driver/driversServices";
-import Map from "@/components/Driver/Map/Map";
+import MapComponent from "@/components/Common/Map/MapComponent";
 
 const DriverDashboardLayout = async ({
   children,
@@ -48,7 +48,7 @@ const DriverDashboardLayout = async ({
         <div className="w-[100%] md:w-[50%] h-full flex border-green-600">
           {children}
         </div>
-        <Map driverInfo={driverInfo} />
+        <MapComponent />
       </div>
     </div>
   );

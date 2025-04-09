@@ -24,8 +24,6 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   const { showToast } = useToast();
   const toastIdRef = useRef<string | number>("");
 
-  // const { setParams } = useUrlParams();
-
   const [rideStatusData, setRideStatusData] = useState(ongoingRide);
   const [stepsCompleted, setStepsCompleted] = useState(
     getStepsCompleted(ongoingRide?.status)
@@ -34,11 +32,16 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   useEffect(() => {
     setStepsCompleted(getStepsCompleted(ongoingRide?.status));
     setRideStatusData(ongoingRide);
-    // setParams({ driver: "26.2859,73.0527" });
   }, [ongoingRide]);
 
   useEffect(() => {
     if (!ongoingRide?.id) return;
+
+    setParams({
+      src: `${ongoingRide.pickup_location.lat},${ongoingRide.pickup_location.lng}`,
+      dest: `${ongoingRide.dropoff_location.lat},${ongoingRide.dropoff_location.lng}`,
+      driver_location: `${ongoingRide.driver_details.location.lat},${ongoingRide.driver_details.location.lng}`,
+    });
 
     const channel = supabase
       .channel(`rides_new_rider_ongoing_${ongoingRide.id}`)
@@ -112,7 +115,7 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [ongoingRide?.id, supabase, showToast]);
+  }, [ongoingRide?.id, supabase, showToast, setParams]);
 
   const handlePaymentSuccess = async () => {
     console.log("Payment succeeded!");

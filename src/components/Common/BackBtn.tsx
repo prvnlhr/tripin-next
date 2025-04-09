@@ -1,12 +1,16 @@
 "use client";
 import { Icon } from "@iconify/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 const BackBtn = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const pathSegments = pathname.split("/");
+  const isOnGoingRidePage = pathSegments.includes("ongoing-ride");
+
   return (
     <button
       type="button"
-      onClick={() => router.back()}
+      onClick={() => (isOnGoingRidePage ? router.push("/") : router.back())}
       className="flex h-[70%] aspect-square cursor-pointer items-center justify-center rounded-full bg-white"
     >
       <Icon

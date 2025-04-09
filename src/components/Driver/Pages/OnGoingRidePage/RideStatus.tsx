@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { revalidateTagHandler } from "@/lib/validation";
 import { updateRideStatus } from "@/lib/services/driver/ride/rideServices";
 import { DriverRideResponse } from "@/types/rideTypes";
+import { useUrlParams } from "@/hooks/useUrlParams";
 type RideStatus =
   | "SEARCHING"
   | "DRIVER_ASSIGNED"
@@ -41,6 +42,7 @@ interface RideStatusProps {
 }
 const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   const router = useRouter();
+  const { setParams } = useUrlParams();
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [stepsCompleted, setStepsCompleted] = useState(
@@ -76,6 +78,10 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   const supabase = createClient();
   useEffect(() => {
     if (!ongoingRide?.id) return;
+
+    setParams({
+      rider_location: `${ongoingRide.pickup_location.lat},${ongoingRide.pickup_location.lng}`,
+    });
 
     const channel = supabase
       .channel(`rides_new_driver_ongoing_${ongoingRide.id}`)

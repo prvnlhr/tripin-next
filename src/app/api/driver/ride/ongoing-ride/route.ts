@@ -75,8 +75,6 @@ export async function GET(request: NextRequest) {
       `
       )
       .eq("driver_id", driverId)
-      // .neq("status", "COMPLETED")
-      // .neq("status", "CANCELLED")
       .in("status", [
         "DRIVER_ASSIGNED",
         "REACHED_PICKUP",
