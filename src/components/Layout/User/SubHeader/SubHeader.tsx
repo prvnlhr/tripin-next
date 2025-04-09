@@ -56,7 +56,7 @@ const SubHeader: React.FC<SubHeaderProps> = ({ riderInfo }) => {
         {!isPastRidesPage && (
           <div className="ml-[10px] h-full w-auto flex flex-col justify-center border-red-500">
             <Link
-              href="ride/past-rides"
+              href="past-rides"
               className="w-auto h-[40px] flex items-center p-[2px] rounded-full  border border-[#3C3C3C]"
             >
               <p className="text-[0.7rem] ml-[10px] whitespace-nowrap">

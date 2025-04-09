@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import useUserSession from "@/hooks/useUserSession";
-import authBannerImg from "../../../../../public/assets/banners/authPageBanner.png";
+import authBannerImg from "../../../../../public/assets/banners/driver_onboarding_banner.jpg";
 import Image from "next/image";
 import AppLogo from "@/components/Common/AppLogo";
 import { Icon } from "@iconify/react/dist/iconify.js";

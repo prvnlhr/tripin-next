@@ -71,3 +71,28 @@ export async function completeRide(rideId: string) {
     throw new Error(`Failed to update ride status: ${err.message}`);
   }
 }
+
+export async function getPastRides(riderId: string) {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/api/rider/ride/past-rides/${riderId}`
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error(
+        "Get Rider Past rides Error:",
+        result.error || result.message
+      );
+      throw new Error(
+        result.error || result.message || "Failed to fetch rider past rides"
+      );
+    }
+    return result.data;
+  } catch (error) {
+    const err = error as Error;
+    console.error("Get Rider Past rides Error:", error);
+    throw new Error(`Failed to fetch rider information: ${err.message}`);
+  }
+}

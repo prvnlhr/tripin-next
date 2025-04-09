@@ -167,16 +167,18 @@ export async function GET(request: NextRequest) {
 
     const { distanceKm, durationMinutes } = distanceInfo;
 
+    const radius = 3000; // Default 3km radius
     // Fetch nearby online drivers
     const { data: nearbyDrivers, error: driversError } = await supabase.rpc(
       "get_nearby_drivers",
       {
         lat: pickupLat,
         long: pickupLng,
-        max_distance: 120000,
+        max_distance: radius,
         only_online: true,
       }
     );
+
 
     if (driversError) {
       console.error("Error fetching nearby drivers:", driversError);

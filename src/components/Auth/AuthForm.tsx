@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { signInWithMagicLink } from "@/actions/auth/auth";
-import authBannerImg from "../../../public/assets/banners/authPageBanner.png";
+import authBannerImg1 from "../../../public/assets/banners/authPageBanner_rider.jpg";
 import Image from "next/image";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import AppLogo from "@/components/Common/AppLogo";
@@ -113,7 +113,7 @@ export default function AuthForm() {
         {/* Left Banner Image */}
         <div className="relative w-[100%] md:w-[60%] h-[35%] md:h-[100%] rounded-[0px] md:rounded-[20px] overflow-hidden">
           <Image
-            src={authBannerImg}
+            src={authBannerImg1}
             fill
             className="object-cover"
             priority={true}

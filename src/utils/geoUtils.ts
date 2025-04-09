@@ -14,7 +14,8 @@ export function wkbToLatLng(wkb: string) {
     return null;
   }
 }
-// utils/geoUtils.ts
+
+// function which return the full address from given coordinates
 export const getAddressFromLatLng = async (
   lat: number,
   lng: number

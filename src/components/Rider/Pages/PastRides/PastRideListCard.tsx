@@ -1,9 +1,8 @@
-import { PastRide } from "@/types/rideTypes";
+import { RiderPastRide } from "@/types/rider/ride/rideTypes";
 import { formatDateToObject } from "@/utils/dateUtils";
-import React from "react";
 
 interface PastRideListCardProps {
-  pastRide: PastRide;
+  pastRide: RiderPastRide;
 }
 
 interface DateObj {
@@ -12,14 +11,13 @@ interface DateObj {
   year: number;
 }
 const PastRideListCard: React.FC<PastRideListCardProps> = ({ pastRide }) => {
-  const dateObj: DateObj = formatDateToObject(pastRide.created_at);
-
+  const dateObj: DateObj = formatDateToObject(pastRide.completed_at);
   return (
     <div
-      className="
+      className="d
       border border-[#3C3C3C]
-      w-[90%] md:w-[90%]
-      aspect-[2/1.3] md:aspect-[2/1.3]
+      w-[90%] md:w-[80%]
+      aspect-[2/1.3] md:aspect-[2/1.1]
       grid
       grid-cols-[25%_75%]
       grid-rows-[minmax(0,1fr)_minmax(0,1fr)_30px]
@@ -33,18 +31,20 @@ const PastRideListCard: React.FC<PastRideListCardProps> = ({ pastRide }) => {
       </div>
       <div className="w-full h-full col-start-2 col-end-3 row-start-1 row-end-2 flex flex-col justify-evenly border-green-500">
         <p className="text-[0.8rem] text-[#B5E4FC] font-medium">FROM</p>
-        <p className="text-[0.75rem] text-[white] w-[85%] font-light line-clamp-2">
+        <p className="text-[0.8rem] text-[white] w-[85%] font-light line-clamp-2">
           {pastRide.pickup_address}
         </p>
       </div>
       <div className="w-full h-full col-start-2 col-end-3 row-start-2 row-end-3 flex flex-col justify-evenly">
         <p className="text-[0.8rem] text-[#B5E4FC] font-medium">FROM</p>
-        <p className="text-[0.75rem] text-[white] w-[85%] font-light line-clamp-2">
+        <p className="text-[0.8rem] text-[white] w-[85%] font-light line-clamp-2">
           {pastRide.dropoff_address}
         </p>
       </div>
       <div className="w-full h-full col-start-2 col-end-3 row-start-3 row-end-4 flex flex-col justify-evenly border-red-400">
-        <p className="text-[0.8rem] text-[#B5E4FC] font-medium">3.2km</p>
+        <p className="text-[0.8rem] text-[#B5E4FC] font-medium">
+          {pastRide.distance_km} KM
+        </p>
       </div>
     </div>
   );

@@ -46,6 +46,8 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
+  return supabaseResponse;
+
   // Route configuration
   const routeConfig = {
     rider: {

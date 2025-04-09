@@ -277,7 +277,6 @@ export async function GET(
 }
 
 // -- PATCH HANDLER TO CHANGE DRIVER ONLINE STATUS -----
-
 export async function PATCH(request: Request, segmentData: { params: Params }) {
   try {
     const supabase = await createClient();

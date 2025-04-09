@@ -197,8 +197,6 @@ export async function POST(request: NextRequest): Promise<Response> {
       return createResponse(404, null, "Rider not found");
     }
 
-    const radius = bookingDetails.radius || 3000; // Default 3km radius
-
     // 2. Calculate distance and duration
     const distanceInfo = await (useGoogle
       ? calculateDistanceGoogle(
@@ -211,6 +209,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         ));
 
     // 3. Find eligible drivers
+    const radius = bookingDetails.radius || 3000; // default 3 kms
     const { data: eligibleDrivers, error: driversError } = await supabase
       .rpc("get_nearby_drivers", {
         lat: bookingDetails.pickup_coordinates.lat,

@@ -4,12 +4,16 @@ import { useMapManager } from "@/hooks/map/useMapManager";
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { getAddressFromLatLng } from "@/utils/geoUtils";
 import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 const MapComponent = () => {
   // MAP_ID -> custom styled map_id from the google cloud console
   const MAP_ID =
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "YOUR_MAP_ID_HERE";
+
+  const pathname = usePathname();
+  const isPastRidesPage = pathname.split("/").includes("past-rides");
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const { isLoaded } = useMap();
@@ -88,7 +92,9 @@ const MapComponent = () => {
 
   return (
     <section
-      className={`w-[100%] ${rideOption ? "md:w-[40%]" : "md:w-[50%]"} h-[100%] md:h-[100%] flex flex-col items-center justify-center ml-auto`}
+      className={`w-[100%]   ${rideOption ? "md:w-[40%]" : "md:w-[50%]"} h-[100%] md:h-[100%] flex flex-col items-center justify-center ml-auto
+        ${isPastRidesPage && "hidden"}
+        `}
     >
       <div
         className={`w-full ${rider_location || driver_location ? "h-[70px] px-[5px]" : "h-[0px]"}  flex items-center overflow-hidden`}
