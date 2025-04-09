@@ -1,11 +1,9 @@
 "use client";
 import { useMap } from "@/context/MapProvider";
-import { useMapDirections } from "@/hooks/map/useMapDirections";
-import { useMapMarkers } from "@/hooks/map/useMapMarkers";
-import { useMapSync } from "@/hooks/map/useMapSync";
+import { useMapManager } from "@/hooks/map/useMapManager";
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { GoogleMap, DirectionsRenderer } from "@react-google-maps/api";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 
 const MapComponent = () => {
   // MAP_ID -> custom styled map_id from the google cloud console
@@ -13,75 +11,11 @@ const MapComponent = () => {
     process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "YOUR_MAP_ID_HERE";
 
   const [map, setMap] = useState<google.maps.Map | null>(null);
-
-  const { params } = useUrlParams();
-
   const { isLoaded } = useMap();
-
-  const { srcCoords, destCoords, defaultCenter } = useMemo(() => {
-    const parseCoords = (coordStr?: string) => {
-      if (!coordStr) return null;
-      const [lat, lng] = coordStr.split(",").map(Number);
-      return isNaN(lat) || isNaN(lng) ? null : { lat, lng };
-    };
-
-    return {
-      srcCoords: parseCoords(params.src),
-      destCoords: parseCoords(params.dest),
-      defaultCenter: { lat: 20.5937, lng: 78.9629 },
-    };
-  }, [params.src, params.dest]);
-
+  const { params } = useUrlParams();
   const rideOption = params.rideOption === "true";
 
-  const { directions } = useMapDirections({
-    isLoaded,
-    map,
-    srcCoords,
-    destCoords,
-  });
-
-  const allMarkers = useMemo(
-    () => [
-      ...(srcCoords
-        ? [
-            {
-              position: srcCoords,
-              title: params.srcAddress
-                ? decodeURIComponent(params.srcAddress)
-                : "Pickup location",
-              icon: "/assets/map/sourceMarker.png",
-              zIndex: 100,
-            },
-          ]
-        : []),
-      ...(destCoords
-        ? [
-            {
-              position: destCoords,
-              title: params.destAddress
-                ? decodeURIComponent(params.destAddress)
-                : "Drop-off location",
-              icon: "/assets/map/destMarker.png",
-              zIndex: 100,
-            },
-          ]
-        : []),
-    ],
-    [srcCoords, destCoords, params.srcAddress, params.destAddress]
-  );
-
-  useMapMarkers({
-    isLoaded,
-    map,
-    markers: allMarkers,
-  });
-
-  const { updateBounds } = useMapSync({ isLoaded, map });
-
-  useEffect(() => {
-    if (map) updateBounds(map, directions);
-  }, [map, directions, updateBounds]);
+  const { directions, defaultCenter } = useMapManager({ isLoaded, map });
 
   const onLoad = (mapInstance: google.maps.Map) => {
     setMap(mapInstance);
@@ -90,7 +24,6 @@ const MapComponent = () => {
   const onUnmount = () => {
     setMap(null);
   };
-
   if (!isLoaded) {
     return (
       <section

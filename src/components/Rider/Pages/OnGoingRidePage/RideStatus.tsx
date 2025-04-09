@@ -8,15 +8,23 @@ import { createToastInfo, getCurrentTime } from "@/utils/rider/rideStatusUtils";
 import { getStepsCompleted } from "@/utils/rider/rideStatusUtils";
 import { finishedRide } from "@/lib/services/rider/ride/rideServices";
 import { RiderRideResponse } from "@/types/rideTypes";
+import { useUrlParams } from "@/hooks/useUrlParams";
 
 interface RideStatusProps {
   ongoingRide: RiderRideResponse | null;
 }
 
 const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
+  const { setParams } = useUrlParams();
+  // useEffect(() => {
+  //   setParams({ driver: "26.2859,73.0527" });
+  // }, []);
+
   const supabase = createClient();
   const { showToast } = useToast();
   const toastIdRef = useRef<string | number>("");
+
+  // const { setParams } = useUrlParams();
 
   const [rideStatusData, setRideStatusData] = useState(ongoingRide);
   const [stepsCompleted, setStepsCompleted] = useState(
@@ -26,6 +34,7 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   useEffect(() => {
     setStepsCompleted(getStepsCompleted(ongoingRide?.status));
     setRideStatusData(ongoingRide);
+    // setParams({ driver: "26.2859,73.0527" });
   }, [ongoingRide]);
 
   useEffect(() => {
@@ -45,6 +54,9 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
           const updatedRide = payload.new as RiderRideResponse;
           const newStatus = updatedRide.status;
           const toastInfo = createToastInfo(newStatus);
+
+          const newCoords = `${updatedRide.driver_details.location.lat},${updatedRide.driver_details.location.lng}`;
+          setParams({ driver: newCoords });
 
           setRideStatusData(updatedRide);
           setStepsCompleted(getStepsCompleted(updatedRide.status));
@@ -111,8 +123,7 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
     <div
       className="w-[100%] md:w-[60%] h-[400px]
       border-red-500
-      mt-[20px]
-      "
+      mt-[20px]"
     >
       <div className="w-full h-[40px] px-[15px] flex items-center">
         <p className="text-[0.8rem] text-[#B5E4FC]">LIVE TRACKING</p>

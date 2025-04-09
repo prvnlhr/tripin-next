@@ -35,7 +35,12 @@ const CabCard: React.FC<CabCardProps> = ({ cab, isSelected, onSelect }) => {
           flex items-center justify-center"
       >
         <div className="relative w-[70%] aspect-square flex items-center justify-center">
-          <Image src={cab.imgSrc} alt={cab.cab_type} fill={true} />
+          <Image
+            src={cab.imgSrc}
+            alt={cab.cab_type}
+            fill={true}
+            sizes="(max-width:100%)"
+          />
         </div>
       </div>
       <div
