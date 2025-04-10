@@ -94,7 +94,7 @@ const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center">
             <p className="text-[1rem] text-[#B5E4FC] font-normal mb-[20px]">
-              No active ride requests at the moment
+              No active Ride Requests at the moment
             </p>
             <IncomingRidePlaceholder />
           </div>

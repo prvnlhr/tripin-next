@@ -7,12 +7,17 @@ import { Icon } from "@iconify/react";
 import { Oval } from "react-loader-spinner";
 import { toggleDriverOnlineStatus } from "@/lib/services/driver/driversServices";
 import { DriverData } from "@/types/driver/driverTypes";
+import { usePathname } from "next/navigation";
 interface SubHeaderProps {
   driverInfo: DriverData;
 }
 const SubHeader: React.FC<SubHeaderProps> = ({ driverInfo }) => {
   const { is_online, driver_id, activeRides } = driverInfo;
   const [isLoading, setIsLoading] = useState(false);
+
+  const pathname = usePathname();
+  const pathSegments = pathname.split("/");
+  const isOnGoingRidePage = pathSegments.includes("ongoing-ride");
 
   const handleStatusChange = async (newStatus: boolean) => {
     if (isLoading || is_online === newStatus) return;
@@ -43,7 +48,7 @@ const SubHeader: React.FC<SubHeaderProps> = ({ driverInfo }) => {
       <div className="h-[calc(100%-56px)] md:h-full w-[100%] md:flex-1 flex justify-end items-center">
         {/* DRIVER ONGOING RIDE LINK */}
 
-        {activeRides > 0 && (
+        {activeRides > 0 && !isOnGoingRidePage && (
           <div className="h-full w-auto flex flex-col justify-center border-red-500">
             <Link
               href="/driver/dashboard/ongoing-ride"
