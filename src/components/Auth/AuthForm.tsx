@@ -31,6 +31,24 @@ const emailSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email address"),
 });
 
+const headerHeaderLinks = [
+  {
+    label: "Rider",
+    href: "/user/auth",
+    role: "rider",
+  },
+  {
+    label: "Driver",
+    href: "/driver/auth",
+    role: "driver",
+  },
+  {
+    label: "Admin",
+    href: "/admin/auth",
+    role: "admin",
+  },
+];
+
 type EmailFormData = z.infer<typeof emailSchema>;
 
 type NotificationState =
@@ -108,8 +126,25 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center">
-      <div className="w-full h-full md:w-[70%] md:h-[70%] flex flex-col md:flex-row">
+    <div className="w-full h-full flex flex-col items-center justify-start">
+      <div className="w-full h-[70px] md:h-[15%] flex justify-center items-center">
+        {headerHeaderLinks.map((link, index) => (
+          <Link
+            key={index}
+            href={link.href}
+            className={`${getCurrentRole() === link.role ? "border border-[#3C3C3C]" : "border border-transparent"}  
+            w-auto h-auto px-[20px] py-[5px] 
+            flex items-center justify-center
+            text-[0.8rem] font-normal rounded
+            mx-[5px]
+            hover:bg-[#47494A]
+          `}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </div>
+      <div className="w-full h-[calc(100%-70px)] md:w-[80%] md:h-[70%] flex flex-col md:flex-row">
         {/* Left Banner Image */}
         <div className="relative w-[100%] md:w-[60%] h-[35%] md:h-[100%] rounded-[0px] md:rounded-[20px] overflow-hidden">
           <Image
@@ -121,7 +156,7 @@ export default function AuthForm() {
           />
         </div>
 
-        {/* Right Auth Content */}
+        {/* Right Auth Form */}
         <div className="flex flex-col items-center justify-center w-[100%] md:w-[40%] h-[65%] md:h-[100%]">
           {/* Logo */}
           <div className="w-[85%] h-[50px] flex items-center">
