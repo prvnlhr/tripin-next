@@ -2,7 +2,7 @@ const IncomingRequestListCard = () => {
   return (
     <div
       className="relative
-       w-[80%] md:w-[50%]
+       w-[80%] md:w-[70%]
        aspect-[4/2.5]
        bg-[linear-gradient(180deg,#1F2224_0%,#1F1F20_100%)]
        border border-[#3C3C3C] rounded-[20px]

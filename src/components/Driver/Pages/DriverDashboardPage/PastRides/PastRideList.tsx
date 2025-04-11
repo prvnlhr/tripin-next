@@ -21,7 +21,7 @@ const PastRideList: React.FC<PastRideListProps> = ({ pastRides }) => {
         className="
         overflow-y-scroll
         w-full h-[calc(95%-70px)] 
-        grid grid-cols-1 md:grid-cols-2
+        grid grid-cols-1 md:grid-cols-4
         justify-items-center md:justify-items-start items-start"
       >
         {pastRides.length > 0 ? (
