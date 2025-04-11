@@ -28,7 +28,7 @@ const MainHeader = () => {
   };
 
   return (
-    <div className="flex h-[80px] w-full items-center justify-between border-blue-300 px-0 md:px-4">
+    <div className="flex h-[80px] w-full items-center justify-between border-blue-300">
       <div className="flex h-[60%] items-center">
         <AppLogo />
       </div>

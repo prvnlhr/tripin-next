@@ -79,9 +79,10 @@ const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
-        className="overflow-y-scroll
+        className="
+        overflow-y-scroll
         w-full h-[calc(95%-70px)] 
-        grid grid-cols-1 md:grid-cols-2 
+        grid grid-cols-1 md:grid-cols-4
         justify-items-center md:justify-items-start items-start py-[20px] md:py-[0px]"
       >
         {incomingRequestsData.length > 0 ? (

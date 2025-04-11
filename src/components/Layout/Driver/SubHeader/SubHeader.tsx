@@ -14,7 +14,6 @@ interface SubHeaderProps {
 const SubHeader: React.FC<SubHeaderProps> = ({ driverInfo }) => {
   const { is_online, driver_id, activeRides } = driverInfo;
   const [isLoading, setIsLoading] = useState(false);
-
   const pathname = usePathname();
   const pathSegments = pathname.split("/");
   const isOnGoingRidePage = pathSegments.includes("ongoing-ride");
@@ -34,10 +33,8 @@ const SubHeader: React.FC<SubHeaderProps> = ({ driverInfo }) => {
   return (
     <div
       className="
-      h-[160px]
-      md:h-[80px] w-[98%] 
-      flex flex-col md:flex-row items-start md:items-center justify-start 
-      border-green-300"
+      w-[100%] h-[160px] md:h-[80px]  
+      flex flex-col md:flex-row items-start md:items-center justify-start"
     >
       <div className="w-auto h-[56px] md:h-[70%] flex">
         <div className="w-[60px] flex justify-start aspect-square">
@@ -46,8 +43,30 @@ const SubHeader: React.FC<SubHeaderProps> = ({ driverInfo }) => {
         <DriverGreeting />
       </div>
       <div className="h-[calc(100%-56px)] md:h-full w-[100%] md:flex-1 flex justify-end items-center">
+        {/* Driver's Approval Status */}
+        {driverInfo.approval_status === "pending" && (
+          <div className="h-full w-auto flex flex-col justify-center border-red-500">
+            <div className="w-auto h-[40px] flex items-center p-[2px] rounded-full     border border-[#3C3C3C]">
+              <p className="text-[0.7rem] ml-[15px] whitespace-nowrap">
+                VERIFICATION :
+                <br />
+                <span className="text-[#F04438]">
+                  {driverInfo.approval_status.toUpperCase()}
+                </span>
+              </p>
+              <button
+                type="button"
+                className="h-[100%] aspect-square flex cursor-pointer items-center justify-center ml-[10px] rounded-full bg-[#47494A]"
+              >
+                <Icon
+                  icon="bytesize:clock"
+                  className="h-[60%] w-[60%] rotate-45 text-white"
+                />
+              </button>
+            </div>
+          </div>
+        )}
         {/* DRIVER ONGOING RIDE LINK */}
-
         {activeRides > 0 && !isOnGoingRidePage && (
           <div className="h-full w-auto flex flex-col justify-center border-red-500">
             <Link

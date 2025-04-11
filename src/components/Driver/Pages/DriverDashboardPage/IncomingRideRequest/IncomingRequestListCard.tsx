@@ -11,52 +11,52 @@ const IncomingRequestListCard: React.FC<IncomingRequestListCardProps> = ({
   return (
     <div
       className="
-       w-[90%] md:w-[80%]
+       w-[90%] md:w-[90%]
        aspect-[4/2.5]
        bg-[linear-gradient(180deg,#1F2224_0%,#1F1F20_100%)]
        border border-[#3C3C3C] rounded-[30px]
        grid
        grid-cols-[50%_25%_25%]
        grid-rows-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]
-       p-[20px]
+       p-[15px]
        mb-[20px]
        "
     >
-      <div className="col-start-1 col-end-2 w-full h-full flex flex-col ">
-        <div className="w-full  h-[25px] flex items-center  border-red-500">
+      <div className="col-start-1 col-end-3 w-full h-full flex flex-col">
+        <div className="w-full  h-[15px] flex items-center border-red-500">
           <p className="text-[0.7rem] text-[white] font-medium">FROM</p>
         </div>
-        <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
-          <p className="text-[1.2rem] text-[white] font-light">
+        <div className="w-full  h-[calc(100%-15px)] flex items-start border-red-500">
+          <p className="text-[1.1rem] text-[white] font-light">
             {rideRequest.rider_details.name}
           </p>
         </div>
       </div>
-      <div className="col-start-2 col-end-4 w-full h-full flex flex-col ">
-        <div className="w-full  h-[25px] flex items-center  border-red-500">
+      <div className="col-start-3 col-end-4 w-full h-full flex flex-col">
+        <div className="w-full  h-[15px] flex items-center  border-red-500">
           <p className="text-[0.7rem] text-[white] font-medium">DISTANCE</p>
         </div>
-        <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
+        <div className="w-full  h-[calc(100%-15px)] flex items-start border-red-500">
           <p className="text-[0.8rem] text-[white] font-light">
-            Approx {rideRequest.distance_km} km
+            {rideRequest.distance_km} km
           </p>
         </div>
       </div>
-      <div className="col-span-3 row-start-2 w-full h-full flex flex-col ">
-        <div className="w-full  h-[25px] flex items-center  border-red-500">
+      <div className="col-span-3 row-start-2 w-full h-full flex flex-col">
+        <div className="w-full  h-[15px] flex items-center  border-red-500">
           <p className="text-[0.7rem] text-[white] font-medium">PICKUP</p>
         </div>
-        <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
+        <div className="w-full  h-[calc(100%-15px)] flex items-start border-red-500">
           <p className="text-[0.8rem] text-[white] font-light truncate">
             {rideRequest.pickup_address}
           </p>
         </div>
       </div>
-      <div className="col-span-2 row-start-3 w-full h-full flex flex-col ">
-        <div className="w-full  h-[25px] flex items-center border-red-500">
+      <div className="col-span-2 row-start-3 w-full h-full flex flex-col">
+        <div className="w-full  h-[15px] flex items-center border-red-500">
           <p className="text-[0.7rem] text-[white] font-medium">DROPOFF</p>
         </div>
-        <div className="w-full  h-[calc(100%-25px)] flex items-center border-red-500">
+        <div className="w-full  h-[calc(100%-15px)] flex items-start border-red-500">
           <p className="text-[0.8rem] text-[white] font-light truncate">
             {rideRequest.dropoff_address}
           </p>

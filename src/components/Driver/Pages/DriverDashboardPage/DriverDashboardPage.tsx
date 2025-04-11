@@ -19,10 +19,10 @@ const DriverDashboardPage: React.FC<DriverDashboardPageProps> = ({
         msOverflowStyle: "none",
       }}
     >
-      <section className="w-full h-[80%]">
+      <section className="w-full md:h-[80%]">
         <IncomingRequestList incomingRequests={dashboardData?.rideRequests} />
       </section>
-      <section className="w-full h-[80%]">
+      <section className="w-full md:h-[80%]">
         <PastRideList pastRides={dashboardData?.pastRides} />
       </section>
     </div>
