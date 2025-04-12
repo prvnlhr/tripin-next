@@ -3,6 +3,7 @@ import OnGoingRidePage from "@/components/Rider/Pages/OnGoingRidePage/OnGoingRid
 import { redirect } from "next/navigation";
 import { getOngoingRide } from "@/lib/services/common/ride/rideServices";
 import { RiderRideResponse } from "@/types/rideTypes";
+
 const page = async () => {
   const supabase = await createClient();
   const {
@@ -19,5 +20,4 @@ const page = async () => {
   }
   return <OnGoingRidePage ongoingRide={ongoingRide} />;
 };
-
 export default page;
