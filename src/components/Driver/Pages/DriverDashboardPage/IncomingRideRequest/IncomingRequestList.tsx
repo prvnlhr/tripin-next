@@ -74,33 +74,40 @@ const IncomingRequestList: React.FC<IncomingRequestListProps> = ({
           Incoming ride requests <span className="text-[#B5E4FC]">.</span>
         </p>
       </div>
-      <div
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-        className="
-        overflow-y-scroll
-        w-full h-[calc(95%-70px)] 
-        grid grid-cols-1 md:grid-cols-4
-        justify-items-center md:justify-items-start items-start py-[20px] md:py-[0px]"
-      >
-        {incomingRequestsData.length > 0 ? (
-          incomingRequestsData.map((rideRequest) => (
+
+      {incomingRequestsData.length > 0 ? (
+        <div
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+          className="border-green-500
+          overflow-y-scroll
+          w-full h-[calc(95%-70px)] 
+          grid grid-cols-1 md:grid-cols-4
+          justify-items-center md:justify-items-start items-start py-[20px] md:py-[0px]"
+        >
+          {incomingRequestsData.map((rideRequest) => (
             <IncomingRequestListCard
               key={rideRequest.id}
               rideRequest={rideRequest}
             />
-          ))
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center">
-            <p className="text-[1rem] text-[#B5E4FC] font-normal mb-[20px]">
-              No active Ride Requests at the moment
-            </p>
-            <IncomingRidePlaceholder />
-          </div>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div
+          className="
+          w-full h-[calc(95%-70px)] 
+          flex flex-col
+          items-center
+          md:items-center md:justify-center py-[20px] md:py-[0px]"
+        >
+          <p className="text-[1rem] text-[#B5E4FC] font-normal mb-[20px]">
+            No active Ride Requests at the moment
+          </p>
+          <IncomingRidePlaceholder />
+        </div>
+      )}
     </div>
   );
 };
