@@ -9,7 +9,7 @@ export async function signInWithMagicLink(
 ): Promise<AuthResponse> {
   const supabase = await createClient();
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL;
 
   try {
     // 1. Check if user exists with a different role

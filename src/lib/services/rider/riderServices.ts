@@ -1,7 +1,7 @@
 import { RiderData } from "@/types/rider/riderTypes";
 
 const BASE_URL: string =
-  process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_VERCEL_URL || "http://localhost:3000";
 
 // Getting Rider's info
 export async function getRiderInfo(riderId: string): Promise<RiderData> {

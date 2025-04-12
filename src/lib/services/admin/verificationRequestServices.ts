@@ -1,5 +1,5 @@
 const BASE_URL: string =
-  process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_VERCEL_URL || "http://localhost:3000";
 
 // Admin requests the Drivers details
 export async function getVerificationRequestDetails(requestId: string) {
