@@ -1,6 +1,6 @@
 // Base URL (replace with your actual base URL)
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://tripin-next.vercel.app";
 
 type UserRole = "rider" | "driver";
 

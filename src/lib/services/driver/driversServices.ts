@@ -1,5 +1,5 @@
 const BASE_URL: string =
-  process.env.NEXT_PUBLIC_VERCEL_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_VERCEL_URL || "https://tripin-next.vercel.app";
 import { revalidateTagHandler } from "@/lib/validation";
 import { DashboardData, DriverData } from "@/types/driver/driverTypes";
 
