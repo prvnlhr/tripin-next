@@ -71,7 +71,9 @@ const BookingForm = () => {
 
   if (!isLoaded) return <BookingFormSkeleton />;
 
-  const isButtonActive = sourceInput && destInput;
+  const isSourceSelected = Boolean(params.src); // Check if source is in URL params
+  const isDestSelected = Boolean(params.dest); // Check if destination is in URL params
+  const isButtonActive = isSourceSelected && isDestSelected;
 
   return (
     <div className="w-[100%] min-w-[100%] h-[100%] md:w-[90%] md:min-w-[90%] flex flex-col">
@@ -130,10 +132,18 @@ const BookingForm = () => {
           </div>
           <div className="h-auto w-full grid grid-cols-[100%] grid-rows-[auto_auto_auto]">
             <div className="w-full h-auto flex items-center">
-              <p className="text-[1.2rem] text-[#B5E4FC] font-normal">WHERE</p>
+              <p
+                className={`text-[1.2rem] ${!isSourceSelected ? "text-[#454849]" : "text-[#B5E4FC]"}  font-normal`}
+              >
+                WHERE
+              </p>
             </div>
             <div className="w-full h-auto flex items-center">
-              <p className="text-[0.8rem] font-light">Drop off</p>
+              <p
+                className={`text-[0.8rem] ${!isSourceSelected ? "text-[#454849]" : "text-white"}  font-light`}
+              >
+                Drop off
+              </p>
             </div>
             <div className="w-full h-[40px] border-b-1 border-[#505354]">
               <div className="w-full h-full flex items-center justify-start">
@@ -142,13 +152,21 @@ const BookingForm = () => {
                   onPlaceChanged={onDestPlaceChanged}
                   options={autocompleteOptions}
                   className="flex-1 h-full"
+                  // disabled={!isSourceSelected} // Disable autocomplete until source is selected
                 >
                   <input
                     ref={destInputRef}
-                    className="h-full w-full font-light bg-transparent outline-none text-[0.8rem] placeholder:text-[0.8rem]"
-                    placeholder="Enter destination"
+                    className={`h-full w-full font-light bg-transparent outline-none text-[0.8rem] placeholder:text-[0.8rem] ${
+                      !isSourceSelected ? "cursor-not-allowed opacity-50" : ""
+                    }`}
+                    placeholder={
+                      isSourceSelected
+                        ? "Enter destination"
+                        : "Select source first"
+                    }
                     value={destInput}
                     onChange={(e) => setDestInput(e.target.value)}
+                    disabled={!isSourceSelected}
                   />
                 </Autocomplete>
                 {destInput ? (
@@ -165,7 +183,9 @@ const BookingForm = () => {
                   <div className="h-full aspect-square flex items-center justify-center">
                     <Icon
                       icon="material-symbols-light:location-on-rounded"
-                      className="text-[#B5E4FC] w-[45%] h-[45%]"
+                      className={`w-[45%] h-[45%] ${
+                        isSourceSelected ? "text-[#B5E4FC]" : "text-gray-500"
+                      }`}
                     />
                   </div>
                 )}
@@ -177,10 +197,10 @@ const BookingForm = () => {
           <button
             disabled={!isButtonActive}
             onClick={handleSearchRide}
-            className={`w-full h-[80%] border border-[#3C3C3C] font-normal text-[0.8rem] rounded cursor-pointer ${
+            className={`w-full h-[80%] border font-normal text-[0.8rem] rounded ${
               isButtonActive
-                ? "bg-[#B5E4FC] text-[#1F1F1F]"
-                : "bg-gray-600 text-gray-400 cursor-not-allowed"
+                ? "bg-[#B5E4FC] text-[#1F1F1F] border-transparent cursor-pointer"
+                : "bg-[#454849] text-[#656666] border-[#3C3C3C] cursor-not-allowed"
             }`}
           >
             Search ride
