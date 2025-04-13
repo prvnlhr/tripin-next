@@ -42,6 +42,7 @@ interface RideStatusProps {
 }
 const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
   const router = useRouter();
+  const supabase = createClient();
   const { setParams } = useUrlParams();
   const [selectedStatus, setSelectedStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +76,6 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
     }
   };
 
-  const supabase = createClient();
   useEffect(() => {
     if (!ongoingRide?.id) return;
 
@@ -110,7 +110,14 @@ const RideStatus: React.FC<RideStatusProps> = ({ ongoingRide }) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [ongoingRide?.id, supabase, router]);
+  }, [
+    ongoingRide?.id,
+    ongoingRide?.pickup_location.lat,
+    ongoingRide?.pickup_location.lng,
+    supabase,
+    router,
+    setParams,
+  ]);
 
   return (
     <div className="w-[100%] md:w-[60%]  h-[30%]">

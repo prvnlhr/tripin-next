@@ -112,7 +112,7 @@ export const PaymentController = ({
             <LoadingSpinner />
           ) : (
             <p className="font-medium text-[0.9rem] text-black">
-              Make Payment INR - ${amount}
+              Make Payment INR - ₹{amount}
             </p>
           )}
         </button>

@@ -6,10 +6,13 @@ import { useMap } from "@/context/MapProvider";
 import BookingFormSkeleton from "./BookingFormSkeleton";
 import { usePlaceAutocomplete } from "@/hooks/autoComplete/usePlaceAutocomplete";
 import { useUrlParams } from "@/hooks/useUrlParams";
+import { useCabOptions } from "@/hooks/useCabOptions";
+import { Oval } from "react-loader-spinner";
 
 const BookingForm = () => {
   const { isLoaded } = useMap();
   const { params, setParams, removeParams } = useUrlParams();
+  const { isLoading: isCabOptionsLoading } = useCabOptions();
 
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const destInputRef = useRef<HTMLInputElement>(null);
@@ -74,6 +77,8 @@ const BookingForm = () => {
   const isSourceSelected = Boolean(params.src); // Check if source is in URL params
   const isDestSelected = Boolean(params.dest); // Check if destination is in URL params
   const isButtonActive = isSourceSelected && isDestSelected;
+  // const showSpinner = params.rideOption === "true" && isCabOptionsLoading;
+  const showSpinner = isCabOptionsLoading;
 
   return (
     <div className="w-[100%] min-w-[100%] h-[100%] md:w-[90%] md:min-w-[90%] flex flex-col">
@@ -195,15 +200,25 @@ const BookingForm = () => {
         </div>
         <div className="w-full h-[50px] flex items-center justify-center">
           <button
-            disabled={!isButtonActive}
+            disabled={!isButtonActive || showSpinner}
             onClick={handleSearchRide}
-            className={`w-full h-[80%] border font-normal text-[0.8rem] rounded ${
+            className={`w-full h-[80%] border font-normal text-[0.8rem] rounded flex items-center justify-center ${
               isButtonActive
                 ? "bg-[#B5E4FC] text-[#1F1F1F] border-transparent cursor-pointer"
                 : "bg-[#454849] text-[#656666] border-[#3C3C3C] cursor-not-allowed"
             }`}
           >
-            Search ride
+            {showSpinner ? (
+              <Oval
+                width={15}
+                height={15}
+                color="#151515"
+                secondaryColor="#B5E4FC"
+                strokeWidth={5}
+              />
+            ) : (
+              "Search ride"
+            )}
           </button>
         </div>
       </div>
