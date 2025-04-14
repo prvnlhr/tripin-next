@@ -12,8 +12,9 @@ import { Oval } from "react-loader-spinner";
 const BookingForm = () => {
   const { isLoaded } = useMap();
   const { params, setParams, removeParams } = useUrlParams();
-  const { isLoading: isCabOptionsLoading } = useCabOptions();
+  const { isLoading: isCabOptionsLoading, setIsLoading } = useCabOptions();
 
+  const isRideOptions = params.rideOption === "true";
   const sourceInputRef = useRef<HTMLInputElement>(null);
   const destInputRef = useRef<HTMLInputElement>(null);
   const initialSource = params.srcAddress
@@ -67,6 +68,10 @@ const BookingForm = () => {
   });
 
   const handleSearchRide = () => {
+    if (isRideOptions) {
+      return;
+    }
+    setIsLoading(true);
     if (sourceInput && destInput) {
       setParams({ rideOption: "true" });
     }

@@ -167,7 +167,8 @@ export async function GET(request: NextRequest) {
 
     const { distanceKm, durationMinutes } = distanceInfo;
 
-    const radius = 3000; // Default 3km radius
+    // const radius = 3000; // Default 3km radius
+    const radius = 5000000; // For testing purpose -> 30,000 Km, covering all India radius
     // Fetch nearby online drivers
     const { data: nearbyDrivers, error: driversError } = await supabase.rpc(
       "get_nearby_drivers",

@@ -70,6 +70,7 @@ export const useCabOptions = () => {
   return {
     cabOptions,
     isLoading,
+    setIsLoading,
     error,
     fetchCabOptions,
   };
