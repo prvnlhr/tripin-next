@@ -21,13 +21,13 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Run linting
         run: npm run lint
 
       - name: Run tests
-        run: echo "Tests not implemented yet" # Replace with npm run test when tests are added
+        run: echo "Tests not implemented yet"
 
       - name: Build Next.js app
         run: npm run build
@@ -49,7 +49,7 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Deploy to Vercel (Preview)
         id: vercel-preview
@@ -93,7 +93,7 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Build Next.js app
         run: npm run build
