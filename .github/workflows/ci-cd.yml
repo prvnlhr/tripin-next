@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
 jobs:
   ci:
     name: Continuous Integration
@@ -130,4 +135,4 @@ jobs:
             echo "Attempt $i failed, retrying..."
           done
           echo "Smoke test failed after retries"
-          exit
+          exit 1
