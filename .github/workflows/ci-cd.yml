@@ -72,7 +72,7 @@ jobs:
       # Only for PRs - Upload Build Artifact for Review
       - name: Upload Build Artifact
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nextjs-build
           path: .next
