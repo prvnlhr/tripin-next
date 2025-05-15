@@ -1,225 +1,95 @@
-name: CI/CD - Next.js Deployment
+name: CI/CD Pipeline
 
-     on:
-       push:
-         branches: [development, main, feature/*]
-       pull_request:
-         branches: [development, main]
+on:
+  push:
+    branches: ["development", "main"]
+  pull_request:
+    branches: ["development"]
 
-     permissions:
-       issues: write
-       pull-requests: write
-       contents: read
+jobs:
+  # Security Scanning (CodeQL)
+  codeql-analysis:
+    name: CodeQL Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
 
-     jobs:
-       ci:
-         name: Continuous Integration
-         runs-on: ubuntu-latest
-         steps:
-           - name: Checkout code
-             uses: actions/checkout@11bd71901bbe5b1630ceea73d2197ed1ed83bcff # v4.2.1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: "javascript-typescript"
+          queries: security-extended
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: "security-scan"
 
-           - name: Setup Node.js
-             uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v4.1.0
-             with:
-               node-version: '20'
-               cache: 'npm'
+  # Dependency and Code Quality Checks
+  quality-checks:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: codeql-analysis # Wait for security scan first
 
-           - name: Install dependencies
-             run: npm ci --legacy-peer-deps
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-           - name: Run linting
-             run: npm run lint
+      # Dependency Audit
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v3
+        with:
+          fail-on-severity: high
 
-           - name: Run tests
-             run: npm run test || echo "Tests not implemented yet"
+      # Install and Cache
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            .next/cache
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
 
-           - name: Validate Secrets
-             run: |
-               test -n "${{ secrets.VERCEL_TOKEN }}" || (echo "VERCEL_TOKEN missing" && exit 1)
-               test -n "${{ secrets.STRIPE_SECRET_KEY }}" || (echo "STRIPE_SECRET_KEY missing" && exit 1)
-               test -n "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" || (echo "NEXT_PUBLIC_SUPABASE_URL missing" && exit 1)
-               test -n "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" || (echo "NEXT_PUBLIC_SUPABASE_ANON_KEY missing" && exit 1)
-             env:
-               STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-               NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-               NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      - name: Install dependencies
+        run: npm ci --audit=false
 
-           - name: Build Next.js app
-             run: npm run build
-             env:
-               STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-               NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-               NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      # Linting and Formatting
+      - name: Run ESLint
+        run: npm run lint
 
-       deploy-preview:
-         name: Deploy Preview (PR)
-         runs-on: ubuntu-latest
-         needs: ci
-         if: github.event_name == 'pull_request'
-         environment: preview
-         steps:
-           - name: Checkout code
-             uses: actions/checkout@11bd71901bbe5b1630ceea73d2197ed1ed83bcff # v4.2.1
+      - name: Run Prettier Check
+        run: npm run format:check
 
-           - name: Setup Node.js
-             uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v4.1.0
-             with:
-               node-version: '20'
-               cache: 'npm'
+      # Testing
+      - name: Run Unit Tests
+        run: npm run test -- --ci --coverage
 
-           - name: Install dependencies
-             run: npm ci --legacy-peer-deps
+      - name: Build Application
+        run: npm run build
 
-           - name: Deploy to Vercel (Preview)
-             id: vercel-preview
-             uses: amondnet/vercel-action@46d7f665d73c27fadf1a70106ed8ae9c2c20beaa # v25.0.0
-             with:
-               github-token: ${{ secrets.GITHUB_TOKEN }}
-               vercel-token: ${{ secrets.VERCEL_TOKEN }}
-               vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-               vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-               scope: ${{ secrets.VERCEL_ORG_ID }}
-               github-comment: true
-               working-directory: ./
-               alias-domains: pr-${{ github.event.number }}-${{ github.event.repository.name }}.vercel.app
+      # Only for PRs - Upload Build Artifact for Review
+      - name: Upload Build Artifact
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v3
+        with:
+          name: nextjs-build
+          path: .next
 
-           - name: Comment Preview URL
-             uses: actions/github-script@60a0cecd896c833e94f1c47e050b7f22f7c4f6d5 # v7.0.1
-             with:
-               script: |
-                 github.rest.issues.createComment({
-                   owner: context.repo.owner,
-                   repo: context.repo.repo,
-                   issue_number: context.issue.number,
-                   body: `Preview deployed to: ${{ steps.vercel-preview.outputs.url }}`
-                 })
+  # Deployment (Only for main/development branches after merge)
+  deploy:
+    name: Deploy to Vercel
+    needs: quality-checks
+    if: github.ref == 'refs/heads/development' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
 
-       deploy-staging:
-         name: Deploy to Staging
-         runs-on: ubuntu-latest
-         needs: ci
-         if: github.event_name == 'push' && github.ref == 'refs/heads/development'
-         environment: staging
-         timeout-minutes: 10
-         steps:
-           - name: Checkout code
-             uses: actions/checkout@11bd71901bbe5b1630ceea73d2197ed1ed83bcff # v4.2.1
-
-           - name: Setup Node.js
-             uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v4.1.0
-             with:
-               node-version: '20'
-               cache: 'npm'
-
-           - name: Install dependencies
-             run: npm ci --legacy-peer-deps
-
-           - name: Validate Secrets
-             run: |
-               test -n "${{ secrets.VERCEL_TOKEN }}" || (echo "VERCEL_TOKEN missing" && exit 1)
-               test -n "${{ secrets.STRIPE_SECRET_KEY }}" || (echo "STRIPE_SECRET_KEY missing" && exit 1)
-               test -n "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" || (echo "NEXT_PUBLIC_SUPABASE_URL missing" && exit 1)
-               test -n "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" || (echo "NEXT_PUBLIC_SUPABASE_ANON_KEY missing" && exit 1)
-             env:
-               STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-               NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-               NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-           - name: Build Next.js app
-             run: npm run build
-             env:
-               STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-               NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-               NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-           - name: Deploy to Vercel (Staging)
-             id: vercel-staging
-             uses: amondnet/vercel-action@46d7f665d73c27fadf1a70106ed8ae9c2c20beaa # v25.0.0
-             with:
-               github-token: ${{ secrets.GITHUB_TOKEN }}
-               vercel-token: ${{ secrets.VERCEL_TOKEN }}
-               vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-               vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-               scope: ${{ secrets.VERCEL_ORG_ID }}
-               vercel-args: '--prod' # Use custom domain for staging
-               working-directory: ./
-               alias-domains: dev.your-app.com # Replace with your staging domain
-
-           - name: Post-Deploy Smoke Test
-             run: |
-               DEPLOY_URL="${{ steps.vercel-staging.outputs.url }}"
-               for i in {1..5}; do
-                 sleep 5
-                 if curl -sSf "https://$DEPLOY_URL/api/health"; then
-                   echo "Smoke test passed"
-                   exit 0
-                 fi
-                 echo "Attempt $i failed, retrying..."
-               done
-               echo "Smoke test failed after retries"
-               exit 1
-
-       deploy-production:
-         name: Deploy to Production
-         runs-on: ubuntu-latest
-         needs: ci
-         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-         environment: production
-         timeout-minutes: 10
-         steps:
-           - name: Checkout code
-             uses: actions/checkout@11bd71901bbe5b1630ceea73d2197ed1ed83bcff # v4.2.1
-
-           - name: Setup Node.js
-             uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v4.1.0
-             with:
-               node-version: '20'
-               cache: 'npm'
-
-           - name: Install dependencies
-             run: npm ci --legacy-peer-deps
-
-           - name: Validate Secrets
-             run: |
-               test -n "${{ secrets.VERCEL_TOKEN }}" || (echo "VERCEL_TOKEN missing" && exit 1)
-               test -n "${{ secrets.STRIPE_SECRET_KEY }}" || (echo "STRIPE_SECRET_KEY missing" && exit 1)
-               test -n "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" || (echo "NEXT_PUBLIC_SUPABASE_URL missing" && exit 1)
-               test -n "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" || (echo "NEXT_PUBLIC_SUPABASE_ANON_KEY missing" && exit 1)
-             env:
-               STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-               NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-               NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-           - name: Build Next.js app
-             run: npm run build
-             env:
-               STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-               NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-               NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-           - name: Deploy to Vercel (Production)
-             id: vercel-production
-             uses: amondnet/vercel-action@46d7f665d73c27fadf1a70106ed8ae9c2c20beaa # v25.0.0
-             with:
-               github-token: ${{ secrets.GITHUB_TOKEN }}
-               vercel-token: ${{ secrets.VERCEL_TOKEN }}
-               vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-               vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-               scope: ${{ secrets.VERCEL_ORG_ID }}
-               vercel-args: '--prod'
-               working-directory: ./
-
-           - name: Post-Deploy Smoke Test
-             run: |
-               DEPLOY_URL="${{ steps.vercel-production.outputs.url }}"
-               for i in {1..5}; do
-                 sleep 5
-                 if curl -sSf "https://$DEPLOY_URL/api/health"; then
-                   echo "Smoke test passed"
-                   exit 0
-                 fi
-                 echo "Attempt $i failed, retrying..."
-               done
-               echo "Smoke test failed after retries"
-               exit 1
+    steps:
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          working-directory: ./
+          vercel-args: "--prod"
