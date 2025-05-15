@@ -12,7 +12,7 @@ export async function POST(request: Request) {
         enabled: true,
       },
     });
-
+    
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
     });

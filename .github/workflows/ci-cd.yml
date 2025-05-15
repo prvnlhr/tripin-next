@@ -31,6 +31,8 @@ jobs:
 
       - name: Build Next.js app
         run: npm run build
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
 
   deploy-preview:
     name: Deploy Preview (PR)
@@ -97,6 +99,8 @@ jobs:
 
       - name: Build Next.js app
         run: npm run build
+        env:
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
 
       - name: Deploy to Vercel (Production)
         id: vercel-deploy
