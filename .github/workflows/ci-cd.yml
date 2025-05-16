@@ -1,0 +1,59 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: ["feature/**"] # Trigger on feature branch pushes
+  pull_request:
+    branches: ["development"] # Trigger on PRs to development
+
+jobs:
+  # STAGE 1: Security & Quality Gates (runs on feature branch push/PR)
+  validations:
+    name: Validate Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Security Scanning
+      - name: CodeQL Analysis
+        uses: github/codeql-action@v3
+        with:
+          languages: "javascript-typescript"
+          queries: security-extended
+
+      # Install & Cache
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            .next/cache
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+      - run: npm ci --legacy-peer-deps
+
+      # Validation Steps
+      - name: Run Linter
+        run: npm run lint
+      - name: Run Tests
+        run: npm test -- --ci
+      - name: Build Project
+        run: npm run build
+        env:
+          NEXT_PUBLIC_ENV: preview # Use preview env vars
+
+    # STAGE 2: Deploy to Vercel (runs only after merging to development)
+  deploy:
+    name: Deploy to Staging
+    needs: validations
+    if: github.ref == 'refs/heads/development'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod" # Deploy as production (staging environment)
