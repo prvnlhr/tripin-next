@@ -1,9 +1,11 @@
-name: Praveen Sub-Branch Checks
+name: Praveen Branch Validation
 on:
   pull_request:
-    branches: [praveen] # Triggers on PRs TO 'praveen'
+    branches: [praveen] # Triggers on PRs TO praveen
   push:
-    branches: [praveen/**] # Also validates on direct pushes to sub-branches
+    branches-ignore:
+      - development
+      - main
 
 jobs:
   validate:
