@@ -1,42 +1,49 @@
-name: Praveen Branch Validation & Preview
+name: Praveen Sub-Branch Checks
 on:
+  pull_request:
+    branches: [praveen] # Triggers on PRs TO 'praveen'
   push:
-    branches:
-      - "praveen/**"
+    branches: [praveen/**] # Also validates on direct pushes to sub-branches
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm" # Changed to npm since your project uses it
+          node-version: 20
+          cache: npm
 
-      - name: Install dependencies
-        run: npm ci # Uses package-lock.json for deterministic installs
+      - run: npm ci --legacy-peer-deps
 
-      - name: Run ESLint
-        run: npm run lint # Uses your existing "lint" script
+      # --- Mandatory Checks ---
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript Check
+        run: npx tsc --noEmit # Add to package.json if missing
+
+      - name: Security Scan
+        run: npm audit --audit-level=high
+
+      - name: CodeQL Analysis
+        uses: github/codeql-action@v3
+        with:
+          languages: javascript
 
       - name: Build Next.js
-        run: npm run build # Uses your "build" script
+        run: npm run build
 
-      # (Optional) Add TypeScript check if needed
-      # - name: Typecheck
-      #   run: npx tsc --noEmit
-
+  # --- Preview Deployment (Only on PR) ---
   deploy-preview:
+    if: github.event_name == 'pull_request' # PR-only trigger
     needs: validate
-    if: success() # Only deploy if validate succeeds
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
@@ -46,4 +53,4 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           scope: ${{ secrets.VERCEL_ORG_ID }}
           alias-domains: |
-            preview-${{ github.ref_name }}.tripin-next.vercel.app
+            preview-${{ github.event.number }}.tripin-next.vercel.app  # PR-based URL
