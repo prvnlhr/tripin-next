@@ -1,0 +1,49 @@
+name: Praveen Branch Validation & Preview
+on:
+  push:
+    branches:
+      - "praveen/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm" # Changed to npm since your project uses it
+
+      - name: Install dependencies
+        run: npm ci # Uses package-lock.json for deterministic installs
+
+      - name: Run ESLint
+        run: npm run lint # Uses your existing "lint" script
+
+      - name: Build Next.js
+        run: npm run build # Uses your "build" script
+
+      # (Optional) Add TypeScript check if needed
+      # - name: Typecheck
+      #   run: npx tsc --noEmit
+
+  deploy-preview:
+    needs: validate
+    if: success() # Only deploy if validate succeeds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          alias-domains: |
+            preview-${{ github.ref_name }}.tripin-next.vercel.app
