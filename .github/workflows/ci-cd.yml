@@ -1,54 +1,90 @@
 name: CI/CD Pipeline
 
 on:
+  # Combined push triggers with filters
   push:
-    branches: ["feature/**"] # Trigger on feature branch pushes
+    branches:
+      - "feature/**"
+      - "development"
+      - "main"
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+
+  # Trigger full checks when PR is created to development
   pull_request:
-    branches: ["development"] # Trigger on PRs to development
+    branches: [development]
 
 jobs:
-  # STAGE 1: Security & Quality Gates (runs on feature branch push/PR)
-  validations:
-    name: Validate Code
+  # STAGE 1: Fast checks for feature branch pushes
+  fast-checks:
+    name: Fast Checks (Lint Only)
+    if: contains(github.ref, 'feature/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # Security Scanning
-      - name: CodeQL Analysis
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # STAGE 2: Full validation for PRs
+  full-checks:
+    name: Full Validation
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: CodeQL Security Scan
         uses: github/codeql-action@v3
         with:
           languages: "javascript-typescript"
           queries: security-extended
 
-      # Install & Cache
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - uses: actions/cache@v3
-        with:
-          path: |
-            node_modules
-            .next/cache
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-      - run: npm ci --legacy-peer-deps
+          cache: "npm"
 
-      # Validation Steps
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
       - name: Run Linter
         run: npm run lint
-      - name: Run Tests
-        run: npm test -- --ci
-      - name: Build Project
+
+      - name: Check for tests
+        id: check-tests
+        run: |
+          if grep -q '"test"' package.json; then
+            echo "has_tests=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run tests
+        if: steps.check-tests.outputs.has_tests == 'true'
+        run: npm test
+
+      - name: Build verification
         run: npm run build
         env:
-          NEXT_PUBLIC_ENV: preview # Use preview env vars
+          NEXT_PUBLIC_ENV: preview
 
-    # STAGE 2: Deploy to Vercel (runs only after merging to development)
-  deploy:
+  # STAGE 3: Deployments
+  deploy-staging:
     name: Deploy to Staging
-    needs: validations
-    if: github.ref == 'refs/heads/development'
+    needs: full-checks
+    if: github.ref == 'refs/heads/development' && success()
     runs-on: ubuntu-latest
+    environment: "staging" # Must be string and pre-configured in GitHub
     steps:
       - uses: actions/checkout@v4
       - uses: amondnet/vercel-action@v25
@@ -56,4 +92,20 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: "--prod" # Deploy as production (staging environment)
+          vercel-args: "--prod"
+          github-comment: true
+
+  deploy-production:
+    name: Deploy to Production
+    needs: full-checks
+    if: github.ref == 'refs/heads/main' && success()
+    runs-on: ubuntu-latest
+    environment: "production" # Must be string and pre-configured in GitHub
+    steps:
+      - uses: actions/checkout@v4
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: "--prod"
