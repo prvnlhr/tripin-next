@@ -2,7 +2,7 @@ name: Praveen Branch Validation & Preview
 on:
   push:
     branches:
-      - "development/**"
+      - "praveen/**"
 
 jobs:
   validate:
