@@ -132,12 +132,12 @@ export default function AuthForm() {
           <Link
             key={index}
             href={link.href}
-            className={`${getCurrentRole() === link.role ? "border border-gray-400/40" : "border border-transparent"}  
+            className={`${getCurrentRole() === link.role ? "border border-[#B5E4FC]/40" : "border border-transparent"}  
             w-auto h-auto px-[20px] py-[5px] 
             flex items-center justify-center
             text-[0.8rem] font-normal rounded
             mx-[5px]
-            hover:bg-[#47494A]
+            hover:bg-[#b5e4fc75]
           `}
           >
             {link.label}
