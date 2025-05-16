@@ -130,7 +130,6 @@ export default function AuthForm() {
       <div className="w-full h-[70px] md:h-[15%] flex justify-center items-center">
         {headerHeaderLinks.map((link, index) => (
           <Link
-            scuess
             key={index}
             href={link.href}
             className={`${getCurrentRole() === link.role ? "border border-[#3C3C3C]" : "border border-transparent"}  
