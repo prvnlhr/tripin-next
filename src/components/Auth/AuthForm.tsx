@@ -94,6 +94,8 @@ export default function AuthForm() {
     setNotification(null);
     try {
       const result = await signInWithMagicLink(email, role);
+      // const x = 5;
+      console.log(x);
 
       if (!result.success) {
         if (result.errorType === "WRONG_ROLE") {
